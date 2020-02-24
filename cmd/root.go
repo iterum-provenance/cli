@@ -8,16 +8,17 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "hugo",
-	Short: "Hugo is a very fast static site generator",
-	Long: `A Fast and Flexible Static Site Generator built with
-				  love by spf13 and friends in Go.
-				  Complete documentation is available at http://hugo.spf13.com`,
-	Run: func(cmd *cobra.Command, args []string) {
-		// Do Stuff Here
-	},
+	Use:   "iterum",
+	Short: "Iterum is a provenance tracking pipeline deployment tool",
+	Long:  "The ideal tool for tracking any type of provenance for (distributed) (data science) pipelines aimed at supporting academic research",
 }
 
+func er(msg interface{}) {
+	fmt.Println("Error:", msg)
+	os.Exit(1)
+}
+
+// Execute executes the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
