@@ -26,3 +26,8 @@ func (gp GitPlatform) IsValid() error {
 	}
 	return errors.New("Error: Invalid GitPlatform type")
 }
+
+// String converts GitPlatform to string representation
+func (gp GitPlatform) String() string {
+	return string(gp)
+}

@@ -1,9 +1,17 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
+	"os"
+	"regexp"
+	"strings"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+
+	common_conf "github.com/Mantsje/iterum-cli/config/common"
+	project_conf "github.com/Mantsje/iterum-cli/config/project"
 )
 
 func init() {
@@ -17,6 +25,78 @@ var initCmd = &cobra.Command{
 	Run:   initRun,
 }
 
+var namePrompt = promptui.Prompt{
+	Label: "Enter a name for your project",
+	Validate: func(input string) error {
+		input = strings.TrimSpace(input)
+		if len(input) < 4 {
+			return errors.New("Name should be descriptive, alphanumeric, and (ideally) -(dash) separated")
+		}
+		rexp, _ := regexp.Compile("[ \t\n\r]")
+		if rexp.ReplaceAllString(input, "") != input {
+			return errors.New("Name contains whitespace which is illegal")
+		}
+		return nil
+	},
+}
+
+var projectTypePrompt = promptui.Select{
+	Label: "In what setting will this project run",
+	Items: []project_conf.ProjectType{
+		project_conf.Local,
+		project_conf.Distributed,
+	},
+}
+
+var gitProtocolPrompt = promptui.Select{
+	Label: "Which git protocol should be used",
+	Items: []common_conf.GitProtocol{
+		common_conf.SSH,
+		common_conf.HTTPS,
+	},
+}
+
+var gitPlatformPrompt = promptui.Select{
+	Label: "Which git platform should be used",
+	Items: []common_conf.GitPlatform{
+		common_conf.Github,
+		common_conf.Gitlab,
+		common_conf.Bitbucket,
+	},
+}
+
+func runPrompt(prompt promptui.Prompt) string {
+	result, err := prompt.Run()
+	if err != nil {
+		fmt.Print("Prompt failed due to: ")
+		fmt.Println(err)
+		return ""
+	}
+	return result
+}
+
+func runSelect(prompt promptui.Select) string {
+	_, value, err := prompt.Run()
+	if err != nil {
+		fmt.Print("Select failed due to: ")
+		fmt.Println(err)
+		return ""
+	}
+	return value
+}
+
 func initRun(cmd *cobra.Command, args []string) {
-	fmt.Println("'Iterum init' command")
+	var name string = runPrompt(namePrompt)
+	// Guaranteed to be correct, so no checking needed
+	var projectType, _ = project_conf.ParseProjectType(runSelect(projectTypePrompt))
+	var gitPlatform, _ = common_conf.NewGitPlatform(runSelect(gitPlatformPrompt))
+	var gitProtocol, _ = common_conf.NewGitProtocol(runSelect(gitProtocolPrompt))
+
+	var projectConfig = project_conf.NewProjectConf(name)
+	projectConfig.ProjectType = projectType
+	projectConfig.Git.Platform = gitPlatform
+	projectConfig.Git.Protocol = gitProtocol
+
+	fmt.Println(projectConfig)
+	os.Mkdir("./"+name, 0777)
 }

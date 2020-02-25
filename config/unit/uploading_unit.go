@@ -9,6 +9,6 @@ type UploadingUnitConf struct {
 func NewUploadingUnitConf(name string) UploadingUnitConf {
 	// Cannot use full UploadingUnitConf{ field: val } syntax due to type composition in Go
 	var uuc = UploadingUnitConf{NewUnitConf(name)}
-	uuc.unitType = UploadingUnit
+	uuc.UnitType = UploadingUnit
 	return uuc
 }

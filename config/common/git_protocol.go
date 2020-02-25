@@ -25,3 +25,8 @@ func (gp GitProtocol) IsValid() error {
 	}
 	return errors.New("Error: Invalid GitProtocol type")
 }
+
+// String converts GitProtocol to string representation
+func (gp GitProtocol) String() string {
+	return string(gp)
+}

@@ -1,9 +1,12 @@
 package config
 
+import "net/url"
+
 // GitConf contains all git-related configuration settings for units, flows and projects
 type GitConf struct {
-	platform GitPlatform
-	protocol GitProtocol
+	Platform GitPlatform
+	Protocol GitProtocol
+	URI      url.URL
 }
 
 // NewGitConf creates a new and fully empty instance of GitConf
@@ -13,7 +16,7 @@ func NewGitConf() GitConf {
 
 // IsValid checks the validity of the GitConf
 func (gc GitConf) IsValid() error {
-	err := Verify(gc.platform, nil)
-	err = Verify(gc.protocol, err)
+	err := Verify(gc.Platform, nil)
+	err = Verify(gc.Protocol, err)
 	return err
 }

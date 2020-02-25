@@ -9,6 +9,6 @@ type ProcessingUnitConf struct {
 func NewProcessingUnitConf(name string) ProcessingUnitConf {
 	// Cannot use full ProcessingUnitConf{ field: val } syntax due to type composition in Go
 	var puc = ProcessingUnitConf{NewUnitConf(name)}
-	puc.unitType = ProcessingUnit
+	puc.UnitType = ProcessingUnit
 	return puc
 }

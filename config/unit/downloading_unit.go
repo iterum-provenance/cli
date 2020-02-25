@@ -9,6 +9,6 @@ type DownloadingUnitConf struct {
 func NewDownloadingUnitConf(name string) DownloadingUnitConf {
 	// Cannot use full DownloadingUnitConf{ field: val } syntax due to type composition in Go
 	var duc = DownloadingUnitConf{NewUnitConf(name)}
-	duc.unitType = DownloadingUnit
+	duc.UnitType = DownloadingUnit
 	return duc
 }

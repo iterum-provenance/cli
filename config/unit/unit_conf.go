@@ -9,28 +9,28 @@ import (
 
 // UnitConf contains the config for a unit folder in an iterum project
 type UnitConf struct {
-	name     string
-	repoType common.RepoType
-	unitType UnitType
-	git      common.GitConf
+	Name     string
+	RepoType common.RepoType
+	UnitType UnitType
+	Git      common.GitConf
 }
 
 // NewUnitConf instantiates a new UnitConf and sets up defaults
 func NewUnitConf(name string) UnitConf {
 	return UnitConf{
-		name:     name,
-		repoType: common.Unit,
+		Name:     name,
+		RepoType: common.Unit,
 	}
 }
 
 // IsValid validates all elements of the UnitConf
 func (uc UnitConf) IsValid() error {
 	rexp, err := regexp.Compile("[ \t\n\r]")
-	if err == nil && rexp.ReplaceAllString(uc.name, "") != uc.name {
+	if err == nil && rexp.ReplaceAllString(uc.Name, "") != uc.Name {
 		err = errors.New("Error: Name of unit contains whitespace which is illegal")
 	}
-	err = common.Verify(uc.repoType, err)
-	err = common.Verify(uc.unitType, err)
-	err = common.Verify(uc.git, err)
+	err = common.Verify(uc.RepoType, err)
+	err = common.Verify(uc.UnitType, err)
+	err = common.Verify(uc.Git, err)
 	return err
 }

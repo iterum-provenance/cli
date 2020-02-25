@@ -17,6 +17,16 @@ func NewProjectType(rawProjectType string) (ProjectType, error) {
 	return pt, pt.IsValid()
 }
 
+// ParseProjectType tries to parse an object type from a string or its shorthand version
+func ParseProjectType(raw string) (ProjectType, error) {
+	if raw == "l" { // Shorthand for local
+		return NewProjectType(string(Local))
+	} else if raw == "d" { // Shorthand for distribbuted
+		return NewProjectType(string(Distributed))
+	}
+	return NewProjectType(raw)
+}
+
 // IsValid checks the validity of the ProjectType
 func (pt ProjectType) IsValid() error {
 	switch pt {
@@ -24,4 +34,9 @@ func (pt ProjectType) IsValid() error {
 		return nil
 	}
 	return errors.New("Error: Invalid ProjectType")
+}
+
+// String converts ProjectType to string representation
+func (pt ProjectType) String() string {
+	return string(pt)
 }
