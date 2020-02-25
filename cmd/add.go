@@ -52,7 +52,7 @@ func urlFlagValidator(cmd *cobra.Command, args []string) error {
 	if RawURL != "" {
 		_, err := url.Parse(RawURL)
 		if err != nil {
-			return errors.New("url flag could not be parsed")
+			return errors.New("Error: url flag could not be parsed")
 		}
 	}
 	return nil
@@ -61,7 +61,7 @@ func urlFlagValidator(cmd *cobra.Command, args []string) error {
 func argsValidator(cmd *cobra.Command, args []string) error {
 	err := urlFlagValidator(cmd, args)
 	if err == nil && len(args) != 1 {
-		return errors.New("Not enough arguments passed. Missing [name]")
+		return errors.New("Error: Not enough arguments passed. Missing [name]")
 	}
 	return err
 }

@@ -12,11 +12,17 @@ const (
 	Bitbucket GitPlatform = "bitbucket"
 )
 
+// NewGitPlatform creates a new GitPlatform instance and validates it
+func NewGitPlatform(rawPlatform string) (GitPlatform, error) {
+	var gp GitPlatform = GitPlatform(rawPlatform)
+	return gp, gp.IsValid()
+}
+
 // IsValid checks the validity of the GitPlatform
 func (gp GitPlatform) IsValid() error {
 	switch gp {
 	case Github, Gitlab, Bitbucket:
 		return nil
 	}
-	return errors.New("Invalid GitPlatform type")
+	return errors.New("Error: Invalid GitPlatform type")
 }
