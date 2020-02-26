@@ -10,9 +10,13 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 
+	"github.com/Mantsje/iterum-cli/config"
 	common_conf "github.com/Mantsje/iterum-cli/config/common"
 	project_conf "github.com/Mantsje/iterum-cli/config/project"
+	"github.com/Mantsje/iterum-cli/util"
 )
+
+const configName = config.ConfigFileName
 
 func init() {
 	rootCmd.AddCommand(initCmd)
@@ -87,16 +91,23 @@ func runSelect(prompt promptui.Select) string {
 
 func initRun(cmd *cobra.Command, args []string) {
 	var name string = runPrompt(namePrompt)
-	// Guaranteed to be correct, so no checking needed
-	var projectType, _ = project_conf.ParseProjectType(runSelect(projectTypePrompt))
-	var gitPlatform, _ = common_conf.NewGitPlatform(runSelect(gitPlatformPrompt))
-	var gitProtocol, _ = common_conf.NewGitProtocol(runSelect(gitProtocolPrompt))
+	if util.FileExists(configName) || util.FileExists(name+"/"+configName) {
+		fmt.Println(errors.New("Error: current or ./*project-name* is already (part of) an iterum project, you cannot start another here"))
+	} else {
+		// Guaranteed to be correct, so no checking needed
+		var projectType, _ = project_conf.ParseProjectType(runSelect(projectTypePrompt))
+		var gitPlatform, _ = common_conf.NewGitPlatform(runSelect(gitPlatformPrompt))
+		var gitProtocol, _ = common_conf.NewGitProtocol(runSelect(gitProtocolPrompt))
 
-	var projectConfig = project_conf.NewProjectConf(name)
-	projectConfig.ProjectType = projectType
-	projectConfig.Git.Platform = gitPlatform
-	projectConfig.Git.Protocol = gitProtocol
+		var projectConfig = project_conf.NewProjectConf(name)
+		projectConfig.ProjectType = projectType
+		projectConfig.Git.Platform = gitPlatform
+		projectConfig.Git.Protocol = gitProtocol
 
-	fmt.Println(projectConfig)
-	os.Mkdir("./"+name, 0777)
+		os.Mkdir("./"+name, 0755)
+		err := util.JSONWriteFile(name+"/"+configName, projectConfig)
+		if err != nil {
+			fmt.Println("Error: Writing config to file failed, project creation failed")
+		}
+	}
 }

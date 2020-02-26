@@ -20,13 +20,13 @@ func init() {
 
 var createCmd = &cobra.Command{
 	Use:   "create",
-	Short: "Create elements to the Iterum project",
+	Short: "Create elements for this Iterum project",
 	Long:  `Create or pull new elements to add to this iterum project. Create units and flows`,
 }
 
 var createUnitCmd = &cobra.Command{
 	Use:   "unit",
-	Short: "Create a new unit to the Iterum project",
+	Short: "Create a new unit for this Iterum project",
 	Long:  `Create or pull a new unit and add it to this iterum project`,
 	Args:  argsValidator,
 	Run:   createUnitRun,
@@ -34,7 +34,7 @@ var createUnitCmd = &cobra.Command{
 
 var createFlowCmd = &cobra.Command{
 	Use:   "flow",
-	Short: "Create a new flow to the Iterum project",
+	Short: "Create a new flow for this Iterum project",
 	Long:  `Create or pull a new flow and add it to this iterum project`,
 	Args:  argsValidator,
 	Run:   createFlowRun,
