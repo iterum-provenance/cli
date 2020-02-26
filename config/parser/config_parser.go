@@ -1,12 +1,12 @@
-package config
+package parser
 
 import (
 	"errors"
 
-	common "github.com/Mantsje/iterum-cli/config/common"
-	flow "github.com/Mantsje/iterum-cli/config/flow"
-	project "github.com/Mantsje/iterum-cli/config/project"
-	unit "github.com/Mantsje/iterum-cli/config/unit"
+	"github.com/Mantsje/iterum-cli/config"
+	"github.com/Mantsje/iterum-cli/config/flow"
+	"github.com/Mantsje/iterum-cli/config/project"
+	"github.com/Mantsje/iterum-cli/config/unit"
 
 	"github.com/Mantsje/iterum-cli/util"
 )
@@ -49,22 +49,22 @@ func ParseProjectConfig(filepath string) (project.ProjectConf, error) {
 
 // ParseConfigFile parses a configfile found at stringpath and
 // returns the parsed object, the type and in case of problems an error
-func ParseConfigFile(filepath string) (interface{}, common.RepoType, error) {
+func ParseConfigFile(filepath string) (interface{}, config.RepoType, error) {
 	if util.FileExists(filepath) {
 		var repo = struct {
-			RepoType common.RepoType
+			RepoType config.RepoType
 		}{}
 		if err := util.JSONReadFile(filepath, &repo); err != nil {
 			return nil, "", errors.New("Error: Could not find repo type in config file")
 		}
 		switch repo.RepoType {
-		case common.Unit:
+		case config.Unit:
 			unit, err := ParseUnitConfig(filepath)
 			return unit, repo.RepoType, err
-		case common.Flow:
+		case config.Flow:
 			flow, err := ParseFlowConfig(filepath)
 			return flow, repo.RepoType, err
-		case common.Project:
+		case config.Project:
 			project, err := ParseProjectConfig(filepath)
 			return project, repo.RepoType, err
 		}

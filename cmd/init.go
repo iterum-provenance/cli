@@ -11,8 +11,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/Mantsje/iterum-cli/config"
-	common_conf "github.com/Mantsje/iterum-cli/config/common"
-	project_conf "github.com/Mantsje/iterum-cli/config/project"
+	"github.com/Mantsje/iterum-cli/config/git"
+	"github.com/Mantsje/iterum-cli/config/project"
 	"github.com/Mantsje/iterum-cli/util"
 )
 
@@ -46,7 +46,7 @@ var namePrompt = promptui.Prompt{
 
 var projectTypePrompt = promptui.Select{
 	Label: "In what setting will this project run",
-	Items: []project_conf.ProjectType{
+	Items: []project.ProjectType{
 		project_conf.Local,
 		project_conf.Distributed,
 	},
@@ -54,7 +54,7 @@ var projectTypePrompt = promptui.Select{
 
 var gitProtocolPrompt = promptui.Select{
 	Label: "Which git protocol should be used",
-	Items: []common_conf.GitProtocol{
+	Items: []git.GitProtocol{
 		common_conf.SSH,
 		common_conf.HTTPS,
 	},
@@ -62,7 +62,7 @@ var gitProtocolPrompt = promptui.Select{
 
 var gitPlatformPrompt = promptui.Select{
 	Label: "Which git platform should be used",
-	Items: []common_conf.GitPlatform{
+	Items: []git.GitPlatform{
 		common_conf.Github,
 		common_conf.Gitlab,
 		common_conf.Bitbucket,
@@ -95,11 +95,11 @@ func initRun(cmd *cobra.Command, args []string) {
 		fmt.Println(errors.New("Error: current or ./*project-name* is already (part of) an iterum project, you cannot start another here"))
 	} else {
 		// Guaranteed to be correct, so no checking needed
-		var projectType, _ = project_conf.ParseProjectType(runSelect(projectTypePrompt))
-		var gitPlatform, _ = common_conf.NewGitPlatform(runSelect(gitPlatformPrompt))
-		var gitProtocol, _ = common_conf.NewGitProtocol(runSelect(gitProtocolPrompt))
+		var projectType, _ = project.InferProjectType(runSelect(projectTypePrompt))
+		var gitPlatform, _ = git.NewGitPlatform(runSelect(gitPlatformPrompt))
+		var gitProtocol, _ = git.NewGitProtocol(runSelect(gitProtocolPrompt))
 
-		var projectConfig = project_conf.NewProjectConf(name)
+		var projectConfig = project.NewProjectConf(name)
 		projectConfig.ProjectType = projectType
 		projectConfig.Git.Platform = gitPlatform
 		projectConfig.Git.Protocol = gitProtocol

@@ -1,19 +1,20 @@
-package config
+package project
 
 import (
 	"errors"
 	"regexp"
 
-	common "github.com/Mantsje/iterum-cli/config/common"
+	"github.com/Mantsje/iterum-cli/config"
+	"github.com/Mantsje/iterum-cli/config/git"
 )
 
 // ProjectConf contains the config for the root folder of an iterum project
 type ProjectConf struct {
 	Name              string
-	RepoType          common.RepoType
+	RepoType          config.RepoType
 	ProjectType       ProjectType
-	Git               common.GitConf
-	Registered        map[string]common.RepoType // map from name to type for each separete version controlled part of the project (think submodules+root)
+	Git               git.GitConf
+	Registered        map[string]config.RepoType // map from name to type for each separete version controlled part of the project (think submodules+root)
 	ValidDependencies map[string]bool            // a map of different external dependencies that were verified
 }
 
@@ -21,9 +22,9 @@ type ProjectConf struct {
 func NewProjectConf(name string) ProjectConf {
 	var pc = ProjectConf{
 		Name:              name,
-		RepoType:          common.Project,
-		Git:               common.NewGitConf(),
-		Registered:        make(map[string]common.RepoType),
+		RepoType:          config.Project,
+		Git:               git.NewGitConf(),
+		Registered:        make(map[string]config.RepoType),
 		ValidDependencies: make(map[string]bool),
 	}
 	return pc
@@ -36,10 +37,10 @@ func (pc ProjectConf) IsValid() error {
 		err = errors.New("Error: Name of project contains whitespace which is illegal")
 	}
 	for _, val := range pc.Registered {
-		err = common.Verify(val, err)
+		err = config.Verify(val, err)
 	}
-	err = common.Verify(pc.Git, err)
-	err = common.Verify(pc.ProjectType, err)
-	err = common.Verify(pc.RepoType, err)
+	err = config.Verify(pc.Git, err)
+	err = config.Verify(pc.ProjectType, err)
+	err = config.Verify(pc.RepoType, err)
 	return err
 }

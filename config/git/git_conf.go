@@ -1,6 +1,10 @@
-package config
+package git
 
-import "net/url"
+import (
+	"net/url"
+
+	"github.com/Mantsje/iterum-cli/config"
+)
 
 // GitConf contains all git-related configuration settings for units, flows and projects
 type GitConf struct {
@@ -16,7 +20,7 @@ func NewGitConf() GitConf {
 
 // IsValid checks the validity of the GitConf
 func (gc GitConf) IsValid() error {
-	err := Verify(gc.Platform, nil)
-	err = Verify(gc.Protocol, err)
+	err := config.Verify(gc.Platform, nil)
+	err = config.Verify(gc.Protocol, err)
 	return err
 }

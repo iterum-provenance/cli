@@ -1,4 +1,4 @@
-package config
+package project
 
 import "errors"
 
@@ -17,8 +17,8 @@ func NewProjectType(rawProjectType string) (ProjectType, error) {
 	return pt, pt.IsValid()
 }
 
-// ParseProjectType tries to parse an object type from a string or its shorthand version
-func ParseProjectType(raw string) (ProjectType, error) {
+// InferProjectType tries to infer a ProjectType from a string
+func InferProjectType(raw string) (ProjectType, error) {
 	if raw == "l" { // Shorthand for local
 		return NewProjectType(string(Local))
 	} else if raw == "d" { // Shorthand for distribbuted

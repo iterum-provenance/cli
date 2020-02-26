@@ -1,24 +1,25 @@
-package config
+package flow
 
 import (
 	"errors"
 	"regexp"
 
-	common "github.com/Mantsje/iterum-cli/config/common"
+	"github.com/Mantsje/iterum-cli/config"
+	"github.com/Mantsje/iterum-cli/config/git"
 )
 
 // FlowConf contains the config for a flow folder in an iterum project
 type FlowConf struct {
 	Name     string
-	RepoType common.RepoType
-	Git      common.GitConf
+	RepoType config.RepoType
+	Git      git.GitConf
 }
 
 // NewFlowConf instantiates a new FlowConf and sets up defaults
 func NewFlowConf(name string) FlowConf {
 	return FlowConf{
 		Name:     name,
-		RepoType: common.Flow,
+		RepoType: config.Flow,
 	}
 }
 
@@ -28,7 +29,7 @@ func (fc FlowConf) IsValid() error {
 	if err == nil && rexp.ReplaceAllString(fc.Name, "") != fc.Name {
 		err = errors.New("Error: Name of flow contains whitespace which is illegal")
 	}
-	err = common.Verify(fc.RepoType, err)
-	err = common.Verify(fc.Git, err)
+	err = config.Verify(fc.RepoType, err)
+	err = config.Verify(fc.Git, err)
 	return err
 }

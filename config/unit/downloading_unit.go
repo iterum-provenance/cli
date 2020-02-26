@@ -1,4 +1,4 @@
-package config
+package unit
 
 // DownloadingUnitConf contains the config for a downloading unit folder in an iterum project
 type DownloadingUnitConf struct {
