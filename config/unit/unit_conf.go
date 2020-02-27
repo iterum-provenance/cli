@@ -1,7 +1,9 @@
 package unit
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"regexp"
 
 	"github.com/Mantsje/iterum-cli/config"
@@ -34,4 +36,19 @@ func (uc UnitConf) IsValid() error {
 	err = config.Verify(uc.UnitType, err)
 	err = config.Verify(uc.Git, err)
 	return err
+}
+
+// Set sets a field in this conf based on a string, rather than knowing the exact type
+func (uc *UnitConf) Set(variable []string, value interface{}) error {
+	return config.SetField(uc, variable, value)
+}
+
+// AllowedVariables returns a formatted string on how to set this type with the set command
+func (uc UnitConf) AllowedVariables() string {
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "\n")
+	fmt.Fprintf(&buf, "Name                string\n")
+	fmt.Fprintf(&buf, uc.UnitType.AllowedVariables())
+	fmt.Fprintf(&buf, uc.Git.AllowedVariables())
+	return buf.String()
 }

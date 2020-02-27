@@ -1,7 +1,9 @@
 package project
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"regexp"
 
 	"github.com/Mantsje/iterum-cli/config"
@@ -43,4 +45,19 @@ func (pc ProjectConf) IsValid() error {
 	err = config.Verify(pc.ProjectType, err)
 	err = config.Verify(pc.RepoType, err)
 	return err
+}
+
+// Set sets a field in this conf based on a string, rather than knowing the exact type
+func (pc *ProjectConf) Set(variable []string, value interface{}) error {
+	return config.SetField(pc, variable, value)
+}
+
+// AllowedVariables returns a formatted string on how to set this type with the set command
+func (pc ProjectConf) AllowedVariables() string {
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "\n")
+	fmt.Fprintf(&buf, "Name                string\n")
+	fmt.Fprintf(&buf, pc.ProjectType.AllowedVariables())
+	fmt.Fprintf(&buf, pc.Git.AllowedVariables())
+	return buf.String()
 }

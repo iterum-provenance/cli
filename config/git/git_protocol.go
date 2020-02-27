@@ -1,6 +1,10 @@
 package git
 
-import "errors"
+import (
+	"bytes"
+	"errors"
+	"fmt"
+)
 
 // GitProtocol is used for defining which protocol to use
 type GitProtocol string
@@ -29,4 +33,11 @@ func (gp GitProtocol) IsValid() error {
 // String converts GitProtocol to string representation
 func (gp GitProtocol) String() string {
 	return string(gp)
+}
+
+// AllowedVariables returns a formatted string on how to set this type with the set command
+func (gp GitProtocol) AllowedVariables() string {
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "Protocol            { %v, %v }\n", SSH, HTTPS)
+	return buf.String()
 }

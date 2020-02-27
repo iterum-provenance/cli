@@ -1,7 +1,9 @@
 package flow
 
 import (
+	"bytes"
 	"errors"
+	"fmt"
 	"regexp"
 
 	"github.com/Mantsje/iterum-cli/config"
@@ -32,4 +34,18 @@ func (fc FlowConf) IsValid() error {
 	err = config.Verify(fc.RepoType, err)
 	err = config.Verify(fc.Git, err)
 	return err
+}
+
+// Set sets a field in this conf based on a string, rather than knowing the exact type
+func (fc *FlowConf) Set(variable []string, value interface{}) error {
+	return config.SetField(fc, variable, value)
+}
+
+// AllowedVariables returns a formatted string on how to set this type with the set command
+func (fc FlowConf) AllowedVariables() string {
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "\n")
+	fmt.Fprintf(&buf, "Name                string\n")
+	fmt.Fprintf(&buf, fc.Git.AllowedVariables())
+	return buf.String()
 }

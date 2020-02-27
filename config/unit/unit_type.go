@@ -1,6 +1,10 @@
 package unit
 
-import "errors"
+import (
+	"bytes"
+	"errors"
+	"fmt"
+)
 
 // UnitType is used for defining what type of unit this module contains
 type UnitType string
@@ -25,4 +29,11 @@ func (ut UnitType) IsValid() error {
 		return nil
 	}
 	return errors.New("Error: Invalid UnitType")
+}
+
+// AllowedVariables returns a formatted string on how to set this type with the set command
+func (ut UnitType) AllowedVariables() string {
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "UnitType            { %v, %v, %v}\n", DownloadingUnit, ProcessingUnit, UploadingUnit)
+	return buf.String()
 }

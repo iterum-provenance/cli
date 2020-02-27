@@ -1,6 +1,10 @@
 package git
 
-import "errors"
+import (
+	"bytes"
+	"errors"
+	"fmt"
+)
 
 // GitPlatform is used for defining which platform is used
 type GitPlatform string
@@ -30,4 +34,11 @@ func (gp GitPlatform) IsValid() error {
 // String converts GitPlatform to string representation
 func (gp GitPlatform) String() string {
 	return string(gp)
+}
+
+// AllowedVariables returns a formatted string on how to set this type with the set command
+func (gp GitPlatform) AllowedVariables() string {
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "Platform            { %v, %v, %v }\n", Github, Gitlab, Bitbucket)
+	return buf.String()
 }

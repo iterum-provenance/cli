@@ -1,6 +1,10 @@
 package project
 
-import "errors"
+import (
+	"bytes"
+	"errors"
+	"fmt"
+)
 
 // ProjectType is used for defining which platform is used
 type ProjectType string
@@ -39,4 +43,11 @@ func (pt ProjectType) IsValid() error {
 // String converts ProjectType to string representation
 func (pt ProjectType) String() string {
 	return string(pt)
+}
+
+// AllowedVariables returns a formatted string on how to set this type with the set command
+func (pt ProjectType) AllowedVariables() string {
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "ProjectType         { %v, %v }\n", Distributed, Local)
+	return buf.String()
 }
