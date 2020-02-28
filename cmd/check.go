@@ -2,7 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
+	"github.com/Mantsje/iterum-cli/config"
 	"github.com/spf13/cobra"
 )
 
@@ -17,6 +20,18 @@ var checkCmd = &cobra.Command{
 	Run:   checkRun,
 }
 
+func formatDependency(dep config.Dep) string {
+	cmd := dep.Cmd
+	name := dep.Name
+	return name + strings.Repeat(" ", 20-len(name)) + cmd + strings.Repeat(" ", 20-len(cmd)) + strconv.FormatBool(dep.IsUsable()) + "\n"
+}
+
 func checkRun(cmd *cobra.Command, args []string) {
-	fmt.Println("'Iterum check' command")
+	fmt.Printf("Checking whether Iterum has access to all the commands used by this tool\n\n")
+	fmt.Println("Name" + strings.Repeat(" ", 20-len("Name")) + "Command" + strings.Repeat(" ", 20-len("Command")) + "Success")
+	fmt.Println("--------------------------------------------------")
+	for _, dep := range config.Dependencies {
+		fmt.Printf(formatDependency(dep))
+	}
+	fmt.Println()
 }

@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"errors"
-	"fmt"
+	"log"
 	"regexp"
 	"strings"
 
@@ -15,9 +14,7 @@ import (
 func runPrompt(prompt promptui.Prompt) string {
 	result, err := prompt.Run()
 	if err != nil {
-		fmt.Print("Prompt failed due to: ")
-		fmt.Println(err)
-		return ""
+		log.Fatal("Prompt failed due to: ", err)
 	}
 	return result
 }
@@ -25,9 +22,7 @@ func runPrompt(prompt promptui.Prompt) string {
 func runSelect(prompt promptui.Select) string {
 	_, value, err := prompt.Run()
 	if err != nil {
-		fmt.Print("Select failed due to: ")
-		fmt.Println(err)
-		return ""
+		log.Fatal("Select failed due to: ", err)
 	}
 	return value
 }
@@ -37,11 +32,11 @@ var namePrompt = promptui.Prompt{
 	Validate: func(input string) error {
 		input = strings.TrimSpace(input)
 		if len(input) < 4 {
-			return errors.New("Name should be descriptive, alphanumeric, and (ideally) -(dash) separated")
+			return errIndiscriptiveName
 		}
 		rexp, _ := regexp.Compile("[ \t\n\r]")
 		if rexp.ReplaceAllString(input, "") != input {
-			return errors.New("Name contains whitespace which is illegal")
+			return errContainsWhitespace
 		}
 		return nil
 	},

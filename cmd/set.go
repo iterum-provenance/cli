@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/Mantsje/iterum-cli/config"
@@ -36,19 +37,17 @@ var setCmd = &cobra.Command{
 
 func writeConf(conf config.Validatable) {
 	if err := conf.IsValid(); err != nil {
-		fmt.Println("Error: Setting variable resulted in invalid conf, likely invalid value")
-		return
+		log.Fatal(errIllegalUpdate)
 	}
 	if err := util.JSONWriteFile(config.ConfigFileName, conf); err != nil {
-		fmt.Println("Error: Writing config to file failed, setting variable failed")
+		log.Fatal(errConfigWriteFailed)
 	}
 }
 
 func setRun(cmd *cobra.Command, args []string) {
 	_conf, repo, err := parser.ParseConfigFile(config.ConfigFileName)
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatal(err)
 	}
 	variable := strings.Split(args[0], ".")
 	value := args[1]
@@ -71,7 +70,7 @@ func setRun(cmd *cobra.Command, args []string) {
 	}
 	err = conf.Set(variable, value)
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Fatal(err)
 	}
 	writeConf(roConf)
 }
@@ -79,8 +78,7 @@ func setRun(cmd *cobra.Command, args []string) {
 func lsRun(cmd *cobra.Command, args []string) {
 	_conf, repo, err := parser.ParseConfigFile(config.ConfigFileName)
 	if err != nil {
-		fmt.Println(err)
-		return
+		log.Fatal(err)
 	}
 	switch repo {
 	case config.Unit:

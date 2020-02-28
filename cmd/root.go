@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
+	"log"
 
 	"github.com/spf13/cobra"
 )
@@ -13,15 +12,9 @@ var rootCmd = &cobra.Command{
 	Long:  "The ideal tool for tracking any type of provenance for (distributed) (data science) pipelines aimed at supporting academic research",
 }
 
-func er(msg interface{}) {
-	fmt.Println("Error:", msg)
-	os.Exit(1)
-}
-
 // Execute executes the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 }
