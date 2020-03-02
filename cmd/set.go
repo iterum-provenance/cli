@@ -51,6 +51,7 @@ func setRun(cmd *cobra.Command, args []string) {
 	}
 	variable := strings.Split(args[0], ".")
 	value := args[1]
+
 	var conf config.Settable
 	var roConf config.Validatable
 

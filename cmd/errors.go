@@ -12,7 +12,8 @@ var (
 	errMalformedURL  error = errors.New("Error: url flag could not be parsed")
 
 	errRegistrationClash  error = errors.New("Error: This name is already registered in this project")
-	errRegistrationFailed error = errors.New("Error: Registering project component failed")
+	errRegistrationFailed error = errors.New("Error: (De)Registering project component failed")
+	errNotDeregisterable  error = errors.New("Error: Could not deregister component, likely because it was not registered to begin with")
 	errProjectNesting     error = errors.New("Error: Cannot register another project under a project")
 	errConfigNotFound     error = errors.New("Error: Could not find iterum.conf (for component)")
 

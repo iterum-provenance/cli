@@ -1,16 +1,16 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
-	"os/exec"
 
 	"github.com/Mantsje/iterum-cli/config"
 	"github.com/Mantsje/iterum-cli/config/parser"
 	"github.com/Mantsje/iterum-cli/config/project"
+	"github.com/Mantsje/iterum-cli/git"
+	"github.com/Mantsje/iterum-cli/util"
 )
 
-// Package for shared command functions
+// Package for shared functions specifically related to the CLI functionality
 
 // Make sure we are in an iterum project root
 func ensureRootLocation() (project.ProjectConf, error) {
@@ -24,13 +24,20 @@ func ensureRootLocation() (project.ProjectConf, error) {
 	return conf.(project.ProjectConf), nil
 }
 
-// Run an arbitrary command as if you were in a terminal at the given path
-func runCommand(cmd *exec.Cmd, path string) string {
-	cmd.Dir = path
-	out, err := cmd.Output()
-	if err != nil {
-		log.Fatal(err)
+// Possibly move this to `git` package
+func initVersionTracking(conf config.Configurable) {
+	base := conf.GetBaseConf()
+	path := "./" + base.Name
+	commitMsg := "Creation of Iterum " + base.RepoType.String() + " `" + base.Name + "`"
+
+	if !NoRemote {
+		uri := git.CreateRepo(commitMsg, base.Git.Platform, path)
+		base.Git.URI = uri
+		err := util.JSONWriteFile(base.Name+"/"+config.ConfigFileName, conf)
+		if err != nil {
+			log.Fatal(errConfigWriteFailed)
+		}
+	} else {
+		git.CreateRepo(commitMsg, config.None, path)
 	}
-	fmt.Printf(string(out))
-	return string(out)
 }

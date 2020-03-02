@@ -26,3 +26,7 @@ func (rt RepoType) IsValid() error {
 	}
 	return errors.New("Error: Invalid RepoType")
 }
+
+func (rt RepoType) String() string {
+	return string(rt)
+}

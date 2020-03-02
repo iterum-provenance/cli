@@ -1,4 +1,4 @@
-package cmd
+package git
 
 import (
 	"log"
@@ -8,17 +8,17 @@ import (
 	"strings"
 
 	"github.com/Mantsje/iterum-cli/config"
-	"github.com/Mantsje/iterum-cli/config/git"
+	"github.com/Mantsje/iterum-cli/util"
 )
 
 func createGithubRepo(path string) url.URL {
 	var output string
 	hub := exec.Command("hub", "create")
-	output = runCommand(hub, path)
+	output = util.RunCommand(hub, path)
 	rawURL := strings.Split(output, "\n")[1]
 	uri, err := url.Parse(rawURL)
 	if err != nil {
-		log.Print("parsing repo URL failed, most likely fault of updated `hub` package, create an issue for us")
+		log.Print("parsing repo URL failed, most likely due to updated `hub` package, create an issue for iterum-cli")
 		log.Fatal(err)
 	}
 	return *uri
@@ -36,49 +36,35 @@ func createBitbucketRepo(path string) url.URL {
 	return *uri
 }
 
-// Inits, adds, commits, creates remote and pushes a repo to target platform
+// CreateRepo inits, adds, commits, possibly creates remote, and pushes a repo to target platform
 // returns the url that you can find the repo at eventually
-func createRepo(message string, platform git.GitPlatform, relPath string) url.URL {
-	ensureDeps(platform)
+func CreateRepo(message string, platform config.GitPlatform, relPath string) url.URL {
+	ensureGitDeps(platform)
 
 	path := os.Getenv("PWD") + "/" + relPath
 	init := exec.Command("git", "init")
 	add := exec.Command("git", "add", ".")
 	commit := exec.Command("git", "commit", "-m", message)
 
-	runCommand(init, path)
-	runCommand(add, path)
-	runCommand(commit, path)
+	util.RunCommand(init, path)
+	util.RunCommand(add, path)
+	util.RunCommand(commit, path)
 
 	var uri url.URL
 	switch platform {
-	case git.Github:
+	case config.Github:
 		uri = createGithubRepo(path)
-	case git.Gitlab:
+	case config.Gitlab:
 		uri = createGitlabRepo(path)
-	case git.Bitbucket:
+	case config.Bitbucket:
 		uri = createBitbucketRepo(path)
-	case git.None:
+	case config.None:
 		u, _ := url.Parse("")
 		uri = *u
 	}
-	if platform != git.None {
+	if platform != config.None {
 		push := exec.Command("git", "push", "-u", "origin", "HEAD")
-		runCommand(push, path)
+		util.RunCommand(push, path)
 	}
 	return uri
-}
-
-func ensureDeps(platform git.GitPlatform) {
-	config.EnsureDep(config.GitDep)
-	switch platform {
-	case git.Github:
-		config.EnsureDep(config.GithubDep)
-	case git.Gitlab:
-		config.EnsureDep(config.GitlabDep)
-	case git.Bitbucket:
-		config.EnsureDep(config.BitbucketDep)
-	case git.None:
-		config.EnsureDep(config.GitDep)
-	}
 }

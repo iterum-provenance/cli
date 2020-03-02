@@ -1,11 +1,9 @@
-package git
+package config
 
 import (
 	"bytes"
 	"fmt"
 	"net/url"
-
-	"github.com/Mantsje/iterum-cli/config"
 )
 
 // GitConf contains all git-related configuration settings for units, flows and projects
@@ -22,14 +20,14 @@ func NewGitConf() GitConf {
 
 // IsValid checks the validity of the GitConf
 func (gc GitConf) IsValid() error {
-	err := config.Verify(gc.Platform, nil)
-	err = config.Verify(gc.Protocol, err)
+	err := Verify(gc.Platform, nil)
+	err = Verify(gc.Protocol, err)
 	return err
 }
 
 // Set sets a field in this conf based on a string, rather than knowing the exact type
 func (gc *GitConf) Set(variable []string, value interface{}) error {
-	return config.SetField(gc, variable, value)
+	return SetField(gc, variable, value)
 }
 
 // AllowedVariables returns a formatted string on how to set this type with the set command

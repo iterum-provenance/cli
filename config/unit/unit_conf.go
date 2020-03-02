@@ -7,22 +7,18 @@ import (
 	"regexp"
 
 	"github.com/Mantsje/iterum-cli/config"
-	"github.com/Mantsje/iterum-cli/config/git"
 )
 
 // UnitConf contains the config for a unit folder in an iterum project
 type UnitConf struct {
-	Name     string
-	RepoType config.RepoType
+	config.Conf
 	UnitType UnitType
-	Git      git.GitConf
 }
 
 // NewUnitConf instantiates a new UnitConf and sets up defaults
 func NewUnitConf(name string) UnitConf {
 	return UnitConf{
-		Name:     name,
-		RepoType: config.Unit,
+		Conf: config.NewConf(name, config.Unit),
 	}
 }
 
@@ -36,11 +32,6 @@ func (uc UnitConf) IsValid() error {
 	err = config.Verify(uc.UnitType, err)
 	err = config.Verify(uc.Git, err)
 	return err
-}
-
-// Set sets a field in this conf based on a string, rather than knowing the exact type
-func (uc *UnitConf) Set(variable []string, value interface{}) error {
-	return config.SetField(uc, variable, value)
 }
 
 // AllowedVariables returns a formatted string on how to set this type with the set command
