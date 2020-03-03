@@ -4,17 +4,15 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/Mantsje/iterum-cli/config"
 	"github.com/Mantsje/iterum-cli/util"
 )
 
-// PullRepo pulls a git repo based on a remote uri
-func PullRepo(uri string, relativePath string) {
-	ensureGitDeps(config.None)
+// PullRepo pulls a git repo based on a relative path to the existing repo
+func PullRepo(relativePath string) {
+	ensureGitDeps(None)
 
 	path := os.Getenv("PWD") + "/" + relativePath
-	init := exec.Command("git", "init")
+	pull := exec.Command("git", "pull")
 
-	util.RunCommand(init, path)
-
+	util.RunCommand(pull, path, true)
 }

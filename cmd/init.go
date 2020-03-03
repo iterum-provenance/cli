@@ -9,6 +9,7 @@ import (
 	"github.com/Mantsje/iterum-cli/cmd/prompter"
 	"github.com/Mantsje/iterum-cli/config"
 	"github.com/Mantsje/iterum-cli/config/project"
+	"github.com/Mantsje/iterum-cli/git"
 	"github.com/Mantsje/iterum-cli/util"
 )
 
@@ -31,8 +32,8 @@ func initRun(cmd *cobra.Command, args []string) {
 	}
 	// Guaranteed to be correct, so no checking needed
 	var projectType, _ = project.InferProjectType(prompter.ProjectType())
-	var gitPlatform, _ = config.NewGitPlatform(prompter.GitPlatform())
-	var gitProtocol, _ = config.NewGitProtocol(prompter.GitProtocol())
+	var gitPlatform, _ = git.NewPlatform(prompter.Platform())
+	var gitProtocol, _ = git.NewProtocol(prompter.Protocol())
 
 	var projectConfig = project.NewProjectConf(name)
 	projectConfig.ProjectType = projectType

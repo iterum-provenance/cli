@@ -5,7 +5,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/Mantsje/iterum-cli/config"
 	"github.com/Mantsje/iterum-cli/git"
 )
 
@@ -22,6 +21,6 @@ var testCmd = &cobra.Command{
 
 func testRun(cmd *cobra.Command, args []string) {
 	fmt.Println("'Iterum testing' command")
-	url := git.CreateRepo("\"Initial commit for unit\"", config.Github, "./uniterum")
+	url := git.CreateRepo("\"Initial commit for unit\"", git.Github, "./uniterum")
 	fmt.Println(url)
 }

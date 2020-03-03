@@ -22,7 +22,7 @@ func init() {
 	rootCmd.AddCommand(createCmd)
 	createCmd.AddCommand(createUnitCmd)
 	createCmd.AddCommand(createFlowCmd)
-	createCmd.PersistentFlags().StringVarP(&RawURL, "url", "u", "", "Valid existing git clone url to be used isntead of making a new component")
+	createCmd.PersistentFlags().BoolVarP(&FromURL, "from-url", "u", false, "Pull from existing repo rather than creating")
 	createCmd.PersistentFlags().BoolVarP(&NoRemote, "no-remote", "", false, "Skip initializing and pushing to remote repo")
 }
 
@@ -36,7 +36,6 @@ var createUnitCmd = &cobra.Command{
 	Use:   "unit",
 	Short: "Create a new unit for this Iterum project",
 	Long:  `Create or pull a new unit and add it to this iterum project`,
-	Args:  urlFlagValidator,
 	Run:   createUnitRun,
 }
 
@@ -44,19 +43,7 @@ var createFlowCmd = &cobra.Command{
 	Use:   "flow",
 	Short: "Create a new flow for this Iterum project",
 	Long:  `Create or pull a new flow and add it to this iterum project`,
-	Args:  urlFlagValidator,
 	Run:   createFlowRun,
-}
-
-// Ensures that the url flag is a valid url that can be parsed
-func urlFlagValidator(cmd *cobra.Command, args []string) error {
-	if RawURL != "" {
-		_, err := url.Parse(RawURL)
-		if err != nil {
-			return errMalformedURL
-		}
-	}
-	return nil
 }
 
 // Write the new config to disk and update the registered elements of the project config
@@ -88,27 +75,29 @@ func initShared() (proj project.ProjectConf, name string, gitConf config.GitConf
 		return
 	}
 
-	if RawURL != "" {
-		uri, _ := url.Parse(RawURL) // Error is already guaranteed by validation
-		gitURI := *uri
-		git.CloneRepo(gitURI, name)
-		register := exec.Command("iterum", "register", name)
-		rename := exec.Command("iterum", "set", "Name", name)
-		util.RunCommand(register, "./")
-		util.RunCommand(rename, "./"+name)
-		os.Exit(0)
-	}
-
 	os.Mkdir("./"+name, 0755)
 
 	// Guaranteed to be correct, so no checking needed
-	var gitPlatform, _ = config.NewGitPlatform(prompter.GitPlatform())
-	var gitProtocol, _ = config.NewGitProtocol(prompter.GitProtocol())
+	var gitPlatform, _ = git.NewPlatform(prompter.Platform())
+	var gitProtocol, _ = git.NewProtocol(prompter.Protocol())
 
 	gitConf = config.GitConf{
 		Platform: gitPlatform,
 		Protocol: gitProtocol,
 	}
+
+	if FromURL {
+		var gitPath = prompter.GitRepoPath()
+		git.CloneRepo(gitProtocol, gitPlatform, gitPath, name)
+		uri, _ := url.Parse("https://" + gitPlatform.String() + ".com/" + gitPath)
+		gitConf.URI = *uri
+		rename := exec.Command("iterum", "set", "Name", name)
+		util.RunCommand(rename, "./"+name, false)
+		register := exec.Command("iterum", "register", name)
+		util.RunCommand(register, "./", false)
+		os.Exit(0)
+	}
+
 	return
 }
 

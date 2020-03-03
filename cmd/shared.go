@@ -14,14 +14,23 @@ import (
 
 // Make sure we are in an iterum project root
 func ensureRootLocation() (project.ProjectConf, error) {
-	conf, repo, err := parser.ParseConfigFile(config.ConfigFileName)
+	conf, repo, err := ensureIterumComponent()
 	if err != nil {
-		return project.ProjectConf{}, errNoProject
+		return project.ProjectConf{}, err
 	}
 	if repo != config.Project {
 		return project.ProjectConf{}, errNotRoot
 	}
 	return conf.(project.ProjectConf), nil
+}
+
+// Make sure we are in an iterum component folder
+func ensureIterumComponent() (interface{}, config.RepoType, error) {
+	conf, repo, err := parser.ParseConfigFile(config.ConfigFileName)
+	if err != nil {
+		return conf, repo, errNoProject
+	}
+	return conf, repo, nil
 }
 
 // Possibly move this to `git` package
@@ -38,6 +47,6 @@ func initVersionTracking(conf config.Configurable) {
 			log.Fatal(errConfigWriteFailed)
 		}
 	} else {
-		git.CreateRepo(commitMsg, config.None, path)
+		git.CreateRepo(commitMsg, git.None, path)
 	}
 }

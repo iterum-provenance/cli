@@ -3,7 +3,7 @@ package cmd
 import "errors"
 
 var (
-	errNoProject error = errors.New("Error: Either this folder is not an iterum project or the .conf file is corrupted")
+	errNoProject error = errors.New("Error: Either this folder is not (part of) an iterum project or the .conf file is corrupted")
 	errNotRoot   error = errors.New("Error: Current folder is not root of an Iterum project")
 
 	errIllegalUpdate error = errors.New("Error: Setting variable resulted in invalid conf, likely invalid value")

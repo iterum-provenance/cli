@@ -7,14 +7,13 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/Mantsje/iterum-cli/config"
 	"github.com/Mantsje/iterum-cli/util"
 )
 
 func createGithubRepo(path string) url.URL {
 	var output string
 	hub := exec.Command("hub", "create")
-	output = util.RunCommand(hub, path)
+	output = util.RunCommand(hub, path, false)
 	rawURL := strings.Split(output, "\n")[1]
 	uri, err := url.Parse(rawURL)
 	if err != nil {
@@ -38,7 +37,7 @@ func createBitbucketRepo(path string) url.URL {
 
 // CreateRepo inits, adds, commits, possibly creates remote, and pushes a repo to target platform
 // returns the url that you can find the repo at eventually
-func CreateRepo(message string, platform config.GitPlatform, relPath string) url.URL {
+func CreateRepo(message string, platform Platform, relPath string) url.URL {
 	ensureGitDeps(platform)
 
 	path := os.Getenv("PWD") + "/" + relPath
@@ -46,25 +45,25 @@ func CreateRepo(message string, platform config.GitPlatform, relPath string) url
 	add := exec.Command("git", "add", ".")
 	commit := exec.Command("git", "commit", "-m", message)
 
-	util.RunCommand(init, path)
-	util.RunCommand(add, path)
-	util.RunCommand(commit, path)
+	util.RunCommand(init, path, false)
+	util.RunCommand(add, path, false)
+	util.RunCommand(commit, path, false)
 
 	var uri url.URL
 	switch platform {
-	case config.Github:
+	case Github:
 		uri = createGithubRepo(path)
-	case config.Gitlab:
+	case Gitlab:
 		uri = createGitlabRepo(path)
-	case config.Bitbucket:
+	case Bitbucket:
 		uri = createBitbucketRepo(path)
-	case config.None:
+	case None:
 		u, _ := url.Parse("")
 		uri = *u
 	}
-	if platform != config.None {
+	if platform != None {
 		push := exec.Command("git", "push", "-u", "origin", "HEAD")
-		util.RunCommand(push, path)
+		util.RunCommand(push, path, false)
 	}
 	return uri
 }

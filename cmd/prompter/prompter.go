@@ -1,9 +1,15 @@
 package prompter
 
 import (
+	"errors"
 	"log"
 
 	"github.com/manifoldco/promptui"
+)
+
+var (
+	errIndiscriptiveName  error = errors.New("Error: Name should be descriptive, alphanumeric, and (ideally) -(dash) separated")
+	errContainsWhitespace error = errors.New("Error: Name contains whitespace which is illegal")
 )
 
 // prompt asks the user for input

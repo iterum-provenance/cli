@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"net/url"
+
+	"github.com/Mantsje/iterum-cli/git"
 )
 
 // GitConf contains all git-related configuration settings for units, flows and projects
 type GitConf struct {
-	Platform GitPlatform
-	Protocol GitProtocol
+	Platform git.Platform
+	Protocol git.Protocol
 	URI      url.URL
 }
 

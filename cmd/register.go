@@ -20,16 +20,16 @@ func init() {
 
 var registerCmd = &cobra.Command{
 	Use:   "register",
-	Short: "register an untracked unit/flow to this project",
-	Long:  `register a unit/flow that is untracked within this project. When a repo is copied into this folder for example`,
+	Short: "Registers an untracked unit/flow to this project",
+	Long:  `Registers a unit/flow that is untracked within this project. When a repo is copied into this folder for example`,
 	Args:  cobra.ExactArgs(1),
 	Run:   registerRun,
 }
 
 var deregisterCmd = &cobra.Command{
 	Use:   "deregister",
-	Short: "deregisters a tracked unit/flow of this project",
-	Long:  `deregisters a unit/flow that is tracked within this project. When you've removed a folder for example`,
+	Short: "Deregisters a tracked unit/flow of this project",
+	Long:  `Deregisters a unit/flow that is tracked within this project. When you've removed a folder for example`,
 	Args:  cobra.ExactArgs(1),
 	Run:   deregisterRun,
 }
@@ -98,7 +98,7 @@ func deregisterRun(cmd *cobra.Command, args []string) {
 	if util.FileExists(configPath) {
 		if RemoveFiles {
 			rmFiles := exec.Command("rm", "-rf", "./"+args[0])
-			util.RunCommand(rmFiles, "./")
+			util.RunCommand(rmFiles, "./", false)
 		} else {
 			fmt.Println("Iterum does not remove the deregistered component's folder, so do this yourself or use --rm-files")
 		}
