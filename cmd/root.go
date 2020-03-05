@@ -3,6 +3,7 @@ package cmd
 import (
 	"log"
 
+	"github.com/Mantsje/iterum-cli/cmd/data"
 	"github.com/spf13/cobra"
 )
 
@@ -10,6 +11,10 @@ var rootCmd = &cobra.Command{
 	Use:   "iterum",
 	Short: "Iterum is a provenance tracking pipeline deployment tool",
 	Long:  "The ideal tool for tracking any type of provenance for (distributed) (data science) pipelines aimed at supporting academic research",
+}
+
+func init() {
+	rootCmd.AddCommand(data.GetRootCmd())
 }
 
 // Execute executes the root command.

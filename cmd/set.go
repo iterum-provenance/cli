@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Mantsje/iterum-cli/config"
+	"github.com/Mantsje/iterum-cli/config/data"
 	"github.com/Mantsje/iterum-cli/config/flow"
 	"github.com/Mantsje/iterum-cli/config/parser"
 	"github.com/Mantsje/iterum-cli/config/project"
@@ -39,13 +40,13 @@ func writeConf(conf config.Validatable) {
 	if err := conf.IsValid(); err != nil {
 		log.Fatal(errIllegalUpdate)
 	}
-	if err := util.JSONWriteFile(config.ConfigFileName, conf); err != nil {
+	if err := util.WriteJSONFile(config.ConfigFilePath, conf); err != nil {
 		log.Fatal(errConfigWriteFailed)
 	}
 }
 
 func setRun(cmd *cobra.Command, args []string) {
-	_conf, repo, err := parser.ParseConfigFile(config.ConfigFileName)
+	_conf, repo, err := parser.ParseConfigFile(config.ConfigFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -68,6 +69,10 @@ func setRun(cmd *cobra.Command, args []string) {
 		p := _conf.(project.ProjectConf)
 		conf = &p
 		roConf = &p
+	case config.Data:
+		d := _conf.(data.DataConf)
+		conf = &d
+		roConf = &d
 	}
 	err = conf.Set(variable, value)
 	if err != nil {
@@ -77,7 +82,7 @@ func setRun(cmd *cobra.Command, args []string) {
 }
 
 func lsRun(cmd *cobra.Command, args []string) {
-	_conf, repo, err := parser.ParseConfigFile(config.ConfigFileName)
+	_conf, repo, err := parser.ParseConfigFile(config.ConfigFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -94,6 +99,10 @@ func lsRun(cmd *cobra.Command, args []string) {
 		p := _conf.(project.ProjectConf)
 		fmt.Println("\nProject config found, the following variables can be set:")
 		fmt.Println(p.AllowedVariables())
+	case config.Data:
+		d := _conf.(data.DataConf)
+		fmt.Println("\nData config found, the following variables can be set:")
+		fmt.Println(d.AllowedVariables())
 	}
 }
 

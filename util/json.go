@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 )
 
-// JSONWriteFile writes an object as json to the specified file path
-func JSONWriteFile(filepath string, data interface{}) error {
+// WriteJSONFile writes an object as json to the specified file path
+func WriteJSONFile(filepath string, data interface{}) error {
 	file, err := json.MarshalIndent(data, "", " ")
 	if err == nil {
 		err = ioutil.WriteFile(filepath, file, 0644)
@@ -14,8 +14,8 @@ func JSONWriteFile(filepath string, data interface{}) error {
 	return err
 }
 
-// JSONReadFile reads json from a file and stores it in the passed interface which should be a pointer
-func JSONReadFile(filepath string, data interface{}) error {
+// ReadJSONFile reads json from a file and stores it in the passed interface which should be a pointer
+func ReadJSONFile(filepath string, data interface{}) error {
 	file, err := ioutil.ReadFile(filepath)
 	if err == nil {
 		err = json.Unmarshal([]byte(file), data)

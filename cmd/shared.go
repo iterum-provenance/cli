@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	"github.com/Mantsje/iterum-cli/config"
 	"github.com/Mantsje/iterum-cli/config/parser"
@@ -26,7 +27,7 @@ func ensureRootLocation() (project.ProjectConf, error) {
 
 // Make sure we are in an iterum component folder
 func ensureIterumComponent() (interface{}, config.RepoType, error) {
-	conf, repo, err := parser.ParseConfigFile(config.ConfigFileName)
+	conf, repo, err := parser.ParseConfigFile(config.ConfigFilePath)
 	if err != nil {
 		return conf, repo, errNoProject
 	}
@@ -42,11 +43,19 @@ func initVersionTracking(conf config.Configurable) {
 	if !NoRemote {
 		uri := git.CreateRepo(commitMsg, base.Git.Platform, path)
 		base.Git.URI = uri
-		err := util.JSONWriteFile(base.Name+"/"+config.ConfigFileName, conf)
+		err := util.WriteJSONFile(base.Name+"/"+config.ConfigFilePath, conf)
 		if err != nil {
 			log.Fatal(errConfigWriteFailed)
 		}
 	} else {
 		git.CreateRepo(commitMsg, git.None, path)
+	}
+}
+
+// Creates the necessary folders for any iterum component: ./name and ./name/.iterum
+func createComponentFolder(name string) {
+	path := "./" + name + "/.iterum"
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.MkdirAll(path, 0755)
 	}
 }

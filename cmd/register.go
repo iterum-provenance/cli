@@ -39,7 +39,7 @@ func register(name string, repo config.RepoType, project project.ProjectConf) er
 		return errRegistrationClash
 	}
 	project.Registered[name] = repo
-	err := util.JSONWriteFile(config.ConfigFileName, project)
+	err := util.WriteJSONFile(config.ConfigFilePath, project)
 	if err != nil {
 		return errRegistrationFailed
 	}
@@ -49,7 +49,7 @@ func register(name string, repo config.RepoType, project project.ProjectConf) er
 func deregister(name string, project project.ProjectConf) error {
 	if _, ok := project.Registered[name]; ok {
 		delete(project.Registered, name)
-		err := util.JSONWriteFile(config.ConfigFileName, project)
+		err := util.WriteJSONFile(config.ConfigFilePath, project)
 		if err != nil {
 			return errRegistrationFailed
 		}
@@ -64,12 +64,12 @@ func registerRun(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	configPath := "./" + args[0] + "/" + config.ConfigFileName
+	configPath := "./" + args[0] + "/" + config.ConfigFilePath
 	if util.FileExists(configPath) {
 		repo := struct {
 			RepoType config.RepoType
 		}{}
-		err := util.JSONReadFile(configPath, &repo)
+		err := util.ReadJSONFile(configPath, &repo)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -94,7 +94,7 @@ func deregisterRun(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	configPath := "./" + args[0] + "/" + config.ConfigFileName
+	configPath := "./" + args[0] + "/" + config.ConfigFilePath
 	if util.FileExists(configPath) {
 		if RemoveFiles {
 			rmFiles := exec.Command("rm", "-rf", "./"+args[0])

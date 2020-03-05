@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -11,17 +10,13 @@ import (
 
 	"github.com/Mantsje/iterum-cli/cmd/prompter"
 	"github.com/Mantsje/iterum-cli/config"
-	"github.com/Mantsje/iterum-cli/config/flow"
 	"github.com/Mantsje/iterum-cli/config/project"
-	"github.com/Mantsje/iterum-cli/config/unit"
 	"github.com/Mantsje/iterum-cli/git"
 	"github.com/Mantsje/iterum-cli/util"
 )
 
 func init() {
 	rootCmd.AddCommand(createCmd)
-	createCmd.AddCommand(createUnitCmd)
-	createCmd.AddCommand(createFlowCmd)
 	createCmd.PersistentFlags().BoolVarP(&FromURL, "from-url", "u", false, "Pull from existing repo rather than creating")
 	createCmd.PersistentFlags().BoolVarP(&NoRemote, "no-remote", "", false, "Skip initializing and pushing to remote repo")
 }
@@ -32,26 +27,11 @@ var createCmd = &cobra.Command{
 	Long:  `Create or pull new elements to add to this iterum project. Create units and flows`,
 }
 
-var createUnitCmd = &cobra.Command{
-	Use:   "unit",
-	Short: "Create a new unit for this Iterum project",
-	Long:  `Create or pull a new unit and add it to this iterum project`,
-	Run:   createUnitRun,
-}
-
-var createFlowCmd = &cobra.Command{
-	Use:   "flow",
-	Short: "Create a new flow for this Iterum project",
-	Long:  `Create or pull a new flow and add it to this iterum project`,
-	Run:   createFlowRun,
-}
-
 // Write the new config to disk and update the registered elements of the project config
 func writeConfigAndUpdate(conf config.Configurable, project project.ProjectConf) error {
 	c := conf.GetBaseConf()
-	fmt.Println(c)
 	// Write config
-	err := util.JSONWriteFile(c.Name+"/"+config.ConfigFileName, conf)
+	err := util.WriteJSONFile(c.Name+"/"+config.ConfigFilePath, conf)
 	if err != nil {
 		return errConfigWriteFailed
 	}
@@ -63,7 +43,7 @@ func writeConfigAndUpdate(conf config.Configurable, project project.ProjectConf)
 	return err
 }
 
-func initShared() (proj project.ProjectConf, name string, gitConf config.GitConf, err error) {
+func initCreate() (proj project.ProjectConf, name string, gitConf config.GitConf, err error) {
 	proj, err = ensureRootLocation()
 	if err != nil {
 		return
@@ -75,7 +55,7 @@ func initShared() (proj project.ProjectConf, name string, gitConf config.GitConf
 		return
 	}
 
-	os.Mkdir("./"+name, 0755)
+	createComponentFolder(name)
 
 	// Guaranteed to be correct, so no checking needed
 	var gitPlatform, _ = git.NewPlatform(prompter.Platform())
@@ -101,37 +81,10 @@ func initShared() (proj project.ProjectConf, name string, gitConf config.GitConf
 	return
 }
 
-func finalizeShared(conf config.Configurable, project project.ProjectConf) {
+func finalizeCreate(conf config.Configurable, project project.ProjectConf) {
 	err := writeConfigAndUpdate(conf, project)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	initVersionTracking(conf)
-}
-
-func createUnitRun(cmd *cobra.Command, args []string) {
-	proj, name, gitConf, err := initShared()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	// Guaranteed to be okay through validation
-	var unitType, _ = unit.NewUnitType(prompter.UnitType())
-	var unitConfig = unit.NewUnitConf(name)
-	unitConfig.UnitType = unitType
-	unitConfig.Git = gitConf
-
-	finalizeShared(&unitConfig, proj)
-}
-
-func createFlowRun(cmd *cobra.Command, args []string) {
-	proj, name, gitConf, err := initShared()
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-
-	var flowConfig = flow.NewFlowConf(name)
-	flowConfig.Git = gitConf
-
-	finalizeShared(&flowConfig, proj)
 }

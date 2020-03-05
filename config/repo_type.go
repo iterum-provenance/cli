@@ -10,6 +10,7 @@ const (
 	Unit    RepoType = "unit"
 	Flow    RepoType = "flow"
 	Project RepoType = "project"
+	Data    RepoType = "data"
 )
 
 // NewRepoType creates a new RepoType instance and validates it
@@ -21,7 +22,7 @@ func NewRepoType(repoType string) (RepoType, error) {
 // IsValid checks the validity of the RepoType
 func (rt RepoType) IsValid() error {
 	switch rt {
-	case Unit, Flow, Project:
+	case Unit, Flow, Project, Data:
 		return nil
 	}
 	return errors.New("Error: Invalid RepoType")

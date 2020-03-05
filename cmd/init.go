@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"log"
-	"os"
 
 	"github.com/spf13/cobra"
 
@@ -27,7 +26,7 @@ var initCmd = &cobra.Command{
 
 func initRun(cmd *cobra.Command, args []string) {
 	var name string = prompter.Name()
-	if util.FileExists(config.ConfigFileName) || util.FileExists(name+"/"+config.ConfigFileName) {
+	if util.FileExists(config.ConfigFilePath) || util.FileExists(name+"/"+config.ConfigFilePath) {
 		log.Fatal(errProjectNesting)
 	}
 	// Guaranteed to be correct, so no checking needed
@@ -40,8 +39,8 @@ func initRun(cmd *cobra.Command, args []string) {
 	projectConfig.Git.Platform = gitPlatform
 	projectConfig.Git.Protocol = gitProtocol
 
-	os.Mkdir("./"+name, 0755)
-	err := util.JSONWriteFile(name+"/"+config.ConfigFileName, projectConfig)
+	createComponentFolder(name)
+	err := util.WriteJSONFile(name+"/"+config.ConfigFilePath, projectConfig)
 	if err != nil {
 		log.Fatal(errConfigWriteFailed)
 	}
