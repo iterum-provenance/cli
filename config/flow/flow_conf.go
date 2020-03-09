@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/Mantsje/iterum-cli/config"
+	"github.com/Mantsje/iterum-cli/util"
 )
 
 // FlowConf contains the config for a flow folder in an iterum project
@@ -27,8 +28,8 @@ func (fc FlowConf) IsValid() error {
 	if err == nil && rexp.ReplaceAllString(fc.Name, "") != fc.Name {
 		err = errors.New("Error: Name of flow contains whitespace which is illegal")
 	}
-	err = config.Verify(fc.RepoType, err)
-	err = config.Verify(fc.Git, err)
+	err = util.Verify(fc.RepoType, err)
+	err = util.Verify(fc.Git, err)
 	return err
 }
 
@@ -39,4 +40,15 @@ func (fc FlowConf) AllowedVariables() string {
 	fmt.Fprintf(&buf, "Name                string\n")
 	fmt.Fprintf(&buf, fc.Git.AllowedVariables())
 	return buf.String()
+}
+
+// ParseFromFile tries to parse a config file into this FlowConfig
+func (fc *FlowConf) ParseFromFile(filepath string) error {
+	if err := util.ReadJSONFile(filepath, fc); err != nil {
+		return errors.New("Error: Could not parse FlowConf")
+	}
+	if err := fc.IsValid(); err != nil {
+		return err
+	}
+	return nil
 }

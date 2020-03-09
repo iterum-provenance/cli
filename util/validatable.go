@@ -1,6 +1,6 @@
-package config
+package util
 
-// Validatable is a generalization over Conf types
+// Validatable is a struct that can be checked for validity
 type Validatable interface {
 	IsValid() error
 }

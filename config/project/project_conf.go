@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/Mantsje/iterum-cli/config"
+	"github.com/Mantsje/iterum-cli/util"
 )
 
 // ProjectConf contains the config for the root folder of an iterum project
@@ -32,11 +33,11 @@ func (pc ProjectConf) IsValid() error {
 		err = errors.New("Error: Name of project contains whitespace which is illegal")
 	}
 	for _, val := range pc.Registered {
-		err = config.Verify(val, err)
+		err = util.Verify(val, err)
 	}
-	err = config.Verify(pc.Git, err)
-	err = config.Verify(pc.ProjectType, err)
-	err = config.Verify(pc.RepoType, err)
+	err = util.Verify(pc.Git, err)
+	err = util.Verify(pc.ProjectType, err)
+	err = util.Verify(pc.RepoType, err)
 	return err
 }
 
@@ -48,4 +49,15 @@ func (pc ProjectConf) AllowedVariables() string {
 	fmt.Fprintf(&buf, pc.ProjectType.AllowedVariables())
 	fmt.Fprintf(&buf, pc.Git.AllowedVariables())
 	return buf.String()
+}
+
+// ParseFromFile tries to parse a config file into this ProjectConfig
+func (pc *ProjectConf) ParseFromFile(filepath string) error {
+	if err := util.ReadJSONFile(filepath, pc); err != nil {
+		return errors.New("Error: Could not parse ProjectConf")
+	}
+	if err := pc.IsValid(); err != nil {
+		return err
+	}
+	return nil
 }

@@ -31,8 +31,15 @@ func initRun(cmd *cobra.Command, args []string) {
 	}
 	// Guaranteed to be correct, so no checking needed
 	var projectType, _ = project.InferProjectType(prompter.ProjectType())
-	var gitPlatform, _ = git.NewPlatform(prompter.Platform())
-	var gitProtocol, _ = git.NewProtocol(prompter.Protocol())
+	var gitPlatform git.Platform
+	var gitProtocol git.Protocol
+	if NoRemote {
+		gitPlatform = git.None
+		gitProtocol = git.HTTPS
+	} else {
+		gitPlatform, _ = git.NewPlatform(prompter.Platform())
+		gitProtocol, _ = git.NewProtocol(prompter.Protocol())
+	}
 
 	var projectConfig = project.NewProjectConf(name)
 	projectConfig.ProjectType = projectType

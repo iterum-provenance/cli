@@ -36,7 +36,7 @@ var setCmd = &cobra.Command{
 	Run:   setRun,
 }
 
-func writeConf(conf config.Validatable) {
+func writeConf(conf util.Validatable) {
 	if err := conf.IsValid(); err != nil {
 		log.Fatal(errIllegalUpdate)
 	}
@@ -54,7 +54,7 @@ func setRun(cmd *cobra.Command, args []string) {
 	value := args[1]
 
 	var conf config.Settable
-	var roConf config.Validatable
+	var roConf util.Validatable
 
 	switch repo {
 	case config.Unit:

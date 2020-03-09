@@ -19,5 +19,5 @@ var testCmd = &cobra.Command{
 
 func testRun(cmd *cobra.Command, args []string) {
 	fmt.Println("'Iterum testing' command")
-	fmt.Println(errInvalidArgs("abc", "def", "ghi"))
+
 }

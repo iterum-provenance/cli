@@ -12,6 +12,15 @@ func FileExists(filename string) bool {
 	return !info.IsDir()
 }
 
+// DirExists checks whether path is an existing dir
+func DirExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return info.IsDir()
+}
+
 // IsFolderOrDir returns whether the passed path is an existing folder or dir
 func IsFolderOrDir(path string) bool {
 	_, err := os.Stat(path)

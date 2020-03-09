@@ -57,9 +57,15 @@ func initCreate() (proj project.ProjectConf, name string, gitConf config.GitConf
 
 	createComponentFolder(name)
 
-	// Guaranteed to be correct, so no checking needed
-	var gitPlatform, _ = git.NewPlatform(prompter.Platform())
-	var gitProtocol, _ = git.NewProtocol(prompter.Protocol())
+	var gitPlatform git.Platform
+	var gitProtocol git.Protocol
+	if NoRemote {
+		gitPlatform = git.None
+		gitProtocol = git.HTTPS
+	} else {
+		gitPlatform, _ = git.NewPlatform(prompter.Platform())
+		gitProtocol, _ = git.NewProtocol(prompter.Protocol())
+	}
 
 	gitConf = config.GitConf{
 		Platform: gitPlatform,

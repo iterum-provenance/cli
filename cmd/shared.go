@@ -22,6 +22,7 @@ func ensureRootLocation() (project.ProjectConf, error) {
 	if repo != config.Project {
 		return project.ProjectConf{}, errNotRoot
 	}
+
 	return conf.(project.ProjectConf), nil
 }
 
@@ -29,6 +30,7 @@ func ensureRootLocation() (project.ProjectConf, error) {
 func ensureIterumComponent() (interface{}, config.RepoType, error) {
 	conf, repo, err := parser.ParseConfigFile(config.ConfigFilePath)
 	if err != nil {
+		log.Println(err)
 		return conf, repo, errNoProject
 	}
 	return conf, repo, nil

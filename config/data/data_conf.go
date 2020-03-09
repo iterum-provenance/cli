@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/Mantsje/iterum-cli/config"
+	"github.com/Mantsje/iterum-cli/util"
 )
 
 // DataConf contains the config for a data component in an iterum project
@@ -27,8 +28,8 @@ func (dc DataConf) IsValid() error {
 	if err == nil && rexp.ReplaceAllString(dc.Name, "") != dc.Name {
 		err = errors.New("Error: Name of data component contains whitespace which is illegal")
 	}
-	err = config.Verify(dc.RepoType, err)
-	err = config.Verify(dc.Git, err)
+	err = util.Verify(dc.RepoType, err)
+	err = util.Verify(dc.Git, err)
 	return err
 }
 
@@ -39,4 +40,15 @@ func (dc DataConf) AllowedVariables() string {
 	fmt.Fprintf(&buf, "Name                string\n")
 	fmt.Fprintf(&buf, dc.Git.AllowedVariables())
 	return buf.String()
+}
+
+// ParseFromFile tries to parse a config file into this DataConfig
+func (dc *DataConf) ParseFromFile(filepath string) error {
+	if err := util.ReadJSONFile(filepath, dc); err != nil {
+		return errors.New("Error: Could not parse DataConf")
+	}
+	if err := dc.IsValid(); err != nil {
+		return err
+	}
+	return nil
 }

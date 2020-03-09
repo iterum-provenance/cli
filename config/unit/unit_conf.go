@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/Mantsje/iterum-cli/config"
+	"github.com/Mantsje/iterum-cli/util"
 )
 
 // UnitConf contains the config for a unit folder in an iterum project
@@ -28,9 +29,9 @@ func (uc UnitConf) IsValid() error {
 	if err == nil && rexp.ReplaceAllString(uc.Name, "") != uc.Name {
 		err = errors.New("Error: Name of unit contains whitespace which is illegal")
 	}
-	err = config.Verify(uc.RepoType, err)
-	err = config.Verify(uc.UnitType, err)
-	err = config.Verify(uc.Git, err)
+	err = util.Verify(uc.RepoType, err)
+	err = util.Verify(uc.UnitType, err)
+	err = util.Verify(uc.Git, err)
 	return err
 }
 
@@ -42,4 +43,15 @@ func (uc UnitConf) AllowedVariables() string {
 	fmt.Fprintf(&buf, uc.UnitType.AllowedVariables())
 	fmt.Fprintf(&buf, uc.Git.AllowedVariables())
 	return buf.String()
+}
+
+// ParseFromFile tries to parse a config file into this UnitConfig
+func (uc *UnitConf) ParseFromFile(filepath string) error {
+	if err := util.ReadJSONFile(filepath, uc); err != nil {
+		return errors.New("Error: Could not parse UnitConf")
+	}
+	if err := uc.IsValid(); err != nil {
+		return err
+	}
+	return nil
 }
