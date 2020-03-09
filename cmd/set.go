@@ -11,6 +11,7 @@ import (
 	"github.com/Mantsje/iterum-cli/config/parser"
 	"github.com/Mantsje/iterum-cli/config/project"
 	"github.com/Mantsje/iterum-cli/config/unit"
+	"github.com/Mantsje/iterum-cli/constants"
 	"github.com/Mantsje/iterum-cli/util"
 	"github.com/spf13/cobra"
 )
@@ -40,13 +41,13 @@ func writeConf(conf util.Validatable) {
 	if err := conf.IsValid(); err != nil {
 		log.Fatal(errIllegalUpdate)
 	}
-	if err := util.WriteJSONFile(config.ConfigFilePath, conf); err != nil {
+	if err := util.WriteJSONFile(constants.ConfigFilePath, conf); err != nil {
 		log.Fatal(errConfigWriteFailed)
 	}
 }
 
 func setRun(cmd *cobra.Command, args []string) {
-	_conf, repo, err := parser.ParseConfigFile(config.ConfigFilePath)
+	_conf, repo, err := parser.ParseConfigFile(constants.ConfigFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -82,7 +83,7 @@ func setRun(cmd *cobra.Command, args []string) {
 }
 
 func lsRun(cmd *cobra.Command, args []string) {
-	_conf, repo, err := parser.ParseConfigFile(config.ConfigFilePath)
+	_conf, repo, err := parser.ParseConfigFile(constants.ConfigFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}

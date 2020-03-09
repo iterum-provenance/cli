@@ -1,4 +1,4 @@
-package dvc
+package idv
 
 import (
 	"math/rand"

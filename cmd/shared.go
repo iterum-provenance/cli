@@ -7,6 +7,7 @@ import (
 	"github.com/Mantsje/iterum-cli/config"
 	"github.com/Mantsje/iterum-cli/config/parser"
 	"github.com/Mantsje/iterum-cli/config/project"
+	"github.com/Mantsje/iterum-cli/constants"
 	"github.com/Mantsje/iterum-cli/git"
 	"github.com/Mantsje/iterum-cli/util"
 )
@@ -28,7 +29,7 @@ func ensureRootLocation() (project.ProjectConf, error) {
 
 // Make sure we are in an iterum component folder
 func ensureIterumComponent() (interface{}, config.RepoType, error) {
-	conf, repo, err := parser.ParseConfigFile(config.ConfigFilePath)
+	conf, repo, err := parser.ParseConfigFile(constants.ConfigFilePath)
 	if err != nil {
 		log.Println(err)
 		return conf, repo, errNoProject
@@ -45,7 +46,7 @@ func initVersionTracking(conf config.Configurable) {
 	if !NoRemote {
 		uri := git.CreateRepo(commitMsg, base.Git.Platform, path)
 		base.Git.URI = uri
-		err := util.WriteJSONFile(base.Name+"/"+config.ConfigFilePath, conf)
+		err := util.WriteJSONFile(base.Name+"/"+constants.ConfigFilePath, conf)
 		if err != nil {
 			log.Fatal(errConfigWriteFailed)
 		}

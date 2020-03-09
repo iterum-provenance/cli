@@ -1,4 +1,4 @@
-package dvc
+package idv
 
 import (
 	"fmt"
@@ -25,7 +25,7 @@ func NewBranch(name string) Branch {
 // WriteToFolder writes the branch to the specified folder.
 // Name of file is and should be determined by the branch structure
 func (b Branch) WriteToFolder(folderPath string) error {
-	fullPath := folderPath + "/" + b.Hash.String() + ".branch"
+	fullPath := folderPath + "/" + b.Hash.String() + branchFileExt
 	return util.WriteJSONFile(fullPath, b)
 }
 
