@@ -3,9 +3,6 @@ package data
 import (
 	"regexp"
 
-	"github.com/Mantsje/iterum-cli/constants"
-
-	"github.com/Mantsje/iterum-cli/idv"
 	"github.com/Mantsje/iterum-cli/util"
 )
 
@@ -24,14 +21,14 @@ func isValidLocation(arg string) bool {
 }
 
 // ParseCurrentIDVState reads in the currently stored dvc information as a general setup
-func ParseCurrentIDVState() (idv.VTree, idv.Branch, idv.Config, error) {
-	var history idv.VTree
-	var branch idv.Branch
-	var config idv.Config
-	var local idv.Commit
-	history.ParseFromFile(idv.VTreeFile)
-	branch.ParseFromFile(idv.CurrentBranch)
-	local.ParseFromFile(idv.CurrentCommit)
-	idv.
-		config.ParseFromFile(constants.IDVConfigFileName)
-}
+// func ParseCurrentIDVState() (idv.VTree, idv.Branch, idv.Config, error) {
+// var history idv.VTree
+// var branch idv.Branch
+// var config idv.Config
+// var local idv.Commit
+// history.ParseFromFile(idv.VTreeFile)
+// branch.ParseFromFile(idv.CurrentBranch)
+// local.ParseFromFile(idv.CurrentCommit)
+// idv.LOCAL
+// config.ParseFromFile(constants.IDVConfigFileName)
+// }

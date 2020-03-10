@@ -46,6 +46,20 @@ func NewCommit(parent Commit, branch hash, name string, desc string) Commit {
 	}
 }
 
+// NewRootCommit creates a bare, empty root commit for initializing a new repo
+func NewRootCommit(branch hash) Commit {
+	return Commit{
+		Parent:      "",
+		Branch:      branch,
+		Name:        rootCommitName,
+		Description: "Root commit of this repository",
+		Hash:        newHash(32),
+		Files:       []string{},
+		Diff:        diff{[]string{}, []string{}, []string{}},
+		Deprecated:  deprecated{false, ""},
+	}
+}
+
 // WriteToFolder writes the commit to the specified folder.
 // Name of file is and should be determined by the commit structure
 func (c Commit) WriteToFolder(folderPath string) error {
@@ -61,40 +75,49 @@ func (c *Commit) ParseFromFile(filepath string) error {
 	return nil
 }
 
+// ToFilePath returns a path to this commit being: .idv/{local, remote}/commithash.extension
+// local indicates which of the 2 folders to use
+func (c Commit) ToFilePath(local bool) string {
+	if local {
+		return localFolder + c.Hash.String() + commitFileExt
+	}
+	return remoteFolder + c.Hash.String() + commitFileExt
+}
+
 // FormatFiles returns the list of files as 1 long string interleaved with \n
 // Usefull for display and filtering, head is prepended, tail is appended, isEmpty
-// is used if no files are listed as follows: ```headisEmptytail```
-func (c Commit) FormatFiles(head string, tail string, ifEmpty string) string {
+// is used if no files are listed as follows: `headisEmptytail`
+func (c Commit) FormatFiles(head string, tail string, ifEmpty string, delim string) string {
 	out := head
 	for _, file := range c.Files {
-		out += file + "\n"
+		out += file + delim
 	}
 	if len(c.Files) == 0 {
 		out += ifEmpty
 	}
-	out += tail
+	out += tail + "\n"
 	return out
 }
 
 // FormatDiff returns the list of changed files in the Diff as 1 long string interleaved with \n
 // Usefull for display and filtering, head is prepended, tail is appended, isEmpty
-// is used if no files are listed as follows: ```headisEmptytail```
+// is used if no files are listed as follows: `headisEmptytail\n`
 // else the strings produced are `OP file\n`, where OP is one of { U(pdated), R(emoved), A(dded)}
-func (c Commit) FormatDiff(head string, tail string, ifEmpty string) string {
+func (c Commit) FormatDiff(head string, tail string, ifEmpty string, delim string) string {
 	out := head
 	for _, file := range c.Diff.Added {
-		out += "A    " + file + "\n"
+		out += "A    " + file + delim
 	}
 	for _, file := range c.Diff.Updated {
-		out += "U    " + file + "\n"
+		out += "U    " + file + delim
 	}
 	for _, file := range c.Diff.Removed {
-		out += "R    " + file + "\n"
+		out += "R    " + file + delim
 	}
 	if out == head {
 		out += ifEmpty
 	}
-	out += tail
+	out += tail + "\n"
 	return out
 }
 

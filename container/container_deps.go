@@ -14,7 +14,7 @@ var (
 	DockerDep   deps.Dep = deps.Dep{Name: "Docker", Cmd: dockerCmd}
 )
 
-// RegisterDeps adds to the global list of dependencies in this package
-func RegisterDeps() {
+// adds these dependencies to the global list of dependencies
+func init() {
 	deps.Register(Microk8sDep, DockerDep)
 }

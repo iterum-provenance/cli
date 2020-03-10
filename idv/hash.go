@@ -25,3 +25,18 @@ func newHash(length int) hash {
 func (h hash) String() string {
 	return string(h)
 }
+
+func (h hash) toPath(local bool, extension string) string {
+	if local {
+		return localFolder + h.String() + extension
+	}
+	return remoteFolder + h.String() + extension
+}
+
+func (h hash) toBranchPath(local bool) string {
+	return h.toPath(local, branchFileExt)
+}
+
+func (h hash) toCommitPath(local bool) string {
+	return h.toPath(local, commitFileExt)
+}

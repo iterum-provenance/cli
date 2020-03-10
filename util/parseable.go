@@ -1,4 +1,4 @@
-package config
+package util
 
 // Parseable is an interface to support parsing from a file
 type Parseable interface {

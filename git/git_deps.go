@@ -17,8 +17,8 @@ var (
 	BitbucketDep deps.Dep = deps.Dep{Name: "Remote Bitbucket", Cmd: bitbucketCmd}
 )
 
-// RegisterDeps adds to the global list of dependencies in this package
-func RegisterDeps() {
+// adds these dependencies to the global list of dependencies
+func init() {
 	deps.Register(GitDep, GithubDep, GitlabDep, BitbucketDep)
 }
 

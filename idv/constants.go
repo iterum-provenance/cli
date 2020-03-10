@@ -21,18 +21,18 @@ const (
 )
 
 // vtreeFileName is the name of the stored version tree file
-const vtreeFileName string = remoteFolder + "history" + vtreeFileExt
+const vtreeFileName string = "history" + vtreeFileExt
 
 // Filenames of the files stored in .idv/local/
 const (
-	// curCommitFile is the name of the stored version tree file
-	curCommitFileName string = localFolder + "current" + commitFileExt
+	// curCommitFilePath is the name of the stored version tree file
+	curCommitFilePath string = localFolder + "current" + commitFileExt
 
-	// curBranchFile is the name of the stored version tree file
-	curBranchFileName string = localFolder + "current" + branchFileExt
+	// curBranchFilePath is the name of the stored version tree file
+	curBranchFilePath string = localFolder + "current" + branchFileExt
 
-	// curVTreeFile is the name of the stored version tree file
-	curVTreeFileName string = localFolder + "current" + vtreeFileExt
+	// curVTreeFilePath is the name of the stored version tree file
+	curVTreeFilePath string = localFolder + "current" + vtreeFileExt
 )
 
 // File extensions for idv files
@@ -40,4 +40,10 @@ const (
 	commitFileExt string = ".commit"
 	branchFileExt string = ".branch"
 	vtreeFileExt  string = ".vtree"
+)
+
+// Defaults for roots and masters
+const (
+	masterBranchName string = "master"
+	rootCommitName   string = "<root>"
 )

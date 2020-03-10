@@ -3,6 +3,7 @@ package data
 import (
 	"fmt"
 
+	"github.com/Mantsje/iterum-cli/idv"
 	"github.com/spf13/cobra"
 )
 
@@ -19,5 +20,6 @@ var testCmd = &cobra.Command{
 
 func testRun(cmd *cobra.Command, args []string) {
 	fmt.Println("'Iterum testing' command")
-
+	// fmt.Println(idv.Initialize())
+	fmt.Println(idv.Status())
 }

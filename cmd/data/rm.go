@@ -9,6 +9,8 @@ import (
 func init() {
 	rootCmd.AddCommand(rmCmd)
 	rmCmd.PersistentFlags().BoolVarP(&Recursive, "recursive", "r", false, "Descend recursively into passed folders")
+	rmCmd.PersistentFlags().StringSliceVarP(&Exclusions, "exclude", "x", []string{}, "Exclude files and folders -x val1 -x val2 -x val3,val4")
+	rmCmd.PersistentFlags().BoolVarP(&ShowExcluded, "show-excluded", "s", false, "Show list of excluded files")
 }
 
 var rmCmd = &cobra.Command{

@@ -23,15 +23,16 @@ type VTree struct {
 }
 
 // NewVTree instantiates a new version tree and sets the root node
-func NewVTree() VTree {
+func NewVTree(root Commit, master Branch) VTree {
 	v := VTree{make(commitTree), make(map[hash]string)}
 	node := vtreeNode{
-		Name:     "root",
-		Branch:   "master",
+		Name:     root.Name,
+		Branch:   master.Hash,
 		Children: []hash{},
-		Parent:   hash("root"),
+		Parent:   root.Hash,
 	}
-	v.Tree[hash("root")] = node
+	v.Tree[root.Hash] = node
+	v.Branches[master.Hash] = master.Name
 	return v
 }
 
