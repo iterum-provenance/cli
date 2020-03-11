@@ -1,8 +1,9 @@
 package idv
 
 import (
-	"errors"
 	"fmt"
+	"path/filepath"
+	"regexp"
 
 	"github.com/Mantsje/iterum-cli/util"
 )
@@ -67,6 +68,12 @@ func (c Commit) WriteToFolder(folderPath string) error {
 	return util.WriteJSONFile(fullPath, c)
 }
 
+// writeToFile writes the commit to the specified file.
+// Don't use this unless you really know what you're doing, try WriteToFolder instead
+func (c Commit) writeToFile(filePath string) error {
+	return util.WriteJSONFile(filePath, c)
+}
+
 // ParseFromFile tries to parse a .commit file
 func (c *Commit) ParseFromFile(filepath string) error {
 	if err := util.ReadJSONFile(filepath, c); err != nil {
@@ -87,13 +94,17 @@ func (c Commit) ToFilePath(local bool) string {
 // FormatFiles returns the list of files as 1 long string interleaved with \n
 // Usefull for display and filtering, head is prepended, tail is appended, isEmpty
 // is used if no files are listed as follows: `headisEmptytail`
-func (c Commit) FormatFiles(head string, tail string, ifEmpty string, delim string) string {
+func (c Commit) FormatFiles(selector *regexp.Regexp, head string, tail string, ifEmpty string, delim string) string {
 	out := head
 	for _, file := range c.Files {
-		out += file + delim
+		if selector.MatchString(c.idvPathToName(file)) {
+			out += c.idvPathToName(file) + delim
+		}
 	}
-	if len(c.Files) == 0 {
+	if out == head {
 		out += ifEmpty
+	} else {
+		out = out[:len(out)-len(delim)]
 	}
 	out += tail + "\n"
 	return out
@@ -106,60 +117,118 @@ func (c Commit) FormatFiles(head string, tail string, ifEmpty string, delim stri
 func (c Commit) FormatDiff(head string, tail string, ifEmpty string, delim string) string {
 	out := head
 	for _, file := range c.Diff.Added {
-		out += "A    " + file + delim
+		out += "A    " + c.idvPathToName(file) + delim
 	}
 	for _, file := range c.Diff.Updated {
-		out += "U    " + file + delim
+		out += "U    " + c.idvPathToName(file) + delim
 	}
 	for _, file := range c.Diff.Removed {
-		out += "R    " + file + delim
+		out += "R    " + c.idvPathToName(file) + delim
 	}
 	if out == head {
 		out += ifEmpty
+	} else {
+		out = out[:len(out)-len(delim)]
 	}
 	out += tail + "\n"
 	return out
 }
 
-// Add adds a new file to this commit
-func (c *Commit) Add(file string) error {
-	return errors.New("Error: Adding not yet implemented")
-	// TODO ensure it is actually new, prevent clashes
-	// c.Diff.Added = append(c.Diff.Added, file)
-	// return nil
+// AddOrUpdate adds or updates files to this commit
+// These files needs to be guaranteed to exist before passing
+func (c *Commit) AddOrUpdate(paths []string) (adds, updates int) {
+	fileMap := c._filesToNameMap(c.Files)
+	addMap := c._filesToNameMap(c.Diff.Added)
+	updateMap := c._filesToNameMap(c.Diff.Updated)
+	for _, path := range paths {
+		filename := filepath.Base(path)
+		if _, ok := addMap[filename]; ok { // If already stage for add
+			continue
+		} else if _, ok := updateMap[filename]; ok { // If already staged for update
+			continue
+		} else if _, ok := fileMap[filename]; ok { // If already in existing files
+			c.update(path)
+			updates++
+		} else { // Completely new and unseen file
+			c.add(path)
+			adds++
+		}
+	}
+	return
 }
 
-// Remove removes a file from this commit
-func (c *Commit) Remove(file string) error {
-	return errors.New("Error: Removing not yet implemented")
-	// TODO ensure it was existent
-	// c.Diff.Removed = append(c.Diff.Removed, file)
-	// return nil
+// add adds a new file to this commit
+func (c *Commit) add(file string) {
+	c.Diff.Added = append(c.Diff.Added, c.pathToIDVPath(file))
 }
 
-// Update updates a in this commit
-func (c *Commit) Update(file string) error {
-	return errors.New("Error: Updating not yet implemented")
-	// TODO ensure it is actually new, prevent clashes
-	// c.Diff.Updated = append(c.Diff.Updated, file)
-	// return nil
+// update updates a in this commit
+func (c *Commit) update(file string) {
+	c.Diff.Updated = append(c.Diff.Updated, c.pathToIDVPath(file))
 }
 
-// ToBoolMap converts a slice into a map[T]true, used for searching
-func toBoolMap(slice []interface{}) map[interface{}]bool {
-	m := make(map[interface{}]bool)
+func (c *Commit) _remove(staging []string, asFiles bool) (removals int) {
+	fileMap := c._filesToNameMap(c.Files)
+	addMap := c._filesToNameMap(c.Diff.Added)
+	updateMap := c._filesToNameMap(c.Diff.Updated)
+	for _, pathOrFile := range staging {
+		var filename string
+		if asFiles {
+			filename = filepath.Base(pathOrFile)
+		}
+		if _, ok := addMap[filename]; ok { // If already staged for add
+			addMap[filename] = ""
+			removals++
+		} else if _, ok := updateMap[filename]; ok { // If already staged for update
+			updateMap[filename] = ""
+			removals++
+		} else if _, ok := fileMap[filename]; ok { // If already in existing files
+			c.Diff.Removed = append(c.Diff.Removed, fileMap[filename])
+			fileMap[filename] = ""
+			removals++
+		}
+		// unseen/tracked file
+	}
+	c.Files = c._fileMaptoSlice(fileMap)
+	c.Diff.Added = c._fileMaptoSlice(addMap)
+	c.Diff.Updated = c._fileMaptoSlice(updateMap)
+	return
+}
+
+// removeNames removes each file in the passed list of names from this commit
+// expects the paths to be complete, absolute and valid
+func (c *Commit) removeFiles(paths []string) (removals int) {
+	return c._remove(paths, true)
+}
+
+// removeNames removes each name in the passed list of names from this commit
+func (c *Commit) removeNames(names []string) (removals int) {
+	return c._remove(names, false)
+}
+
+func (c Commit) pathToIDVPath(path string) string {
+	return dataFolder + filepath.Base(path) + "/" + c.Hash.String()
+}
+
+func (c Commit) idvPathToName(path string) string {
+	return filepath.Base(filepath.Dir(path))
+}
+
+// _filesToNameMap converts a slice of filepaths into a map[filename]filepath, usable for searching
+func (c Commit) _filesToNameMap(slice []string) map[string]string {
+	m := make(map[string]string)
 	for _, elem := range slice {
-		m[elem] = true
+		m[c.idvPathToName(elem)] = elem
 	}
 	return m
 }
 
-// ToSlice converts a boolmap into a slice if map[elem] == true
-func toSlice(m map[interface{}]bool) []interface{} {
-	var slice []interface{}
-	for key, val := range m {
-		if val {
-			slice = append(slice, key)
+// _fileMaptoSlice converts a fileMap into a slice if map[elem] is a valid path
+func (c Commit) _fileMaptoSlice(m map[string]string) []string {
+	var slice []string
+	for _, val := range m {
+		if val != "" {
+			slice = append(slice, val)
 		}
 	}
 	return slice

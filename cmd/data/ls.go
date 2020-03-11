@@ -1,8 +1,11 @@
 package data
 
 import (
+	"fmt"
 	"log"
+	"regexp"
 
+	"github.com/Mantsje/iterum-cli/idv"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +15,7 @@ func init() {
 
 var lsCmd = &cobra.Command{
 	Use:   "ls [selector]",
-	Short: "List files in the current commit (with selector)",
+	Short: "List files in the current commit (that match with selector)",
 	Long:  `List all files in the current commit filtered using specified regex selector`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) > 1 {
@@ -27,5 +30,16 @@ var lsCmd = &cobra.Command{
 }
 
 func lsRun(cmd *cobra.Command, args []string) {
-	log.Println("`iterum data ls`")
+	var selector *regexp.Regexp
+	if len(args) == 0 {
+		selector, _ = regexp.Compile("")
+	} else {
+		selector, _ = regexp.Compile(args[0])
+	}
+	report, err := idv.Ls(selector)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Files in data set:")
+	fmt.Println(report)
 }

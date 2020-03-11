@@ -5,7 +5,7 @@ func dummyPull() {
 	commit := NewRootCommit(branch.Hash)
 	branch.HEAD = commit.Hash
 	history := NewVTree(commit, branch)
-	history.WriteToFolder(".idv/remote")
-	commit.WriteToFolder(".idv/remote")
-	branch.WriteToFolder(".idv/remote")
+	history.WriteToFolder(remoteFolder)
+	commit.WriteToFolder(remoteFolder)
+	branch.WriteToFolder(remoteFolder)
 }

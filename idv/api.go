@@ -69,34 +69,56 @@ func Status() (report string, err error) {
 	util.PanicIfErr(err, "")
 	var local Commit
 	parseLOCAL(&local)
-	report = local.FormatDiff("{", "}", "< No Staged Files >", "\n\t")
+	report = local.FormatDiff("{\n\t", "\n}", "< No Staged Files >", "\n\t")
 	return
 }
 
-// Add stages new files to be added and existing files as Updates
-func Add(files []string) (err error) {
+// Ls lists all data in the current commit
+func Ls(selector *regexp.Regexp) (report string, err error) {
+	defer _returnErrOnPanic(&err)()
+	err = EnsureLOCAL()
+	util.PanicIfErr(err, "")
+	var local Commit
+	parseLOCAL(&local)
+	report = local.FormatFiles(selector, "{\n\t", "\n}", "< Empty Data Set >", "\n\t")
+	return
+}
+
+// AddFiles stages new files to be added and existing files as Updates, expects a list of absolute file paths
+func AddFiles(files []string) (adds, updates int, err error) {
 	defer _returnErrOnPanic(&err)()
 	err = EnsureLOCAL()
 	util.PanicIfErr(err, "")
 	var local Commit
 	parseLOCAL(&local)
 	for _, file := range files {
-		if !util.IsFolderOrDir(file) {
-			panic(fmt.Errorf("Error: %v is not a file or directory", file))
+		if !util.FileExists(file) {
+			panic(fmt.Errorf("Error: %v is either non-existent, or a directory", file))
 		}
-		info, _ := os.Stat(file)
-		fmt.Println(info.Name())
 	}
+	adds, updates = local.AddOrUpdate(files)
+	writeLOCAL(local)
 	return
 }
 
-// Remove stages files for removal from the dataset
-func Remove(files []string) {
-
-}
-
-// Ls lists all data in the current commit
-func Ls(selector regexp.Regexp) {
+// RemoveFiles stages files for removal from the dataset
+// files is expected to be a list of paths on this machine
+// names can be random strings that are matched against names in the commit
+func RemoveFiles(files []string, names []string) (removals int, err error) {
+	defer _returnErrOnPanic(&err)()
+	err = EnsureLOCAL()
+	util.PanicIfErr(err, "")
+	var local Commit
+	parseLOCAL(&local)
+	for _, file := range files {
+		if !util.FileExists(file) {
+			panic(fmt.Errorf("Error: %v is either non-existent, or a directory", file))
+		}
+	}
+	removals = local.removeFiles(files)
+	removals += local.removeNames(names)
+	writeLOCAL(local)
+	return
 
 }
 

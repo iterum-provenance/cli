@@ -21,8 +21,8 @@ func DirExists(filename string) bool {
 	return info.IsDir()
 }
 
-// IsFolderOrDir returns whether the passed path is an existing folder or dir
-func IsFolderOrDir(path string) bool {
+// IsFileOrDir returns whether the passed path is an existing file or dir
+func IsFileOrDir(path string) bool {
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return false

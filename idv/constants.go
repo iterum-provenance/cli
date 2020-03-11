@@ -47,3 +47,9 @@ const (
 	masterBranchName string = "master"
 	rootCommitName   string = "<root>"
 )
+
+const (
+	dataFolder     string = "data/"
+	stagedFileName string = "local.staged"
+	stagedFilePath string = localFolder + stagedFileName
+)

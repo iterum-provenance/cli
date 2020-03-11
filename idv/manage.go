@@ -78,3 +78,9 @@ func parseLOCAL(commit *Commit) {
 func parseBRANCH(branch *Branch) {
 	parseBranch(BRANCH, branch)
 }
+
+// writeLOCAL takes a commit and writes it to wherever LOCAL points
+func writeLOCAL(commit Commit) {
+	err := commit.writeToFile(LOCAL)
+	util.PanicIfErr(err, "")
+}

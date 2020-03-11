@@ -20,10 +20,10 @@ var statusCmd = &cobra.Command{
 }
 
 func statusRun(cmd *cobra.Command, args []string) {
-	log.Println("`iterum data status`")
 	report, err := idv.Status()
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Println("Staged file changes:")
 	fmt.Println(report)
 }
