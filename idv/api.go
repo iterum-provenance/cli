@@ -59,28 +59,36 @@ func Initialize() (err error) {
 	util.PanicIfErr(err, "")
 	linkLOCAL(local)
 
+	err = Stagemap{}.WriteToFile()
+	util.PanicIfErr(err, "")
+
 	return
 }
 
 // Status returns information about the currently staged files
-func Status() (report string, err error) {
+func Status(fullPath, localPath bool) (report string, err error) {
 	defer _returnErrOnPanic(&err)()
 	err = EnsureLOCAL()
 	util.PanicIfErr(err, "")
 	var local Commit
 	parseLOCAL(&local)
-	report = local.FormatDiff("{\n\t", "\n}", "< No Staged Files >", "\n\t")
+	if localPath {
+		stagemap := parseStagemap()
+		report = local.FormatDiff("{\n\t", "\n}", "< No Staged Files >", "\n\t", fullPath, stagemap)
+	} else {
+		report = local.FormatDiff("{\n\t", "\n}", "< No Staged Files >", "\n\t", fullPath, nil)
+	}
 	return
 }
 
 // Ls lists all data in the current commit
-func Ls(selector *regexp.Regexp) (report string, err error) {
+func Ls(selector *regexp.Regexp, fullPath bool) (report string, err error) {
 	defer _returnErrOnPanic(&err)()
 	err = EnsureLOCAL()
 	util.PanicIfErr(err, "")
 	var local Commit
 	parseLOCAL(&local)
-	report = local.FormatFiles(selector, "{\n\t", "\n}", "< Empty Data Set >", "\n\t")
+	report = local.FormatFiles(selector, "{\n\t", "\n}", "< Empty Data Set >", "\n\t", fullPath)
 	return
 }
 
@@ -96,7 +104,16 @@ func AddFiles(files []string) (adds, updates int, err error) {
 			panic(fmt.Errorf("Error: %v is either non-existent, or a directory", file))
 		}
 	}
-	adds, updates = local.AddOrUpdate(files)
+	addMap, updateMap := local.AddOrUpdate(files)
+	adds = len(addMap)
+	updates = len(updateMap)
+	stagemap := parseStagemap()
+	fmt.Println(stagemap)
+	err = stagemap.Update(addMap)
+	util.PanicIfErr(err, "")
+	err = stagemap.Update(updateMap)
+	util.PanicIfErr(err, "")
+	verifyAndUpdateStagemap(local, stagemap)
 	writeLOCAL(local)
 	return
 }
@@ -104,7 +121,7 @@ func AddFiles(files []string) (adds, updates int, err error) {
 // RemoveFiles stages files for removal from the dataset
 // files is expected to be a list of paths on this machine
 // names can be random strings that are matched against names in the commit
-func RemoveFiles(files []string, names []string) (removals int, err error) {
+func RemoveFiles(files []string, names []string, unstage bool) (removals, unstages int, err error) {
 	defer _returnErrOnPanic(&err)()
 	err = EnsureLOCAL()
 	util.PanicIfErr(err, "")
@@ -115,11 +132,40 @@ func RemoveFiles(files []string, names []string) (removals int, err error) {
 			panic(fmt.Errorf("Error: %v is either non-existent, or a directory", file))
 		}
 	}
-	removals = local.removeFiles(files)
-	removals += local.removeNames(names)
+	removals, unstages = local.removeFiles(files, unstage)
+	removedNames, unstagedNames := local.removeNames(names, unstage)
+	removals += removedNames
+	unstages += unstagedNames
+	verifyAndUpdateStagemap(local, nil)
 	writeLOCAL(local)
 	return
+}
 
+// RemoveWithSelector removes files from data set and staging based on a regex.
+// All files matching the selector are staged for removal, or unstaged in case a staged files
+func RemoveWithSelector(selector *regexp.Regexp, unstage bool) (removals, unstages int, err error) {
+	defer _returnErrOnPanic(&err)()
+	err = EnsureLOCAL()
+	util.PanicIfErr(err, "")
+	var local Commit
+	parseLOCAL(&local)
+	removals, unstages = local.removeWithSelector(selector, unstage)
+	verifyAndUpdateStagemap(local, nil)
+	writeLOCAL(local)
+	return
+}
+
+// Unstage unstages adds/updates/removes of files that match the selector
+func Unstage(selector *regexp.Regexp) (unstaged int, err error) {
+	defer _returnErrOnPanic(&err)()
+	err = EnsureLOCAL()
+	util.PanicIfErr(err, "")
+	var local Commit
+	parseLOCAL(&local)
+	unstaged = local.unstage(selector)
+	verifyAndUpdateStagemap(local, nil)
+	writeLOCAL(local)
+	return
 }
 
 // ApplyCommit finalizes the currently staged changes and submits it to the daemon

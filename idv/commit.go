@@ -91,14 +91,24 @@ func (c Commit) ToFilePath(local bool) string {
 	return remoteFolder + c.Hash.String() + commitFileExt
 }
 
+func (c Commit) _convertToDisplayName(file string, fullPath bool, stagemap Stagemap) string {
+	if fullPath {
+		return file
+	}
+	if stagemap != nil {
+		return stagemap[file]
+	}
+	return c.idvPathToName(file)
+}
+
 // FormatFiles returns the list of files as 1 long string interleaved with \n
 // Usefull for display and filtering, head is prepended, tail is appended, isEmpty
 // is used if no files are listed as follows: `headisEmptytail`
-func (c Commit) FormatFiles(selector *regexp.Regexp, head string, tail string, ifEmpty string, delim string) string {
+func (c Commit) FormatFiles(selector *regexp.Regexp, head string, tail string, ifEmpty string, delim string, fullPath bool) string {
 	out := head
 	for _, file := range c.Files {
 		if selector.MatchString(c.idvPathToName(file)) {
-			out += c.idvPathToName(file) + delim
+			out += c._convertToDisplayName(file, fullPath, nil) + delim
 		}
 	}
 	if out == head {
@@ -114,16 +124,16 @@ func (c Commit) FormatFiles(selector *regexp.Regexp, head string, tail string, i
 // Usefull for display and filtering, head is prepended, tail is appended, isEmpty
 // is used if no files are listed as follows: `headisEmptytail\n`
 // else the strings produced are `OP file\n`, where OP is one of { U(pdated), R(emoved), A(dded)}
-func (c Commit) FormatDiff(head string, tail string, ifEmpty string, delim string) string {
+func (c Commit) FormatDiff(head string, tail string, ifEmpty string, delim string, fullPath bool, stagemap Stagemap) string {
 	out := head
 	for _, file := range c.Diff.Added {
-		out += "A    " + c.idvPathToName(file) + delim
+		out += "A    " + c._convertToDisplayName(file, fullPath, stagemap) + delim
 	}
 	for _, file := range c.Diff.Updated {
-		out += "U    " + c.idvPathToName(file) + delim
+		out += "U    " + c._convertToDisplayName(file, fullPath, stagemap) + delim
 	}
 	for _, file := range c.Diff.Removed {
-		out += "R    " + c.idvPathToName(file) + delim
+		out += "R    " + c._convertToDisplayName(file, fullPath, stagemap) + delim
 	}
 	if out == head {
 		out += ifEmpty
@@ -136,10 +146,12 @@ func (c Commit) FormatDiff(head string, tail string, ifEmpty string, delim strin
 
 // AddOrUpdate adds or updates files to this commit
 // These files needs to be guaranteed to exist before passing
-func (c *Commit) AddOrUpdate(paths []string) (adds, updates int) {
-	fileMap := c._filesToNameMap(c.Files)
-	addMap := c._filesToNameMap(c.Diff.Added)
-	updateMap := c._filesToNameMap(c.Diff.Updated)
+func (c *Commit) AddOrUpdate(paths []string) (adds, updates map[string]string) {
+	adds = make(map[string]string)
+	updates = make(map[string]string)
+	fileMap := c.filesToNameMap(c.Files)
+	addMap := c.filesToNameMap(c.Diff.Added)
+	updateMap := c.filesToNameMap(c.Diff.Updated)
 	for _, path := range paths {
 		filename := filepath.Base(path)
 		if _, ok := addMap[filename]; ok { // If already stage for add
@@ -147,63 +159,94 @@ func (c *Commit) AddOrUpdate(paths []string) (adds, updates int) {
 		} else if _, ok := updateMap[filename]; ok { // If already staged for update
 			continue
 		} else if _, ok := fileMap[filename]; ok { // If already in existing files
-			c.update(path)
-			updates++
+			idvpath := c.pathToIDVPath(path)
+			c.update(idvpath)
+			updates[idvpath] = path
 		} else { // Completely new and unseen file
-			c.add(path)
-			adds++
+			idvpath := c.pathToIDVPath(path)
+			c.add(idvpath)
+			adds[idvpath] = path
 		}
 	}
 	return
 }
 
 // add adds a new file to this commit
-func (c *Commit) add(file string) {
-	c.Diff.Added = append(c.Diff.Added, c.pathToIDVPath(file))
+func (c *Commit) add(idvpath string) {
+	c.Diff.Added = append(c.Diff.Added, idvpath)
 }
 
 // update updates a in this commit
-func (c *Commit) update(file string) {
-	c.Diff.Updated = append(c.Diff.Updated, c.pathToIDVPath(file))
+func (c *Commit) update(idvpath string) {
+	c.Diff.Updated = append(c.Diff.Updated, idvpath)
 }
 
-func (c *Commit) _remove(staging []string, asFiles bool) (removals int) {
-	fileMap := c._filesToNameMap(c.Files)
-	addMap := c._filesToNameMap(c.Diff.Added)
-	updateMap := c._filesToNameMap(c.Diff.Updated)
+// _remove actually removes files from the c.Files and (possibly) c.Diff, behave slightly differently based on the passed parameters.
+// unstage denotes whether to also remove staged updates/removes.
+// asFiles denotes whether the passed strings are already filenames or still paths. if so they are converted first
+func (c *Commit) _remove(staging []string, asFiles, unstage bool) (removals, unstages int) {
+	fileMap := c.filesToNameMap(c.Files)
+	addMap := c.filesToNameMap(c.Diff.Added)
+	updateMap := c.filesToNameMap(c.Diff.Updated)
 	for _, pathOrFile := range staging {
 		var filename string
 		if asFiles {
 			filename = filepath.Base(pathOrFile)
 		}
-		if _, ok := addMap[filename]; ok { // If already staged for add
-			addMap[filename] = ""
-			removals++
-		} else if _, ok := updateMap[filename]; ok { // If already staged for update
-			updateMap[filename] = ""
-			removals++
-		} else if _, ok := fileMap[filename]; ok { // If already in existing files
+		if unstage {
+			if _, ok := addMap[filename]; ok { // If already staged for add
+				addMap[filename] = ""
+				unstages++
+			} else if _, ok := updateMap[filename]; ok { // If already staged for update
+				updateMap[filename] = ""
+				unstages++
+			}
+		}
+		if _, ok := fileMap[filename]; ok { // If already in existing files
 			c.Diff.Removed = append(c.Diff.Removed, fileMap[filename])
 			fileMap[filename] = ""
 			removals++
 		}
-		// unseen/tracked file
+		// unseen/untracked file  --> do nothing
 	}
-	c.Files = c._fileMaptoSlice(fileMap)
-	c.Diff.Added = c._fileMaptoSlice(addMap)
-	c.Diff.Updated = c._fileMaptoSlice(updateMap)
+	c.Files = c.fileMaptoSlice(fileMap)
+	c.Diff.Added = c.fileMaptoSlice(addMap)
+	c.Diff.Updated = c.fileMaptoSlice(updateMap)
 	return
 }
 
 // removeNames removes each file in the passed list of names from this commit
 // expects the paths to be complete, absolute and valid
-func (c *Commit) removeFiles(paths []string) (removals int) {
-	return c._remove(paths, true)
+func (c *Commit) removeFiles(paths []string, unstage bool) (removals, unstages int) {
+	return c._remove(paths, true, unstage)
 }
 
 // removeNames removes each name in the passed list of names from this commit
-func (c *Commit) removeNames(names []string) (removals int) {
-	return c._remove(names, false)
+func (c *Commit) removeNames(names []string, unstage bool) (removals, unstages int) {
+	return c._remove(names, false, unstage)
+}
+
+// removeWithSelector stages removal of each file that matches the selector
+func (c *Commit) removeWithSelector(selector *regexp.Regexp, unstage bool) (removals, unstages int) {
+	var rmFiles, rmAdds, rmUpdates int
+	c.Files, rmFiles = util.Filter(selector, c.Files)
+	if unstage {
+		c.Diff.Added, rmAdds = util.Filter(selector, c.Diff.Added)
+		c.Diff.Updated, rmUpdates = util.Filter(selector, c.Diff.Updated)
+	}
+	removals = rmFiles
+	unstages = rmAdds + rmUpdates
+	return
+}
+
+// unstage removes files that were stages for removal, updates and/or adds
+func (c *Commit) unstage(selector *regexp.Regexp) (unstaged int) {
+	var unstagedRemoves, unstagedAdds, unstagedUpdates int
+	c.Diff.Added, unstagedAdds = util.Filter(selector, c.Diff.Added)
+	c.Diff.Updated, unstagedUpdates = util.Filter(selector, c.Diff.Updated)
+	c.Diff.Removed, unstagedRemoves = util.Filter(selector, c.Diff.Removed)
+	unstaged = unstagedAdds + unstagedUpdates + unstagedRemoves
+	return
 }
 
 func (c Commit) pathToIDVPath(path string) string {
@@ -214,8 +257,8 @@ func (c Commit) idvPathToName(path string) string {
 	return filepath.Base(filepath.Dir(path))
 }
 
-// _filesToNameMap converts a slice of filepaths into a map[filename]filepath, usable for searching
-func (c Commit) _filesToNameMap(slice []string) map[string]string {
+// filesToNameMap converts a slice of filepaths into a map[filename]filepath, usable for searching
+func (c Commit) filesToNameMap(slice []string) map[string]string {
 	m := make(map[string]string)
 	for _, elem := range slice {
 		m[c.idvPathToName(elem)] = elem
@@ -223,8 +266,8 @@ func (c Commit) _filesToNameMap(slice []string) map[string]string {
 	return m
 }
 
-// _fileMaptoSlice converts a fileMap into a slice if map[elem] is a valid path
-func (c Commit) _fileMaptoSlice(m map[string]string) []string {
+// fileMaptoSlice converts a fileMap into a slice if map[elem] is a valid path
+func (c Commit) fileMaptoSlice(m map[string]string) []string {
 	var slice []string
 	for _, val := range m {
 		if val != "" {

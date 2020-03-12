@@ -96,24 +96,32 @@ func printExclusions(selector *regexp.Regexp, exclusions []string) {
 	fmt.Println("}")
 }
 
-// exclude resolves the Exclusions and ShowExcluded flags that `data rm/add` share
-func exclude(files []string) []string {
+// buildSelector construct a regexp from a set of selectors,
+// if regexp cannot parse it, it is simply omitted
+func buildSelector(selectors []string) (r *regexp.Regexp) {
 	selector := ""
 	first := true
-	for _, excl := range Exclusions { // Build a valid regular expression from the passed args
-		if isValidSelector(excl) {
+	for _, sel := range selectors { // Build a valid regular expression from the passed args
+		if isValidSelector(sel) {
 			if !first {
-				selector += "|" + "(" + excl + ")"
+				selector += "|" + "(" + sel + ")"
 			} else {
-				selector += "(" + excl + ")"
+				selector += "(" + sel + ")"
 			}
 		}
 		first = false
 	}
-	if selector == "" { // Don't filter if no selector, because all files match empty expression
+	r, _ = regexp.Compile(selector)
+	return
+}
+
+// exclude resolves the Exclusions and ShowExcluded flags that `data rm/add` share
+func exclude(files []string) []string {
+	// Don't filter if no selector, because all files match empty expression
+	if len(Exclusions) == 0 {
 		return files
 	}
-	exclutor, _ := regexp.Compile(selector)
+	exclutor := buildSelector(Exclusions)
 	files, excluded := filterFilesWith(exclutor, files)
 
 	if ShowExcluded {

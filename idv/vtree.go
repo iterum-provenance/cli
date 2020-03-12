@@ -18,7 +18,7 @@ type commitTree map[hash]vtreeNode
 
 // VTree holds a version tree for data versioning
 type VTree struct {
-	Tree     map[hash]vtreeNode
+	Tree     commitTree
 	Branches map[hash]string
 }
 

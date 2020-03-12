@@ -30,7 +30,7 @@ var addCmd = &cobra.Command{
 			}
 		}
 		if len(invalids) != 0 {
-			return errInvalidArgs(invalids...)
+			return errInvalidArgs("Not a file or directory", invalids...)
 		}
 		return nil
 	},

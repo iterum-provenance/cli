@@ -1,4 +1,4 @@
-package constants
+package consts
 
 import "github.com/Mantsje/iterum-cli/idv"
 
@@ -13,3 +13,6 @@ const ConfigFolder = ".iterum/"
 
 // IDVConfigFileName is the file where idv (iterum data versioning) internal configs are written to
 const IDVConfigFileName = idv.IDVFolder + "config.idv"
+
+// IDVCommandAlias is the alias used to alias `iterum data` from the root
+const IDVCommandAlias = "idv"

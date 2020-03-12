@@ -7,7 +7,7 @@ import (
 
 	"github.com/Mantsje/iterum-cli/cmd/prompter"
 	"github.com/Mantsje/iterum-cli/config/project"
-	"github.com/Mantsje/iterum-cli/constants"
+	"github.com/Mantsje/iterum-cli/consts"
 	"github.com/Mantsje/iterum-cli/git"
 	"github.com/Mantsje/iterum-cli/util"
 )
@@ -26,7 +26,7 @@ var initCmd = &cobra.Command{
 
 func initRun(cmd *cobra.Command, args []string) {
 	var name string = prompter.Name()
-	if util.FileExists(constants.ConfigFilePath) || util.FileExists(name+"/"+constants.ConfigFilePath) {
+	if util.FileExists(consts.ConfigFilePath) || util.FileExists(name+"/"+consts.ConfigFilePath) {
 		log.Fatal(errProjectNesting)
 	}
 	// Guaranteed to be correct, so no checking needed
@@ -47,7 +47,7 @@ func initRun(cmd *cobra.Command, args []string) {
 	projectConfig.Git.Protocol = gitProtocol
 
 	createComponentFolder(name)
-	err := util.WriteJSONFile(name+"/"+constants.ConfigFilePath, projectConfig)
+	err := util.WriteJSONFile(name+"/"+consts.ConfigFilePath, projectConfig)
 	if err != nil {
 		log.Fatal(errConfigWriteFailed)
 	}

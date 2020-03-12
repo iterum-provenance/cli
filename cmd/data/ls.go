@@ -11,6 +11,8 @@ import (
 
 func init() {
 	rootCmd.AddCommand(lsCmd)
+	lsCmd.PersistentFlags().BoolVarP(&ShowFullPath, "full-path", "f", false, "Show entire path rather than just filename")
+
 }
 
 var lsCmd = &cobra.Command{
@@ -36,7 +38,7 @@ func lsRun(cmd *cobra.Command, args []string) {
 	} else {
 		selector, _ = regexp.Compile(args[0])
 	}
-	report, err := idv.Ls(selector)
+	report, err := idv.Ls(selector, ShowFullPath)
 	if err != nil {
 		log.Fatal(err)
 	}

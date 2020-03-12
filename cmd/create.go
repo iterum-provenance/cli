@@ -11,7 +11,7 @@ import (
 	"github.com/Mantsje/iterum-cli/cmd/prompter"
 	"github.com/Mantsje/iterum-cli/config"
 	"github.com/Mantsje/iterum-cli/config/project"
-	"github.com/Mantsje/iterum-cli/constants"
+	"github.com/Mantsje/iterum-cli/consts"
 	"github.com/Mantsje/iterum-cli/git"
 	"github.com/Mantsje/iterum-cli/util"
 )
@@ -32,7 +32,7 @@ var createCmd = &cobra.Command{
 func writeConfigAndUpdate(conf config.Configurable, project project.ProjectConf) error {
 	c := conf.GetBaseConf()
 	// Write config
-	err := util.WriteJSONFile(c.Name+"/"+constants.ConfigFilePath, conf)
+	err := util.WriteJSONFile(c.Name+"/"+consts.ConfigFilePath, conf)
 	if err != nil {
 		return errConfigWriteFailed
 	}

@@ -79,8 +79,25 @@ func parseBRANCH(branch *Branch) {
 	parseBranch(BRANCH, branch)
 }
 
+func parseStagemap() (stagemap Stagemap) {
+	_parse(stagedFilePath, &stagemap)
+	return
+}
+
 // writeLOCAL takes a commit and writes it to wherever LOCAL points
 func writeLOCAL(commit Commit) {
 	err := commit.writeToFile(LOCAL)
+	util.PanicIfErr(err, "")
+}
+
+// verifyAndUpdateStagemap takes a commit and (possibly) a stagemap and validates
+// the one with the other. If no map is passed it reads in the default one.
+func verifyAndUpdateStagemap(commit Commit, stagemap Stagemap) {
+	if stagemap == nil {
+		stagemap = parseStagemap()
+	}
+	err := stagemap.VerifyAndSyncWithCommit(commit)
+	util.PanicIfErr(err, "")
+	err = stagemap.WriteToFile()
 	util.PanicIfErr(err, "")
 }

@@ -16,10 +16,10 @@ func errWrongAmountOfArgs(nargs int) error {
 	return fmt.Errorf("Error: Wrong amount of arguments, wanted %d", nargs)
 }
 
-func errInvalidArgs(args ...string) error {
+func errInvalidArgs(reason string, args ...string) error {
 	tail := args[0]
 	for _, val := range args[1:] {
 		tail = tail + ", " + val
 	}
-	return errors.New("Error: Invalid argument(s) specified: " + tail)
+	return errors.New("Error: Invalid argument(s) specified: " + tail + "\n\t\tReason: " + reason + "\n")
 }

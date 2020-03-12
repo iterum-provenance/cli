@@ -9,7 +9,7 @@ import (
 
 	"github.com/Mantsje/iterum-cli/config"
 	"github.com/Mantsje/iterum-cli/config/project"
-	"github.com/Mantsje/iterum-cli/constants"
+	"github.com/Mantsje/iterum-cli/consts"
 	"github.com/Mantsje/iterum-cli/util"
 )
 
@@ -40,7 +40,7 @@ func register(name string, repo config.RepoType, project project.ProjectConf) er
 		return errRegistrationClash
 	}
 	project.Registered[name] = repo
-	err := util.WriteJSONFile(constants.ConfigFilePath, project)
+	err := util.WriteJSONFile(consts.ConfigFilePath, project)
 	if err != nil {
 		return errRegistrationFailed
 	}
@@ -50,7 +50,7 @@ func register(name string, repo config.RepoType, project project.ProjectConf) er
 func deregister(name string, project project.ProjectConf) error {
 	if _, ok := project.Registered[name]; ok {
 		delete(project.Registered, name)
-		err := util.WriteJSONFile(constants.ConfigFilePath, project)
+		err := util.WriteJSONFile(consts.ConfigFilePath, project)
 		if err != nil {
 			return errRegistrationFailed
 		}
@@ -65,7 +65,7 @@ func registerRun(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	configPath := "./" + args[0] + "/" + constants.ConfigFilePath
+	configPath := "./" + args[0] + "/" + consts.ConfigFilePath
 	if util.FileExists(configPath) {
 		repo := struct {
 			RepoType config.RepoType
@@ -95,7 +95,7 @@ func deregisterRun(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	configPath := "./" + args[0] + "/" + constants.ConfigFilePath
+	configPath := "./" + args[0] + "/" + consts.ConfigFilePath
 	if util.FileExists(configPath) {
 		if RemoveFiles {
 			rmFiles := exec.Command("rm", "-rf", "./"+args[0])

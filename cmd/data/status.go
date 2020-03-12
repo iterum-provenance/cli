@@ -10,6 +10,8 @@ import (
 
 func init() {
 	rootCmd.AddCommand(statusCmd)
+	statusCmd.PersistentFlags().BoolVarP(&ShowFullPath, "full-path", "f", false, "Show entire path rather than just filename")
+	statusCmd.PersistentFlags().BoolVarP(&ShowLocalPath, "local-path", "l", false, "Show full paths to locally staged files")
 }
 
 var statusCmd = &cobra.Command{
@@ -20,7 +22,7 @@ var statusCmd = &cobra.Command{
 }
 
 func statusRun(cmd *cobra.Command, args []string) {
-	report, err := idv.Status()
+	report, err := idv.Status(ShowFullPath, ShowLocalPath)
 	if err != nil {
 		log.Fatal(err)
 	}
