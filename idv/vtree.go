@@ -6,6 +6,34 @@ import (
 	"github.com/Mantsje/iterum-cli/util"
 )
 
+type branchMap map[hash]string
+
+type commitTree map[hash]vtreeNode
+
+func (c commitTree) _toInterfaceMap() (out map[interface{}]interface{}) {
+	out = make(map[interface{}]interface{})
+	for key, val := range c {
+		out[key] = val
+	}
+	return
+}
+
+func (c commitTree) _toHashNameMap() (out map[interface{}]interface{}) {
+	out = make(map[interface{}]interface{})
+	for hash, node := range c {
+		out[hash.String()] = node.Name
+	}
+	return
+}
+
+func (b branchMap) _toInterfaceMap() (out map[interface{}]interface{}) {
+	out = make(map[interface{}]interface{})
+	for key, val := range b {
+		out[key] = val
+	}
+	return
+}
+
 // vtreeNode is a node in the VTree, each node represents 1 commit
 type vtreeNode struct {
 	Name     string
@@ -14,17 +42,15 @@ type vtreeNode struct {
 	Parent   hash
 }
 
-type commitTree map[hash]vtreeNode
-
 // VTree holds a version tree for data versioning
 type VTree struct {
 	Tree     commitTree
-	Branches map[hash]string
+	Branches branchMap
 }
 
 // NewVTree instantiates a new version tree and sets the root node
 func NewVTree(root Commit, master Branch) VTree {
-	v := VTree{make(commitTree), make(map[hash]string)}
+	v := VTree{make(commitTree), make(branchMap)}
 	node := vtreeNode{
 		Name:     root.Name,
 		Branch:   master.Hash,
@@ -52,14 +78,14 @@ func (v *VTree) ParseFromFile(filepath string) error {
 }
 
 // Add appends a new (leaf) commit to the tree, returns an error on failure
-func (v *VTree) Add(c Commit) error {
+func (v *VTree) add(c Commit) error {
 	node := vtreeNode{
 		Name:     c.Name,
 		Branch:   c.Branch,
 		Children: []hash{},
 		Parent:   c.Parent,
 	}
-	if _, ok := v.Tree[c.Hash]; ok {
+	if v.isExistingCommit(c.Hash) {
 		return fmt.Errorf("Error: Commit has clash in VTree: %v, could not add commit", c.Hash)
 	}
 	v.Tree[c.Hash] = node
@@ -73,17 +99,73 @@ func (v *VTree) Add(c Commit) error {
 // - Set the HEAD of the new branch to the new commit
 // - Returns both created Branch and Commit as these are not written to disk
 // If there is an error in any of the processes the VTree is not updated
-func (v *VTree) BranchOff(commit Commit, branchName string) (branch Branch, branchRoot Commit, err error) {
+func (v *VTree) branchOff(commit Commit, branchName string) (branch Branch, branchRoot Commit, err error) {
 	branch = NewBranch(branchName)
 	branchRoot = NewCommit(commit, branch.Hash, branchName+":"+commit.Name, commit.Name+" as root of "+branchName)
 	branch.HEAD = branchRoot.Hash
-	if _, ok := v.Branches[branch.Hash]; ok {
+	if v.isExistingBranch(branch.Hash) {
 		err = fmt.Errorf("Error: Branch has clash in VTree: %v, could not branch", branch.Hash)
 		return
 	}
-	if err = v.Add(branchRoot); err != nil {
+	if err = v.add(branchRoot); err != nil {
 		return
 	}
 	v.Branches[branch.Hash] = branch.Name
 	return
+}
+
+// _existing checks wheter a hash or name is part of this vtree.
+// isHash indicates whether hashOrName should be interpreted as type hash
+// isBranch indicates whether hashOrName references a branch (default is commit)
+func (v VTree) _existing(hashOrName string, isHash, isBranch bool) bool {
+	var target interface{} = hashOrName
+	if isHash {
+		target = hash(hashOrName)
+	}
+	if isBranch { // check for branches
+		return util.MapContains(v.Branches._toInterfaceMap(), target, !isHash)
+	}
+	// check for commits
+	return util.MapContains(v.Tree._toInterfaceMap(), target, !isHash)
+}
+
+// isExistingCommitName checks whether a given name is the name of a commit in the tree
+func (v VTree) isExistingCommitName(cname string) bool {
+	return v._existing(cname, false, false)
+}
+
+// isExistingCommit checks whether a given commit hash exists in the tree
+func (v VTree) isExistingCommit(chash hash) bool {
+	return v._existing(chash.String(), true, false)
+}
+
+// isExistingBranchName checks whether a given name is the name of an existing branch in the tree
+func (v VTree) isExistingBranchName(bname string) bool {
+	return v._existing(bname, false, true)
+}
+
+// isExistingBranch checks whether a given branch hash exists in the tree
+func (v VTree) isExistingBranch(bhash hash) bool {
+	return v._existing(bhash.String(), true, true)
+}
+
+// _getHashByName returns the the hash corresponding to a name value. Errors if name is not found
+// it returns the first matching value found
+func (v VTree) _getHashByName(m map[interface{}]interface{}, name string) (h hash, err error) {
+	out, err := util.GetKeyByValue(m, name)
+	if err != nil {
+		return
+	}
+	h = hash(out.(string))
+	return
+}
+
+// getCommitHashByName returns the hash corresponding to a commit name, errors if non-existent
+func (v VTree) getCommitHashByName(name string) (h hash, err error) {
+	return v._getHashByName(v.Tree._toHashNameMap(), name)
+}
+
+// getBranchHashByName returns the hash corresponding to a branch name, errors if non-existent
+func (v VTree) getBranchHashByName(name string) (h hash, err error) {
+	return v._getHashByName(v.Branches._toInterfaceMap(), name)
 }

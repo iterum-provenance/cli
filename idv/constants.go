@@ -31,8 +31,8 @@ const (
 	// curBranchFilePath is the name of the stored version tree file
 	curBranchFilePath string = localFolder + "current" + branchFileExt
 
-	// curVTreeFilePath is the name of the stored version tree file
-	curVTreeFilePath string = localFolder + "current" + vtreeFileExt
+	// vtreeFilePath is the name of the stored version tree file
+	vtreeFilePath string = remoteFolder + vtreeFileName
 )
 
 // File extensions for idv files

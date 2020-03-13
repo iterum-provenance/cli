@@ -34,8 +34,8 @@ func (s Stagemap) Verify() (err error) {
 	return
 }
 
-// VerifyAndSyncWithCommit uses the passed commit to update the stagemap by removing dangling file maps and ensuring mappings for all staged changes
-func (s *Stagemap) VerifyAndSyncWithCommit(commit Commit) (err error) {
+// verifyAndSyncWithCommit uses the passed commit to update the stagemap by removing dangling file maps and ensuring mappings for all staged changes
+func (s *Stagemap) verifyAndSyncWithCommit(commit Commit) (err error) {
 	// Check if all staged are mapped
 	allStages := append(commit.Diff.Added, commit.Diff.Updated...)
 	for _, idvfile := range allStages {
@@ -59,8 +59,8 @@ func (s *Stagemap) VerifyAndSyncWithCommit(commit Commit) (err error) {
 	return
 }
 
-// Update takes a map similar to Stagemap and adds its entries
-func (s *Stagemap) Update(m map[string]string) (err error) {
+// update takes a map similar to Stagemap and adds its entries
+func (s *Stagemap) update(m map[string]string) (err error) {
 	for key, val := range m {
 		if _, ok := (*s)[key]; ok {
 			return errors.New("Error: Duplicate stagemap key in Update of stagemap")

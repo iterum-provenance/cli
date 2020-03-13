@@ -91,6 +91,8 @@ func (c Commit) ToFilePath(local bool) string {
 	return remoteFolder + c.Hash.String() + commitFileExt
 }
 
+// ---------- ---------- ---------- Formatting/Representation ---------- ---------- ---------- \\
+
 func (c Commit) _convertToDisplayName(file string, fullPath bool, stagemap Stagemap) string {
 	if fullPath {
 		return file
@@ -144,9 +146,11 @@ func (c Commit) FormatDiff(head string, tail string, ifEmpty string, delim strin
 	return out
 }
 
-// AddOrUpdate adds or updates files to this commit
+// ---------- ---------- ---------- Add/Update ---------- ---------- ---------- \\
+
+// addOrUpdate adds or updates files to this commit
 // These files needs to be guaranteed to exist before passing
-func (c *Commit) AddOrUpdate(paths []string) (adds, updates map[string]string) {
+func (c *Commit) addOrUpdate(paths []string) (adds, updates map[string]string) {
 	adds = make(map[string]string)
 	updates = make(map[string]string)
 	fileMap := c.filesToNameMap(c.Files)
@@ -160,26 +164,18 @@ func (c *Commit) AddOrUpdate(paths []string) (adds, updates map[string]string) {
 			continue
 		} else if _, ok := fileMap[filename]; ok { // If already in existing files
 			idvpath := c.pathToIDVPath(path)
-			c.update(idvpath)
+			c.Diff.Updated = append(c.Diff.Updated, idvpath)
 			updates[idvpath] = path
 		} else { // Completely new and unseen file
 			idvpath := c.pathToIDVPath(path)
-			c.add(idvpath)
+			c.Diff.Added = append(c.Diff.Added, idvpath)
 			adds[idvpath] = path
 		}
 	}
 	return
 }
 
-// add adds a new file to this commit
-func (c *Commit) add(idvpath string) {
-	c.Diff.Added = append(c.Diff.Added, idvpath)
-}
-
-// update updates a in this commit
-func (c *Commit) update(idvpath string) {
-	c.Diff.Updated = append(c.Diff.Updated, idvpath)
-}
+// ---------- ---------- ---------- Removing ---------- ---------- ---------- \\
 
 // _remove actually removes files from the c.Files and (possibly) c.Diff, behave slightly differently based on the passed parameters.
 // unstage denotes whether to also remove staged updates/removes.
@@ -239,6 +235,8 @@ func (c *Commit) removeWithSelector(selector *regexp.Regexp, unstage bool) (remo
 	return
 }
 
+// ---------- ---------- ---------- Unstaging ---------- ---------- ---------- \\
+
 // unstage removes files that were stages for removal, updates and/or adds
 func (c *Commit) unstage(selector *regexp.Regexp) (unstaged int) {
 	var unstagedRemoves, unstagedAdds, unstagedUpdates int
@@ -249,10 +247,40 @@ func (c *Commit) unstage(selector *regexp.Regexp) (unstaged int) {
 	return
 }
 
+// ---------- ---------- ---------- Finalizing commit ---------- ---------- ---------- \\
+
+// applyStaged applies all the staged changes to the filelist of the commit, such that it is ready for pushing
+func (c *Commit) applyStaged() (err error) {
+	fileMap := c.filesToNameMap(c.Files)
+	for _, addition := range c.Diff.Added {
+		fileMap[c.idvPathToName(addition)] = addition
+	}
+	for _, update := range c.Diff.Updated {
+		if _, ok := fileMap[c.idvPathToName(update)]; ok {
+			fileMap[c.idvPathToName(update)] = update
+		} else {
+			return fmt.Errorf("Error: staged update is not an update, because original is not there: %v", update)
+		}
+	}
+	for _, removal := range c.Diff.Removed {
+		if _, ok := fileMap[c.idvPathToName(removal)]; ok {
+			fileMap[c.idvPathToName(removal)] = ""
+		} else {
+			return fmt.Errorf("Error: staged removal is invalid, original is not there: %v", removal)
+		}
+	}
+	c.Files = c.fileMaptoSlice(fileMap)
+	return
+}
+
+// ---------- ---------- ---------- Utitlity functions ---------- ---------- ---------- \\
+
+// idvPathToName converts a path (/home/user/path/to/file.extension) into an idvpath (data/file.extension/c.Hash)
 func (c Commit) pathToIDVPath(path string) string {
 	return dataFolder + filepath.Base(path) + "/" + c.Hash.String()
 }
 
+// idvPathToName converts an idv path (data/filename/commithash) into just the filename
 func (c Commit) idvPathToName(path string) string {
 	return filepath.Base(filepath.Dir(path))
 }
@@ -275,4 +303,9 @@ func (c Commit) fileMaptoSlice(m map[string]string) []string {
 		}
 	}
 	return slice
+}
+
+// containsChanges returns a bool stating whether this commit has staged anything
+func (c Commit) containsChanges() bool {
+	return !(len(c.Diff.Added) == 0 && len(c.Diff.Updated) == 0 && len(c.Diff.Removed) == 0)
 }

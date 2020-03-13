@@ -17,3 +17,6 @@ var ShowFullPath bool
 
 // ShowLocalPath determines whether `iterum data status` should show the local filepath to the staged files rather than just the name
 var ShowLocalPath bool
+
+// CommitHashOrName stores a hash or name passed to `iterum data branch/checkout`
+var CommitHashOrName string

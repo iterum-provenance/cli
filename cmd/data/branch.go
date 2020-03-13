@@ -3,11 +3,15 @@ package data
 import (
 	"log"
 
+	"github.com/Mantsje/iterum-cli/idv"
+
 	"github.com/spf13/cobra"
 )
 
 func init() {
 	rootCmd.AddCommand(branchCmd)
+	branchCmd.PersistentFlags().StringVarP(&CommitHashOrName, "commit", "c", "", "A commit name or hash (needs --hash) to a specific commit that we want to branch off of")
+	branchCmd.PersistentFlags().BoolVarP(&IsHash, "hash", "#", false, "If the value passed in [--commit -c] flag is a hash rather than a name (default) ")
 }
 
 var branchCmd = &cobra.Command{
@@ -19,5 +23,8 @@ var branchCmd = &cobra.Command{
 }
 
 func branchRun(cmd *cobra.Command, args []string) {
-	log.Println("`iterum data branch`")
+	err := idv.BranchFromCommit(args[0], CommitHashOrName, IsHash)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

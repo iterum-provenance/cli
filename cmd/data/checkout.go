@@ -3,13 +3,14 @@ package data
 import (
 	"log"
 
+	"github.com/Mantsje/iterum-cli/idv"
 	"github.com/spf13/cobra"
 )
 
 func init() {
 	rootCmd.AddCommand(checkoutCmd)
-	checkoutCmd.PersistentFlags().BoolVarP(&IsCommit, "commit", "c", false, "Passed arg is a commit refference rather than a branch")
-	checkoutCmd.PersistentFlags().BoolVarP(&IsHash, "hash", "h", false, "Passed arg is a hash rather than a name")
+	checkoutCmd.PersistentFlags().BoolVarP(&IsCommit, "commit", "c", false, "Passed argument is a commit reference rather than a branch")
+	checkoutCmd.PersistentFlags().BoolVarP(&IsHash, "hash", "#", false, "Passed argument is a hash rather than a name")
 }
 
 var checkoutCmd = &cobra.Command{
@@ -21,5 +22,8 @@ var checkoutCmd = &cobra.Command{
 }
 
 func checkoutRun(cmd *cobra.Command, args []string) {
-	log.Println("`iterum data checkout`")
+	err := idv.Checkout(args[0], IsCommit, IsHash)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
