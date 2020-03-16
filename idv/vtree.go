@@ -21,7 +21,7 @@ func (c commitTree) _toInterfaceMap() (out map[interface{}]interface{}) {
 func (c commitTree) _toHashNameMap() (out map[interface{}]interface{}) {
 	out = make(map[interface{}]interface{})
 	for hash, node := range c {
-		out[hash.String()] = node.Name
+		out[hash] = node.Name
 	}
 	return
 }
@@ -75,6 +75,15 @@ func (v *VTree) ParseFromFile(filepath string) error {
 		return fmt.Errorf("Error: Could not parse VTree due to `%v`", err)
 	}
 	return nil
+}
+
+// ToFilePath returns a path to this VTree being: .idv/{local, remote}/vtreeFileName
+// local indicates which of the 2 folders to use
+func (v VTree) ToFilePath(local bool) string {
+	if local {
+		return localFolder + vtreeFileName
+	}
+	return remoteFolder + vtreeFileName
 }
 
 // Add appends a new (leaf) commit to the tree, returns an error on failure
@@ -156,7 +165,7 @@ func (v VTree) _getHashByName(m map[interface{}]interface{}, name string) (h has
 	if err != nil {
 		return
 	}
-	h = hash(out.(string))
+	h = out.(hash)
 	return
 }
 

@@ -156,17 +156,20 @@ func (c *Commit) addOrUpdate(paths []string) (adds, updates map[string]string) {
 	fileMap := c.filesToNameMap(c.Files)
 	addMap := c.filesToNameMap(c.Diff.Added)
 	updateMap := c.filesToNameMap(c.Diff.Updated)
+	removeMap := c.filesToNameMap(c.Diff.Removed)
 	for _, path := range paths {
 		filename := filepath.Base(path)
-		if _, ok := addMap[filename]; ok { // If already stage for add
+		if _, ok := addMap[filename]; ok { // If already staged for add
 			continue
 		} else if _, ok := updateMap[filename]; ok { // If already staged for update
 			continue
-		} else if _, ok := fileMap[filename]; ok { // If already in existing files
+		} else if _, ok := removeMap[filename]; ok { // If file already staged for removal (skip)
+			continue
+		} else if _, ok := fileMap[filename]; ok { // If already in existing files, but unstaged -> update
 			idvpath := c.pathToIDVPath(path)
 			c.Diff.Updated = append(c.Diff.Updated, idvpath)
 			updates[idvpath] = path
-		} else { // Completely new and unseen file
+		} else { // Completely new and unseen file -> add
 			idvpath := c.pathToIDVPath(path)
 			c.Diff.Added = append(c.Diff.Added, idvpath)
 			adds[idvpath] = path
@@ -184,28 +187,34 @@ func (c *Commit) _remove(staging []string, asFiles, unstage bool) (removals, uns
 	fileMap := c.filesToNameMap(c.Files)
 	addMap := c.filesToNameMap(c.Diff.Added)
 	updateMap := c.filesToNameMap(c.Diff.Updated)
+	removeMap := c.filesToNameMap(c.Diff.Removed)
 	for _, pathOrFile := range staging {
-		var filename string
+		var filename string = pathOrFile
 		if asFiles {
 			filename = filepath.Base(pathOrFile)
 		}
-		if unstage {
-			if _, ok := addMap[filename]; ok { // If already staged for add
-				addMap[filename] = ""
-				unstages++
-			} else if _, ok := updateMap[filename]; ok { // If already staged for update
+		if _, ok := addMap[filename]; unstage && ok { // If unstage && already staged for add
+			addMap[filename] = ""
+			unstages++
+		} else if _, ok := updateMap[filename]; ok { // If already staged for update
+			if unstage {
 				updateMap[filename] = ""
 				unstages++
+			} else {
+				// Skip removes of files staged to be updated unless explicitly said to do so
+				continue
 			}
+		}
+		if _, ok := removeMap[filename]; ok {
+			continue // No need to remove already removed files
 		}
 		if _, ok := fileMap[filename]; ok { // If already in existing files
 			c.Diff.Removed = append(c.Diff.Removed, fileMap[filename])
-			fileMap[filename] = ""
+			removeMap[filename] = fileMap[filename] // add it to removeMap in case of multiple deletion of the same file in 1 statement
 			removals++
 		}
 		// unseen/untracked file  --> do nothing
 	}
-	c.Files = c.fileMaptoSlice(fileMap)
 	c.Diff.Added = c.fileMaptoSlice(addMap)
 	c.Diff.Updated = c.fileMaptoSlice(updateMap)
 	return
@@ -224,14 +233,26 @@ func (c *Commit) removeNames(names []string, unstage bool) (removals, unstages i
 
 // removeWithSelector stages removal of each file that matches the selector
 func (c *Commit) removeWithSelector(selector *regexp.Regexp, unstage bool) (removals, unstages int) {
-	var rmFiles, rmAdds, rmUpdates int
-	c.Files, rmFiles = util.Filter(selector, c.Files)
+	var matchingFiles, rmAdds, rmUpdates []string
+	matchingFiles = util.SelectMatching(selector, c.Files)
+	removeMap := c.filesToNameMap(c.Diff.Removed)
+	updateMap := c.filesToNameMap(c.Diff.Updated)
 	if unstage {
-		c.Diff.Added, rmAdds = util.Filter(selector, c.Diff.Added)
-		c.Diff.Updated, rmUpdates = util.Filter(selector, c.Diff.Updated)
+		c.Diff.Added, rmAdds = util.FilterSplit(selector, c.Diff.Added)
+		c.Diff.Updated, rmUpdates = util.FilterSplit(selector, c.Diff.Updated)
 	}
-	removals = rmFiles
-	unstages = rmAdds + rmUpdates
+	for _, file := range matchingFiles {
+		if _, ok := removeMap[c.idvPathToName(file)]; ok {
+			continue
+		}
+		if _, ok := updateMap[c.idvPathToName(file)]; !unstage && ok {
+			continue // Don't delete files staged for updates unless explicitly specified
+		}
+
+		c.Diff.Removed = append(c.Diff.Removed, file)
+		removals++
+	}
+	unstages = len(rmAdds) + len(rmUpdates)
 	return
 }
 
@@ -295,14 +316,14 @@ func (c Commit) filesToNameMap(slice []string) map[string]string {
 }
 
 // fileMaptoSlice converts a fileMap into a slice if map[elem] is a valid path
-func (c Commit) fileMaptoSlice(m map[string]string) []string {
-	var slice []string
+func (c Commit) fileMaptoSlice(m map[string]string) (slice []string) {
+	slice = []string{}
 	for _, val := range m {
 		if val != "" {
 			slice = append(slice, val)
 		}
 	}
-	return slice
+	return
 }
 
 // containsChanges returns a bool stating whether this commit has staged anything

@@ -9,6 +9,15 @@ import (
 	"github.com/Mantsje/iterum-cli/util"
 )
 
+// Catches panics, expects them to be of type error, then stores it in the pointer as recovery
+func _returnErrOnPanic(perr *error) func() {
+	return func() {
+		if r := recover(); r != nil {
+			*perr = r.(error)
+		}
+	}
+}
+
 // EnsureByPanic takes one of the other Ensure functions
 // and panics in case of an error rather than returning it
 func EnsureByPanic(ensurerFunc func() error, customMsg string) {
@@ -41,6 +50,11 @@ func EnsureLOCAL() error {
 // EnsureHEAD makes sure that HEAD points to a file
 func EnsureHEAD() error {
 	return _ensurePath(HEAD)
+}
+
+// EnsureTREE makes sure that TREE points to a file
+func EnsureTREE() error {
+	return _ensurePath(TREE)
 }
 
 // EnsureBRANCH makes sure that BRANCH points to a file

@@ -18,6 +18,8 @@ const (
 	HEAD string = IDVFolder + "HEAD"
 	// BRANCH points to the branch that local operates on
 	BRANCH string = IDVFolder + "BRANCH"
+	// TREE points to the .vtree that local thinks is the most recent version of .vtree
+	TREE string = IDVFolder + "TREE"
 )
 
 // vtreeFileName is the name of the stored version tree file

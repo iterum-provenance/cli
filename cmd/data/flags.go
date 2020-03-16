@@ -12,6 +12,12 @@ var AsSelector bool
 // Unstage determines whether the current `iterum data rm` should also unstage files staged for adds/updates
 var Unstage bool
 
+// Branches determines whether `iterum data ls` should show a list of branches rather than files
+var Branches bool
+
+// Commits determines whether `iterum data ls` should show a list of commits in order, rather than files
+var Commits bool
+
 // ShowFullPath determines whether `iterum data ls/status` should show the real filepath rather than just the name
 var ShowFullPath bool
 

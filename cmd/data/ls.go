@@ -12,7 +12,8 @@ import (
 func init() {
 	rootCmd.AddCommand(lsCmd)
 	lsCmd.PersistentFlags().BoolVarP(&ShowFullPath, "full-path", "f", false, "Show entire path rather than just filename")
-
+	lsCmd.PersistentFlags().BoolVarP(&Branches, "branches", "b", false, "Show a list of branches instead of files, selector is then ignored")
+	lsCmd.PersistentFlags().BoolVarP(&Commits, "commits", "c", false, "Show a list of commits instead of files, selector is then ignored")
 }
 
 var lsCmd = &cobra.Command{
@@ -32,16 +33,24 @@ var lsCmd = &cobra.Command{
 }
 
 func lsRun(cmd *cobra.Command, args []string) {
-	var selector *regexp.Regexp
-	if len(args) == 0 {
-		selector, _ = regexp.Compile("")
+	var report string
+	var err error
+	if Branches {
+		report, err = idv.LsBranches()
+	} else if Commits {
+		report, err = idv.LsCommits()
 	} else {
-		selector, _ = regexp.Compile(args[0])
+		var selector *regexp.Regexp
+		if len(args) == 0 {
+			selector, _ = regexp.Compile("")
+		} else {
+			selector, _ = regexp.Compile(args[0])
+		}
+		report, err = idv.Ls(selector, ShowFullPath)
+		report = "Files in data set:\n" + report
 	}
-	report, err := idv.Ls(selector, ShowFullPath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Files in data set:")
 	fmt.Println(report)
 }

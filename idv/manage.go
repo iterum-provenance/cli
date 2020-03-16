@@ -11,56 +11,76 @@ import (
 
 // Contains functionality used for managing an idv repository
 // Non of these are exported and therefore for internal use only
-// All of these functions panic in case of an error panici(err)
-// The caller is responsible for deferring a catch
+// (Nearly) all of these functions panic in case of an error panic(err)
+// The caller is responsible for deferring a function that catches the panic
+// These are all helper functions for the actual execution of the versioning commands
 
 // _symlink symlinks a file and panics on fail
-func _symlink(src string, target string) {
+func _symlink(src string, target string) (err error) {
 	if !util.FileExists(src) {
-		panic(errors.New("Error: cannot symlink non persisted-to-disk structure"))
+		return errors.New("Error: Cannot symlink non persisted-to-disk structure")
 	}
-	err := os.Symlink("../"+src, target)
-	util.PanicIfErr(err, "")
+	if _, err := os.Lstat(target); err == nil {
+		if err := os.Remove(target); err != nil {
+			return fmt.Errorf("Error: Failed to unlink: %+v", err)
+		}
+	} else if !os.IsNotExist(err) {
+		return fmt.Errorf("Error: Symlink checking failed: %+v", err)
+	}
+	err = os.Symlink("../"+src, target)
+	return err
 }
 
 // linkHEAD symlinks the HEAD of the repo and panics on fail
 func linkHEAD(remoteCommit Commit) {
 	path := remoteCommit.ToFilePath(false)
-	_symlink(path, HEAD)
+	err := _symlink(path, HEAD)
+	util.PanicIfErr(err, "")
 }
 
 // linkLOCAL symlinks the LOCAL of the repo and panics on fail
 func linkLOCAL(localCommit Commit) {
 	path := localCommit.ToFilePath(true)
-	_symlink(path, LOCAL)
+	err := _symlink(path, LOCAL)
+	util.PanicIfErr(err, "")
 }
 
 // linkBRANCH symlinks the BRANCH of the repo and panics on fail
 func linkBRANCH(branch Branch, isLocal bool) {
 	path := branch.ToFilePath(isLocal)
-	_symlink(path, BRANCH)
+	err := _symlink(path, BRANCH)
+	util.PanicIfErr(err, "")
+}
+
+// linkTREE symlinks the TREE of the repo and panics on fail
+func linkTREE(vtree VTree, isLocal bool) {
+	path := vtree.ToFilePath(isLocal)
+	err := _symlink(path, TREE)
+	util.PanicIfErr(err, "")
 }
 
 // _parse calls ParseFromFile on passed interface.
 // On success, p contains data, panics on fail
-func _parse(path string, p util.Parseable) {
-	err := p.ParseFromFile(path)
-	util.PanicIfErr(err, "")
+func _parse(path string, p util.Parseable) (err error) {
+	return p.ParseFromFile(path)
 }
 
 // parseBranch parses a branch into pointer, else panics
 func parseBranch(path string, branch *Branch) {
-	_parse(path, branch)
+	err := _parse(path, branch)
+	util.PanicIfErr(err, "")
 }
 
 // parseCommit parses a commit into pointer, else panics
 func parseCommit(path string, commit *Commit) {
-	_parse(path, commit)
+	err := _parse(path, commit)
+	util.PanicIfErr(err, "")
 }
 
 // parseVTree parses a vtree into pointer, else panics
 func parseVTree(path string, history *VTree) {
-	_parse(path, history)
+	err := _parse(path, history)
+	util.PanicIfErr(err, "")
 }
 
 // parseHEAD takes a commit pointer and reads in the HEAD into this
@@ -81,8 +101,13 @@ func parseBRANCH(branch *Branch) {
 	parseBranch(BRANCH, branch)
 }
 
-func parseStagemap() (stagemap Stagemap) {
-	_parse(stagedFilePath, &stagemap)
+func parseTREE(vtree *VTree) {
+	parseVTree(TREE, vtree)
+}
+
+func parseStagemap(stagemap *Stagemap) {
+	err := _parse(stagedFilePath, stagemap)
+	util.PanicIfErr(err, "")
 	return
 }
 
@@ -96,7 +121,7 @@ func writeLOCAL(commit Commit) {
 // the one with the other. If no map is passed it reads in the default one.
 func verifyAndUpdateStagemap(commit Commit, stagemap Stagemap) {
 	if stagemap == nil {
-		stagemap = parseStagemap()
+		parseStagemap(&stagemap)
 	}
 	err := stagemap.verifyAndSyncWithCommit(commit)
 	util.PanicIfErr(err, "")
@@ -104,9 +129,10 @@ func verifyAndUpdateStagemap(commit Commit, stagemap Stagemap) {
 	util.PanicIfErr(err, "")
 }
 
-// initLOCAL initializes LOCAL by inheriting from the currently tracked HEAD
-func initLOCAL() {
+// initLocalFolder initializes localFolder by inheriting from the currently tracked HEAD
+func initLocalFolder() {
 	// Ensure dependencies for this
+	clearLocalFolder()
 	err := EnsureHEAD()
 	util.PanicIfErr(err, "")
 	err = EnsureBRANCH()
@@ -143,7 +169,7 @@ func trackCommit(commit Commit, branch Branch) {
 	linkBRANCH(branch, false)
 	linkHEAD(commit)
 
-	initLOCAL()
+	initLocalFolder()
 }
 
 // trackBranchHead takes a branch and sets HEAD and BRANCH to this branch ands its head
@@ -153,8 +179,7 @@ func trackBranchHead(branch Branch) {
 	util.PanicIfErr(err, "")
 
 	// Parse the head of this branch
-	var head Commit
-	parseCommit(branch.HEAD.toCommitPath(false), &head)
+	var head Commit = pullParseCommit(branch.HEAD)
 
 	trackCommit(head, branch)
 }
@@ -169,6 +194,7 @@ func _pullAndParse(path string, p util.Parseable) (err error) {
 	return
 }
 
+// pullParseBranch first pulls and then parses the given commit associated with the hash
 func pullParseCommit(h hash) (commit Commit) {
 	commit = Commit{}
 	err := _pullAndParse(remoteFolder+h.String()+commitFileExt, &commit)
@@ -176,9 +202,15 @@ func pullParseCommit(h hash) (commit Commit) {
 	return
 }
 
+// pullParseBranch first pulls and then parses the given branch associated with the hash
 func pullParseBranch(h hash) (branch Branch) {
-	branch = Branch{}
 	err := _pullAndParse(remoteFolder+h.String()+branchFileExt, &branch)
 	util.PanicIfErr(err, "")
 	return
+}
+
+// clearLocalFolder removes all files in the idv/local folder such that we can track a new commit
+func clearLocalFolder() {
+	os.RemoveAll(localFolder)
+	os.MkdirAll(localFolder, 0755)
 }
