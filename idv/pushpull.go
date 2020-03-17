@@ -66,16 +66,17 @@ func ApplyCommit(name, description string) (err error) {
 	// Both of the following 2 statements should be performed at daemon (except when branched maybe)
 	branch.HEAD = local.Hash
 	history.add(local)
-	log.Warn("TODO: Create multipart form of all data that needs to be send")
-	log.Warn("TODO: pass all (necessary) data to the Daemon")
-	log.Warn("TODO: accept response of updated .vtree and .branch file (dummy this first)")
 
 	local.WriteToFolder(remoteFolder)
-	branch.WriteToFolder(remoteFolder)
-	history.WriteToFolder(remoteFolder)
+	branch.WriteToFolder(remoteFolder)  // should go in case of not pushing a branch
+	history.WriteToFolder(remoteFolder) // should go afterwards
 
 	linkTREE(history, false)
 	trackBranchHead(branch)
+
+	log.Warn("TODO: Create multipart form of all data that needs to be send")
+	log.Warn("TODO: pass all (necessary) data to the Daemon")
+	log.Warn("TODO: accept response of updated .vtree and .branch file")
 	return
 }
 
