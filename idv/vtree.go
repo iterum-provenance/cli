@@ -98,6 +98,13 @@ func (v *VTree) add(c Commit) error {
 		return fmt.Errorf("Error: Commit has clash in VTree: %v, could not add commit", c.Hash)
 	}
 	v.Tree[c.Hash] = node
+	if !v.isExistingCommit(c.Parent) {
+		return fmt.Errorf("Error: Commit's parent is non-existent: %v", c.Parent)
+	}
+	parentNode := v.Tree[c.Parent]
+	parentNode.Children = append(parentNode.Children, c.Hash)
+	v.Tree[c.Parent] = parentNode
+	fmt.Println(v.Tree[c.Parent])
 	return nil
 }
 

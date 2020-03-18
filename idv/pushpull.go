@@ -47,6 +47,7 @@ func Initialize() (err error) {
 func ApplyCommit(name, description string) (err error) {
 	defer _returnErrOnPanic(&err)()
 	EnsureByPanic(EnsureLOCALIsBranchHead, "")
+	EnsureByPanic(EnsureChanges, "")
 	log.Warn("TODO: Should ensure latest vtree file")
 
 	var local Commit

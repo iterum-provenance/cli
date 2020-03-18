@@ -89,7 +89,7 @@ func EnsureNoStaged() error {
 	var local Commit
 	err = local.ParseFromFile(LOCAL)
 	if err == nil && local.containsChanges() {
-		return errors.New("Error: Current LOCAL commit contains staged chages that are not yet committed")
+		return errors.New("Error: Current LOCAL commit contains staged changes that are not yet committed")
 	}
 	return err
 }
@@ -99,6 +99,22 @@ func EnsureNoChanges() error {
 	errBranchoffs := EnsureNoBranchOffs()
 	errStaged := EnsureNoStaged()
 	return util.ReturnFirstErr(errBranchoffs, errStaged)
+}
+
+// EnsureChanges errors if the current LOCAL commit has no staged changes
+func EnsureChanges() error {
+	err := EnsureLOCAL()
+	if err != nil {
+		return err
+	}
+
+	var local Commit
+	err = local.ParseFromFile(LOCAL)
+	if err == nil && !local.containsChanges() {
+		return errors.New("Error: Current LOCAL commit contains no staged changes")
+	}
+
+	return err
 }
 
 // EnsureLOCALIsBranchHead checks whether LOCAL is the current branch's branch HEAD
