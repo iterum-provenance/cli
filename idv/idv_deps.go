@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 
+	"github.com/Mantsje/iterum-cli/idv/ctl"
 	"github.com/Mantsje/iterum-cli/util"
 )
 
@@ -135,4 +136,17 @@ func EnsureLOCALIsBranchHead() error {
 		return errors.New("Error: Cannot create child commit of commits from the past unless you branch off of them")
 	}
 	return nil
+}
+
+// EnsureConfig checks whether there is a file called idv-config.yaml that can be parsed as config
+func EnsureConfig() error {
+	err := EnsureIDVRepo()
+	if err != nil {
+		return err
+	}
+	if !util.FileExists(configPath) {
+		return errors.New("Error: idv-config.yaml not found")
+	}
+	var ctl ctl.DataCTL
+	return ctl.ParseFromFile(configPath)
 }

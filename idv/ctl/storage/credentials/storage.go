@@ -3,7 +3,7 @@ package credentials
 import (
 	"errors"
 
-	"github.com/Mantsje/iterum-cli/ctlfiles/storage"
+	"github.com/Mantsje/iterum-cli/idv/ctl/storage"
 	"github.com/Mantsje/iterum-cli/util"
 )
 
@@ -12,6 +12,7 @@ import (
 // These are different for each platform
 type Storage interface {
 	util.Validatable
+	GetLocation() string
 }
 
 // Parse tries to parse an interface into a credential type based on the backend

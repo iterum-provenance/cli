@@ -3,6 +3,8 @@ package idv
 import (
 	"regexp"
 	"strings"
+
+	"github.com/Mantsje/iterum-cli/idv/ctl"
 )
 
 // Contains all functionality that is status related
@@ -74,5 +76,20 @@ func LsCommits() (report string, err error) {
 		hash = node.Parent
 		node, _ = history.Tree[hash]
 	}
+	return
+}
+
+// Inspect returns the config file found in the same folder used for adding/committing and pusing data etc
+func Inspect() (report string, err error) {
+	defer _returnErrOnPanic(&err)()
+	EnsureByPanic(EnsureConfig, "")
+	var ctl ctl.DataCTL
+	ctl.ParseFromFile(configPath) // No error is ensured, so no need to catch it
+	report += "Data configuration:\n"
+	report += "{\n"
+	report += "\tName: " + ctl.Name + "\n"
+	report += "\tBackend: " + ctl.Backend.String() + "\n"
+	report += "\tLocation: " + ctl.GetStorageLocation() + "\n"
+	report += "}\n"
 	return
 }

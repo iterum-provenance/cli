@@ -13,6 +13,11 @@ func (c CloudStore) IsValid() error {
 	return errors.New("CloudStore.IsValid N.I")
 }
 
+// GetLocation returns a string path or url to where the data is located based on the backend
+func (c CloudStore) GetLocation() string {
+	return ""
+}
+
 // ParseCloudStore tries to parse an interface as this credential storage
 func ParseCloudStore(raw map[interface{}]interface{}) (CloudStore, error) {
 	return CloudStore{}, errors.New("ParseCloudStore not Implemented")

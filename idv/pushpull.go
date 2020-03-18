@@ -4,6 +4,7 @@ import (
 	"errors"
 	"os"
 
+	"github.com/Mantsje/iterum-cli/idv/ctl"
 	"github.com/Mantsje/iterum-cli/util"
 	"github.com/prometheus/common/log"
 )
@@ -48,7 +49,11 @@ func ApplyCommit(name, description string) (err error) {
 	defer _returnErrOnPanic(&err)()
 	EnsureByPanic(EnsureLOCALIsBranchHead, "")
 	EnsureByPanic(EnsureChanges, "")
+	EnsureByPanic(EnsureConfig, "")
 	log.Warn("TODO: Should ensure latest vtree file")
+
+	var ctl ctl.DataCTL
+	ctl.ParseFromFile(configPath) // No error is ensured, so no need to catch it
 
 	var local Commit
 	parseLOCAL(&local)

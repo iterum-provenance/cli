@@ -15,7 +15,7 @@ import (
 )
 
 // DaemonURL is the url at which we can reach the idv/iterum daemon
-const DaemonURL = "http://idv-daemon.com/"
+const DaemonURL = "http://localhost:3000/"
 
 // _get takes a url to fire a get request upon and a pointer to an interface to store the result in
 // It returns an error on failure of either http.Get, Reading response or Unmarshalling json body

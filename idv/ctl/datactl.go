@@ -1,10 +1,10 @@
-package ctlfiles
+package ctl
 
 import (
 	"errors"
 
-	"github.com/Mantsje/iterum-cli/ctlfiles/storage"
-	"github.com/Mantsje/iterum-cli/ctlfiles/storage/credentials"
+	"github.com/Mantsje/iterum-cli/idv/ctl/storage"
+	"github.com/Mantsje/iterum-cli/idv/ctl/storage/credentials"
 	"github.com/Mantsje/iterum-cli/util"
 )
 
@@ -41,4 +41,14 @@ func (d *DataCTL) ParseFromFile(filepath string) error {
 	d.Credentials = creds
 
 	return util.ReturnFirstErr(errBackend, errCred, d.IsValid())
+}
+
+// WriteToFile writes the datactl to a YAML file
+func (d DataCTL) WriteToFile(filepath string) error {
+	return util.WriteYAMLFile(filepath, d)
+}
+
+// GetStorageLocation returns a string path or URL to where data is located, based on the backend
+func (d DataCTL) GetStorageLocation() string {
+	return d.Credentials.GetLocation()
 }

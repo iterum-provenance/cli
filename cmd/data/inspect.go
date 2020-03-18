@@ -1,8 +1,10 @@
 package data
 
 import (
+	"fmt"
 	"log"
 
+	"github.com/Mantsje/iterum-cli/idv"
 	"github.com/spf13/cobra"
 )
 
@@ -18,5 +20,9 @@ var inspectCmd = &cobra.Command{
 }
 
 func inspectRun(cmd *cobra.Command, args []string) {
-	log.Println("`iterum data inspect`")
+	report, err := idv.Inspect()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(report)
 }

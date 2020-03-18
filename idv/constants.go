@@ -35,6 +35,8 @@ const (
 
 	// vtreeFilePath is the name of the stored version tree file
 	vtreeFilePath string = remoteFolder + vtreeFileName
+
+	configPath string = "idv-config.yaml"
 )
 
 // File extensions for idv files
