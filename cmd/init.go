@@ -1,36 +1,58 @@
 package cmd
 
 import (
-	"log"
-
-	"github.com/spf13/cobra"
+	"net/url"
+	"os"
+	"os/exec"
 
 	"github.com/Mantsje/iterum-cli/cmd/prompter"
-	"github.com/Mantsje/iterum-cli/config/project"
+	"github.com/Mantsje/iterum-cli/config"
 	"github.com/Mantsje/iterum-cli/consts"
 	"github.com/Mantsje/iterum-cli/git"
 	"github.com/Mantsje/iterum-cli/util"
+	"github.com/prometheus/common/log"
+
+	"github.com/spf13/cobra"
 )
 
 func init() {
 	rootCmd.AddCommand(initCmd)
+	initCmd.PersistentFlags().BoolVarP(&FromURL, "from-url", "u", false, "Pull from existing repo rather than creating")
 	initCmd.PersistentFlags().BoolVarP(&NoRemote, "no-remote", "", false, "flag to use if git should not be initialized remotely")
 }
 
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "Initialize a new Iterum project",
-	Long:  `This creates a new Iterum project and asks some basic questions to set up that process`,
+	Short: "Initialize a new Iterum component",
+	Long:  `This creates or pulls a new Iterum component and initializes it based on some basic questions to set up`,
 	Run:   initRun,
 }
 
-func initRun(cmd *cobra.Command, args []string) {
-	var name string = prompter.Name()
-	if util.FileExists(consts.ConfigFilePath) || util.FileExists(name+"/"+consts.ConfigFilePath) {
-		log.Fatal(errProjectNesting)
+// Write the new config to disk
+func writeConfig(conf config.Configurable) error {
+	base := conf.GetBaseConf()
+
+	err := util.WriteJSONFile(base.Name+"/"+consts.ConfigFilePath, conf)
+	if err != nil {
+		return errConfigWriteFailed
 	}
-	// Guaranteed to be correct, so no checking needed
-	var projectType, _ = project.InferProjectType(prompter.ProjectType())
+
+	if err != nil { // Erase work if we failed
+		os.RemoveAll("./" + base.Name)
+	}
+	return err
+}
+
+func initCreate() (name string, gitConf config.GitConf, err error) {
+	_, _, err = ensureIterumComponent()
+	if err == nil { // Meaning this is already an iterum component
+		err = errComponentNesting
+		return
+	}
+
+	name = prompter.Name()
+	createComponentFolder(name)
+
 	var gitPlatform git.Platform
 	var gitProtocol git.Protocol
 	if NoRemote {
@@ -41,16 +63,47 @@ func initRun(cmd *cobra.Command, args []string) {
 		gitProtocol, _ = git.NewProtocol(prompter.Protocol())
 	}
 
-	var projectConfig = project.NewProjectConf(name)
-	projectConfig.ProjectType = projectType
-	projectConfig.Git.Platform = gitPlatform
-	projectConfig.Git.Protocol = gitProtocol
-
-	createComponentFolder(name)
-	err := util.WriteJSONFile(name+"/"+consts.ConfigFilePath, projectConfig)
-	if err != nil {
-		log.Fatal(errConfigWriteFailed)
+	gitConf = config.GitConf{
+		Platform: gitPlatform,
+		Protocol: gitProtocol,
 	}
 
-	initVersionTracking(&projectConfig)
+	if FromURL {
+		var gitPath = prompter.GitRepoPath()
+		git.CloneRepo(gitProtocol, gitPlatform, gitPath, name)
+		uri, _ := url.Parse("https://" + gitPlatform.String() + ".com/" + gitPath)
+		gitConf.URI = *uri
+		rename := exec.Command("iterum", "set", "Name", name)
+		util.RunCommand(rename, "./"+name, false)
+		os.Exit(0)
+	}
+
+	return
+}
+
+func finalizeCreate(conf config.Configurable) {
+	err := writeConfig(conf)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	initVersionTracking(conf)
+}
+
+func initRun(cmd *cobra.Command, args []string) {
+	_, _, err := ensureIterumComponent()
+	if err == nil { // Meaning this is already an iterum component
+		err = errComponentNesting
+		return
+	}
+
+	componentType, _ := config.NewRepoType(prompter.RepoType())
+	switch componentType {
+	case config.Data:
+		initDataRun(cmd, args)
+	case config.Unit:
+		initUnitRun(cmd, args)
+	case config.Flow:
+		initFlowRun(cmd, args)
+	}
+	log.Warn("Should prompt for type and then execute that create")
 }

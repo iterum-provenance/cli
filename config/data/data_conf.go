@@ -10,7 +10,7 @@ import (
 	"github.com/Mantsje/iterum-cli/util"
 )
 
-// DataConf contains the config for a data component in an iterum project
+// DataConf contains the config for an Iterum data component
 type DataConf struct {
 	config.Conf
 }

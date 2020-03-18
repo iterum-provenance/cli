@@ -1,6 +1,6 @@
 package unit
 
-// UploadingUnitConf contains the config for a Uploading unit folder in an iterum project
+// UploadingUnitConf contains the config for an Uploading unit
 type UploadingUnitConf struct {
 	UnitConf
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/Mantsje/iterum-cli/util"
 )
 
-// UnitConf contains the config for a unit folder in an iterum project
+// UnitConf contains the config for an Iterum unit component
 type UnitConf struct {
 	config.Conf
 	UnitType UnitType

@@ -1,6 +1,6 @@
 package unit
 
-// DownloadingUnitConf contains the config for a downloading unit folder in an iterum project
+// DownloadingUnitConf contains the config for a downloading unit
 type DownloadingUnitConf struct {
 	UnitConf
 }

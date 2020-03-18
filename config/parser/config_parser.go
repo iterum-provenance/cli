@@ -6,7 +6,6 @@ import (
 	"github.com/Mantsje/iterum-cli/config"
 	"github.com/Mantsje/iterum-cli/config/data"
 	"github.com/Mantsje/iterum-cli/config/flow"
-	"github.com/Mantsje/iterum-cli/config/project"
 	"github.com/Mantsje/iterum-cli/config/unit"
 
 	"github.com/Mantsje/iterum-cli/util"
@@ -32,10 +31,6 @@ func ParseConfigFile(filepath string) (conf interface{}, repo config.RepoType, e
 			flow := flow.FlowConf{}
 			err = flow.ParseFromFile(filepath)
 			conf = flow
-		case config.Project:
-			project := project.ProjectConf{}
-			err = project.ParseFromFile(filepath)
-			conf = project
 		case config.Data:
 			data := data.DataConf{}
 			err = data.ParseFromFile(filepath)

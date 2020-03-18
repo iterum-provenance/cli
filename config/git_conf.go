@@ -9,7 +9,7 @@ import (
 	"github.com/Mantsje/iterum-cli/util"
 )
 
-// GitConf contains all git-related configuration settings for units, flows and projects
+// GitConf contains all git-related configuration settings for units, flows and data repos
 type GitConf struct {
 	Platform git.Platform
 	Protocol git.Protocol

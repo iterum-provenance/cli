@@ -1,6 +1,6 @@
 package unit
 
-// ProcessingUnitConf contains the config for a processing unit folder in an iterum project
+// ProcessingUnitConf contains the config for a processing unit
 type ProcessingUnitConf struct {
 	UnitConf
 }

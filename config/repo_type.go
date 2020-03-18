@@ -7,10 +7,9 @@ type RepoType string
 
 // Enum-like values allowed for RepoType type
 const (
-	Unit    RepoType = "unit"
-	Flow    RepoType = "flow"
-	Project RepoType = "project"
-	Data    RepoType = "data"
+	Unit RepoType = "unit"
+	Flow RepoType = "flow"
+	Data RepoType = "data"
 )
 
 // NewRepoType creates a new RepoType instance and validates it
@@ -22,7 +21,7 @@ func NewRepoType(repoType string) (RepoType, error) {
 // IsValid checks the validity of the RepoType
 func (rt RepoType) IsValid() error {
 	switch rt {
-	case Unit, Flow, Project, Data:
+	case Unit, Flow, Data:
 		return nil
 	}
 	return errors.New("Error: Invalid RepoType")

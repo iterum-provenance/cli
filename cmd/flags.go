@@ -9,9 +9,3 @@ var FromURL bool
 
 // NoRemote is a boolean flag used to skip pushing to remote git
 var NoRemote bool
-
-// RemoveFiles is a boolean flag used to define whether physical files should be removed after commands such as `deregister`
-var RemoveFiles bool
-
-// CurrentComponentOnly is a boolean flag used to define whether we should only sync the current component
-var CurrentComponentOnly bool

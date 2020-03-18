@@ -55,7 +55,7 @@ func NewVTree(root Commit, master Branch) VTree {
 		Name:     root.Name,
 		Branch:   master.Hash,
 		Children: []hash{},
-		Parent:   root.Hash,
+		Parent:   hash(""),
 	}
 	v.Tree[root.Hash] = node
 	v.Branches[master.Hash] = master.Name

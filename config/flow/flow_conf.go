@@ -10,7 +10,7 @@ import (
 	"github.com/Mantsje/iterum-cli/util"
 )
 
-// FlowConf contains the config for a flow folder in an iterum project
+// FlowConf contains the config for an Iterum flow component
 type FlowConf struct {
 	config.Conf
 }

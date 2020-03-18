@@ -9,7 +9,6 @@ import (
 	"github.com/Mantsje/iterum-cli/config/data"
 	"github.com/Mantsje/iterum-cli/config/flow"
 	"github.com/Mantsje/iterum-cli/config/parser"
-	"github.com/Mantsje/iterum-cli/config/project"
 	"github.com/Mantsje/iterum-cli/config/unit"
 	"github.com/Mantsje/iterum-cli/consts"
 	"github.com/Mantsje/iterum-cli/util"
@@ -18,21 +17,21 @@ import (
 
 func init() {
 	rootCmd.AddCommand(setCmd)
-	setCmd.AddCommand(lsCmd)
 	setCmd.SetUsageFunc(setUsage)
+	setCmd.AddCommand(lsCmd)
 }
 
 var lsCmd = &cobra.Command{
 	Use:   "ls",
-	Short: "List possible variables for current folder",
-	Long:  `Lists the possible variables of project/unit/flow variables that can be set based on the current path`,
+	Short: "List possible variables for current component",
+	Long:  `Lists the possible variables of Iterum components that can be set based on the current path`,
 	Run:   lsRun,
 }
 
 var setCmd = &cobra.Command{
 	Use:   "set",
 	Short: "Update values of variables",
-	Long:  `Update the values of project/unit/flow variables based on the current value of $PWD`,
+	Long:  `Update the values of Iterum component variables based on the current value of $PWD`,
 	Args:  cobra.ExactArgs(2),
 	Run:   setRun,
 }
@@ -66,10 +65,6 @@ func setRun(cmd *cobra.Command, args []string) {
 		f := _conf.(flow.FlowConf)
 		conf = &f
 		roConf = &f
-	case config.Project:
-		p := _conf.(project.ProjectConf)
-		conf = &p
-		roConf = &p
 	case config.Data:
 		d := _conf.(data.DataConf)
 		conf = &d
@@ -96,10 +91,6 @@ func lsRun(cmd *cobra.Command, args []string) {
 		f := _conf.(flow.FlowConf)
 		fmt.Println("\nFlow config found, the following variables can be set:")
 		fmt.Println(f.AllowedVariables())
-	case config.Project:
-		p := _conf.(project.ProjectConf)
-		fmt.Println("\nProject config found, the following variables can be set:")
-		fmt.Println(p.AllowedVariables())
 	case config.Data:
 		d := _conf.(data.DataConf)
 		fmt.Println("\nData config found, the following variables can be set:")

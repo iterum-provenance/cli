@@ -10,18 +10,18 @@ import (
 )
 
 func init() {
-	createCmd.AddCommand(createUnitCmd)
+	initCmd.AddCommand(initUnitCmd)
 }
 
-var createUnitCmd = &cobra.Command{
+var initUnitCmd = &cobra.Command{
 	Use:   "unit",
-	Short: "Create a new unit for this Iterum project",
-	Long:  `Create or pull a new unit and add it to this iterum project`,
-	Run:   createUnitRun,
+	Short: "Initialize a new Iterum unit component",
+	Long:  `Initialize or pull a new Iterum unit component`,
+	Run:   initUnitRun,
 }
 
-func createUnitRun(cmd *cobra.Command, args []string) {
-	proj, name, gitConf, err := initCreate()
+func initUnitRun(cmd *cobra.Command, args []string) {
+	name, gitConf, err := initCreate()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -32,5 +32,5 @@ func createUnitRun(cmd *cobra.Command, args []string) {
 	unitConfig.UnitType = unitType
 	unitConfig.Git = gitConf
 
-	finalizeCreate(&unitConfig, proj)
+	finalizeCreate(&unitConfig)
 }

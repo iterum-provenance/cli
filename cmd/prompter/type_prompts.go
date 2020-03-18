@@ -1,7 +1,8 @@
 package prompter
 
 import (
-	"github.com/Mantsje/iterum-cli/config/project"
+	"github.com/Mantsje/iterum-cli/config"
+	"github.com/Mantsje/iterum-cli/config/run"
 	"github.com/Mantsje/iterum-cli/config/unit"
 	"github.com/manifoldco/promptui"
 )
@@ -18,13 +19,25 @@ func UnitType() string {
 	})
 }
 
-// ProjectType lets the user pick a ProjectType
-func ProjectType() string {
+// RepoType lets the user pick a RepoType
+func RepoType() string {
 	return pick(promptui.Select{
-		Label: "In what setting will this project run",
-		Items: []project.ProjectType{
-			project.Local,
-			project.Distributed,
+		Label: "What kind of Iterum component will this be",
+		Items: []config.RepoType{
+			config.Data,
+			config.Unit,
+			config.Flow,
+		},
+	})
+}
+
+// RunType lets the user pick a RunType
+func RunType() string {
+	return pick(promptui.Select{
+		Label: "In what setting will this be run",
+		Items: []run.RunType{
+			run.Local,
+			run.Distributed,
 		},
 	})
 }
