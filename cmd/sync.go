@@ -21,7 +21,7 @@ var syncCmd = &cobra.Command{
 }
 
 func syncRun(cmd *cobra.Command, args []string) {
-	_, _, err := ensureIterumComponent()
+	_, _, err := ensureIterumComponent("")
 	if err != nil {
 		log.Fatal(err)
 	}

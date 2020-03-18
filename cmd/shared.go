@@ -14,10 +14,9 @@ import (
 // Package for shared functions specifically related to the base CLI functionality
 
 // Make sure we are in an iterum component folder
-func ensureIterumComponent() (interface{}, config.RepoType, error) {
-	conf, repo, err := parser.ParseConfigFile(consts.ConfigFilePath)
+func ensureIterumComponent(relPath string) (interface{}, config.RepoType, error) {
+	conf, repo, err := parser.ParseConfigFile("./" + relPath + "/" + consts.ConfigFilePath)
 	if err != nil {
-		log.Println(err)
 		return conf, repo, errNoComponent
 	}
 	return conf, repo, nil
@@ -43,7 +42,7 @@ func initVersionTracking(conf config.Configurable) {
 
 // Creates the necessary folders for any iterum component: ./name and ./name/.iterum
 func createComponentFolder(name string) {
-	path := "./" + name + "/" + consts.ConfigFolder
+	path := name + "/" + consts.ConfigFolder
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		os.MkdirAll(path, 0755)
 	}

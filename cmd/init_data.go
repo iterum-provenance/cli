@@ -2,8 +2,10 @@ package cmd
 
 import (
 	"log"
+	"os"
 
 	"github.com/Mantsje/iterum-cli/config/data"
+	"github.com/Mantsje/iterum-cli/idv"
 	"github.com/spf13/cobra"
 )
 
@@ -28,4 +30,7 @@ func initDataRun(cmd *cobra.Command, args []string) {
 	dataConfig.Git = gitConf
 
 	finalizeCreate(&dataConfig)
+
+	os.Chdir("./" + name)
+	idv.Initialize()
 }

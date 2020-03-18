@@ -44,13 +44,22 @@ func writeConfig(conf config.Configurable) error {
 }
 
 func initCreate() (name string, gitConf config.GitConf, err error) {
-	_, _, err = ensureIterumComponent()
-	if err == nil { // Meaning this is already an iterum component
+	_, _, errAlreadyAComponent := ensureIterumComponent("")
+	if errAlreadyAComponent == nil { // Meaning this is already an iterum component
 		err = errComponentNesting
 		return
 	}
 
 	name = prompter.Name()
+
+	// if to be created component folder already exists
+	if _, errExist := os.Stat(name); errExist == nil {
+		_, _, errAlreadyAComponent = ensureIterumComponent(name)
+		if errAlreadyAComponent == nil { // Meaning THIS is already an iterum component
+			err = errComponentNesting
+			return
+		}
+	}
 	createComponentFolder(name)
 
 	var gitPlatform git.Platform
@@ -90,10 +99,9 @@ func finalizeCreate(conf config.Configurable) {
 }
 
 func initRun(cmd *cobra.Command, args []string) {
-	_, _, err := ensureIterumComponent()
+	_, _, err := ensureIterumComponent("")
 	if err == nil { // Meaning this is already an iterum component
-		err = errComponentNesting
-		return
+		log.Fatal(errComponentNesting)
 	}
 
 	componentType, _ := config.NewRepoType(prompter.RepoType())
@@ -105,5 +113,4 @@ func initRun(cmd *cobra.Command, args []string) {
 	case config.Flow:
 		initFlowRun(cmd, args)
 	}
-	log.Warn("Should prompt for type and then execute that create")
 }
