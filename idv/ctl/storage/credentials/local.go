@@ -8,7 +8,7 @@ import (
 
 // Local holds required credentials for storing data locally
 type Local struct {
-	Path string // Absolute path to folder
+	Path string `yaml:"path" json:"path"` // Absolute path to folder
 }
 
 // IsValid checks the validity of this structure

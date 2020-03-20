@@ -36,16 +36,16 @@ func (b branchMap) _toInterfaceMap() (out map[interface{}]interface{}) {
 
 // vtreeNode is a node in the VTree, each node represents 1 commit
 type vtreeNode struct {
-	Name     string
-	Branch   hash
-	Children []hash
-	Parent   hash
+	Name     string `json:"name"`
+	Branch   hash   `json:"branch"`
+	Children []hash `json:"children"`
+	Parent   hash   `json:"parent"`
 }
 
 // VTree holds a version tree for data versioning
 type VTree struct {
-	Tree     commitTree
-	Branches branchMap
+	Tree     commitTree `json:"tree"`
+	Branches branchMap  `json:"branches"`
 }
 
 // NewVTree instantiates a new version tree and sets the root node
@@ -104,7 +104,6 @@ func (v *VTree) add(c Commit) error {
 	parentNode := v.Tree[c.Parent]
 	parentNode.Children = append(parentNode.Children, c.Hash)
 	v.Tree[c.Parent] = parentNode
-	fmt.Println(v.Tree[c.Parent])
 	return nil
 }
 
@@ -112,13 +111,13 @@ func (v *VTree) add(c Commit) error {
 // - Create a new Branch structure based on `name`
 // - Create a copy of `commit` with the new branch as branch
 // - Point the parent of the new commit to the original commit
-// - Set the HEAD of the new branch to the new commit
+// - Set the HEAD of the new branch to the original commit
 // - Returns both created Branch and Commit as these are not written to disk
 // If there is an error in any of the processes the VTree is not updated
 func (v *VTree) branchOff(commit Commit, branchName string) (branch Branch, branchRoot Commit, err error) {
 	branch = NewBranch(branchName)
 	branchRoot = NewCommit(commit, branch.Hash, branchName+":"+commit.Name, commit.Name+" as root of "+branchName)
-	branch.HEAD = branchRoot.Hash
+	branch.HEAD = commit.Hash
 	if v.isExistingBranch(branch.Hash) {
 		err = fmt.Errorf("Error: Branch has clash in VTree: %v, could not branch", branch.Hash)
 		return

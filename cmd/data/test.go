@@ -2,8 +2,10 @@ package data
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/Mantsje/iterum-cli/idv"
+	"github.com/Mantsje/iterum-cli/idv/ctl"
 	"github.com/spf13/cobra"
 )
 
@@ -20,5 +22,11 @@ var testCmd = &cobra.Command{
 
 func testRun(cmd *cobra.Command, args []string) {
 	fmt.Println("'Iterum testing' command")
-	fmt.Println(idv.Initialize())
+	var ctl ctl.DataCTL
+	err := ctl.ParseFromFile("idv-config.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	// fmt.Println(idv.PostDataset(ctl))
+	fmt.Println(idv.PullVTree())
 }

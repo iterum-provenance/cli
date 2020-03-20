@@ -2,8 +2,10 @@ package idv
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
+	"github.com/Mantsje/iterum-cli/idv/ctl"
 	"github.com/prometheus/common/log"
 )
 
@@ -24,7 +26,7 @@ func Initialize() (err error) {
 	dummyPull()
 
 	var history VTree
-	parseVTree(remoteFolder+vtreeFileName, &history)
+	parseVTree(vtreeFilePath, &history)
 	linkTREE(history, false)
 
 	// Search for master branch in VTree to find hash. Then parse it into mbranch
@@ -36,6 +38,29 @@ func Initialize() (err error) {
 		}
 	}
 
-	trackBranchHead(mbranch)
+	trackBranchHead(mbranch, true)
+	return
+}
+
+// Setup sets up the necessary stuff at the Daemon and locally links all necessary symlinks
+func Setup() (err error) {
+	defer _returnErrOnPanic(&err)()
+	EnsureByPanic(EnsureIDVRepo, "")
+	EnsureByPanic(EnsureConfig, "")
+
+	errNotSetup := EnsureSetup()
+	if errNotSetup == nil { // Meaning this repo has already been setup
+		return errors.New("Error: Repo already set up")
+	}
+	fmt.Println(errNotSetup)
+
+	var ctl ctl.DataCTL
+	parseConfig(configPath, &ctl)
+
+	errPosting := postDataset(ctl)
+	if errPosting != nil && errPosting != errConflictingDataset {
+		return errPosting
+	}
+
 	return
 }

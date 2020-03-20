@@ -12,6 +12,7 @@ const (
 
 const (
 	// LOCAL points to CurrentCommitFile, the local commit containing staged updates not yet pushed
+	// Or in case of checking out to a commit which is not the head of a branch, it points to HEAD
 	LOCAL string = IDVFolder + "LOCAL"
 	// HEAD points to the commit that local repo thinks is the head of the current branch remotely,
 	// essentially the parent of LOCAL

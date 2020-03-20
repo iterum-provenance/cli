@@ -1,6 +1,8 @@
 package idv
 
 import (
+	"fmt"
+
 	"github.com/Mantsje/iterum-cli/idv/ctl"
 	"github.com/Mantsje/iterum-cli/util"
 	"github.com/prometheus/common/log"
@@ -42,7 +44,7 @@ func ApplyCommit(name, description string) (err error) {
 	history.WriteToFolder(remoteFolder) // should go afterwards
 
 	linkTREE(history, false)
-	trackBranchHead(branch)
+	trackBranchHead(branch, true)
 
 	log.Warn("TODO: Create multipart form of all data that needs to be send")
 	log.Warn("TODO: pass all (necessary) data to the Daemon")
@@ -50,7 +52,16 @@ func ApplyCommit(name, description string) (err error) {
 	return
 }
 
-// Pull the latest .vtree and if no staged changes checkout onto HEAD of branch
-func Pull() {
-
+// PullVTree pulls the latest .vtree for the dataset of this repo
+func PullVTree() (err error) {
+	defer _returnErrOnPanic(&err)()
+	EnsureByPanic(EnsureIDVRepo, "")
+	EnsureByPanic(EnsureNoBranchOffs, "")
+	EnsureByPanic(EnsureConfig, "")
+	var ctl ctl.DataCTL
+	ctl.ParseFromFile(configPath)
+	history, err := getVTree(ctl.Name)
+	writeTREE(history)
+	fmt.Println(history)
+	return
 }

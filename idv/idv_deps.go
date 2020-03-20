@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/Mantsje/iterum-cli/idv/ctl"
@@ -80,8 +81,31 @@ func EnsureNoBranchOffs() error {
 	return nil
 }
 
+// EnsureLatestCommit makes sure that the current LOCAL is ahead of the BRANCH.HEAD
+func EnsureLatestCommit() error {
+	errLocal := EnsureLOCAL()
+	errBranch := EnsureBRANCH()
+	var local Commit
+	errLocalParse := local.ParseFromFile(LOCAL)
+	var branch Branch
+	errBranchParse := branch.ParseFromFile(BRANCH)
+	e := util.ReturnFirstErr(errLocal, errBranch, errLocalParse, errBranchParse)
+	if e != nil {
+		return e
+	}
+
+	if local.Parent != branch.HEAD {
+		return errors.New("Error: LOCAL is not direct child of BRANCH.HEAD")
+	}
+	return nil
+}
+
 // EnsureNoStaged makes sure that there are no uncommitted staged changes in LOCAL
 func EnsureNoStaged() error {
+	isLatest := EnsureLatestCommit()
+	if isLatest != nil { // If it is not the latest commit, this function should not error
+		return nil
+	}
 	err := EnsureLOCAL()
 	if err != nil {
 		return err
@@ -130,9 +154,9 @@ func EnsureLOCALIsBranchHead() error {
 	if e != nil {
 		return e
 	}
-	// if current LOCAL is not branch.HEAD (in case we already branched)
-	// nor the parent of LOCAL is current branch.HEAD (meaning LOCAL is latest possible commit))
-	if local.Hash != branch.HEAD && local.Parent != branch.HEAD {
+
+	// if the parent of LOCAL is current branch.HEAD (meaning LOCAL is latest possible commit)
+	if local.Parent != branch.HEAD {
 		return errors.New("Error: Cannot create child commit of commits from the past unless you branch off of them")
 	}
 	return nil
@@ -149,4 +173,29 @@ func EnsureConfig() error {
 	}
 	var ctl ctl.DataCTL
 	return ctl.ParseFromFile(configPath)
+}
+
+// EnsureSetup checks whether the repo is (correctly) setup by checking all the supposed symlinks
+func EnsureSetup() (err error) {
+	err = EnsureIDVRepo()
+	if err != nil {
+		return
+	}
+
+	_, errBRANCH := os.Lstat(BRANCH)
+	_, errLOCAL := os.Lstat(LOCAL)
+	_, errTREE := os.Lstat(TREE)
+	_, errHEAD := os.Lstat(HEAD)
+	err = util.ReturnFirstErr(errBRANCH, errLOCAL, errTREE, errHEAD)
+	if err != nil {
+		return
+	}
+
+	_, errBRANCH = os.Stat(BRANCH)
+	_, errLOCAL = os.Stat(LOCAL)
+	_, errTREE = os.Stat(TREE)
+	_, errHEAD = os.Stat(HEAD)
+	err = util.ReturnFirstErr(errBRANCH, errLOCAL, errTREE, errHEAD)
+
+	return
 }

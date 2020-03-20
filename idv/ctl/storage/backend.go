@@ -7,9 +7,9 @@ type Backend string
 
 // Enum-like values for type
 const (
-	Local      Backend = "local-storage"
-	AmazonS3   Backend = "amazon-s3"
-	CloudStore Backend = "cloud-store"
+	Local      Backend = "Local"       //"local-storage"
+	AmazonS3   Backend = "AmazonS3"    //"amazon-s3"
+	CloudStore Backend = "GoogleCloud" //"cloud-store"
 )
 
 // NewBackend creates a new instance and validates it

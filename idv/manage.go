@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Mantsje/iterum-cli/idv/ctl"
 	"github.com/Mantsje/iterum-cli/util"
-	"github.com/prometheus/common/log"
 )
 
 // Contains functionality used for managing an idv repository
@@ -18,7 +18,7 @@ import (
 // _symlink symlinks a file and panics on fail
 func _symlink(src string, target string) (err error) {
 	if !util.FileExists(src) {
-		return errors.New("Error: Cannot symlink non persisted-to-disk structure")
+		return errors.New("Error: Cannot symlink structure that is not persisted to disk")
 	}
 	if _, err := os.Lstat(target); err == nil {
 		if err := os.Remove(target); err != nil {
@@ -83,6 +83,13 @@ func parseVTree(path string, history *VTree) {
 	util.PanicIfErr(err, "")
 }
 
+// parseConfig parses an idv-config.yaml into DataCTL, else panics
+func parseConfig(path string, ctl *ctl.DataCTL) {
+	err := _parse(path, ctl)
+	util.PanicIfErr(err, "")
+	return
+}
+
 // parseHEAD takes a commit pointer and reads in the HEAD into this
 // panics on fail, else commit will be filled with HEAD
 func parseHEAD(commit *Commit) {
@@ -117,6 +124,12 @@ func writeLOCAL(commit Commit) {
 	util.PanicIfErr(err, "")
 }
 
+// writeTREE takes a vtree and writes it to wherever TREE points
+func writeTREE(history VTree) {
+	err := history.WriteToFolder(remoteFolder)
+	util.PanicIfErr(err, "")
+}
+
 // verifyAndUpdateStagemap takes a commit and (possibly) a stagemap and validates
 // the one with the other. If no map is passed it reads in the default one.
 func verifyAndUpdateStagemap(commit Commit, stagemap Stagemap) {
@@ -130,6 +143,8 @@ func verifyAndUpdateStagemap(commit Commit, stagemap Stagemap) {
 }
 
 // initLocalFolder initializes localFolder by inheriting from the currently tracked HEAD
+// If a BranchHead or Commit is tracked, without this following function, LOCAL points to HEAD as well
+// This is useful for checking out to earlier commits but not branching them
 func initLocalFolder() {
 	// Ensure dependencies for this
 	clearLocalFolder()
@@ -152,12 +167,12 @@ func initLocalFolder() {
 	// Setup empty Stagemap for this local commit
 	err = Stagemap{}.WriteToFile()
 	util.PanicIfErr(err, "")
-
 }
 
 // trackCommit does the same as trackBranchHead, but it reasons from a commit and tracks that
 // Is used to track from a random commit in a tree rather than only branch.HEAD
-func trackCommit(commit Commit, branch Branch) {
+// it also makes LOCAL point HEAD, if you want a child of HEAD, call initLocalFolder afterwards
+func trackCommit(commit Commit, branch Branch, newLocal bool) {
 	err := EnsureIDVRepo()
 	util.PanicIfErr(err, "")
 
@@ -169,42 +184,57 @@ func trackCommit(commit Commit, branch Branch) {
 	linkBRANCH(branch, false)
 	linkHEAD(commit)
 
-	initLocalFolder()
+	if newLocal {
+		initLocalFolder()
+	} else {
+		// Link LOCAL to HEAD as well, functions using this should fix this if necessary
+		err = _symlink(commit.ToFilePath(false), LOCAL)
+		util.PanicIfErr(err, "")
+	}
 }
 
-// trackBranchHead takes a branch and sets HEAD and BRANCH to this branch ands its head
-// it also initializes LOCAL with a commit inheriting from HEAD
-func trackBranchHead(branch Branch) {
+// trackBranchHead takes a branch and sets HEAD and BRANCH to this branch's HEAD
+// it also makes LOCAL point HEAD, if you want a child of HEAD, call initLocalFolder afterwards
+func trackBranchHead(branch Branch, newLocal bool) {
 	err := EnsureIDVRepo()
 	util.PanicIfErr(err, "")
 
 	// Parse the head of this branch
 	var head Commit = pullParseCommit(branch.HEAD)
 
-	trackCommit(head, branch)
+	trackCommit(head, branch, newLocal)
 }
 
-// _pullAndParse checks for existance of an idv file. If it exists it parses it, else it first pulls it
-func _pullAndParse(path string, p util.Parseable) (err error) {
-	if !util.FileExists(path) { // If the file does not exist yet locally, pull them
-		log.Warn(fmt.Sprintf("Should pull %v file", path))
-		return errors.New("Error: cannot pull files yet")
-	}
-	_parse(path, p)
-	return
-}
-
-// pullParseBranch first pulls and then parses the given commit associated with the hash
+// pullParseBranch first pulls if non-existent and then parses the given commit associated with the hash
+// it panics on fail
 func pullParseCommit(h hash) (commit Commit) {
-	commit = Commit{}
-	err := _pullAndParse(remoteFolder+h.String()+commitFileExt, &commit)
+	path := remoteFolder + h.String() + commitFileExt
+	if !util.FileExists(path) { // If the file does not exist yet locally, pull them
+		var ctl ctl.DataCTL
+		parseConfig(configPath, &ctl)
+		commit, err := getCommit(h, ctl.Name)
+		util.PanicIfErr(err, "Error: could not pull commit, make sure it exists")
+		commit.WriteToFolder(remoteFolder)
+		return commit
+	}
+	err := _parse(path, &commit)
 	util.PanicIfErr(err, "")
 	return
 }
 
 // pullParseBranch first pulls and then parses the given branch associated with the hash
+// it panics on fail
 func pullParseBranch(h hash) (branch Branch) {
-	err := _pullAndParse(remoteFolder+h.String()+branchFileExt, &branch)
+	path := remoteFolder + h.String() + branchFileExt
+	if !util.FileExists(path) { // If the file does not exist yet locally, pull them
+		var ctl ctl.DataCTL
+		parseConfig(configPath, &ctl)
+		branch, err := getBranch(h, ctl.Name)
+		util.PanicIfErr(err, "Error: could not pull branch, make sure it exists")
+		branch.WriteToFolder(remoteFolder)
+		return branch
+	}
+	err := _parse(path, &branch)
 	util.PanicIfErr(err, "")
 	return
 }

@@ -3,6 +3,7 @@ package idv
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -11,11 +12,14 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/Mantsje/iterum-cli/idv/ctl"
 	"github.com/Mantsje/iterum-cli/util"
 )
 
 // DaemonURL is the url at which we can reach the idv/iterum daemon
 const DaemonURL = "http://localhost:3000/"
+
+var errConflictingDataset = errors.New("Error: POST dataset failed, dataset already exists")
 
 // _get takes a url to fire a get request upon and a pointer to an interface to store the result in
 // It returns an error on failure of either http.Get, Reading response or Unmarshalling json body
@@ -29,6 +33,15 @@ func _get(url string, target interface{}) (err error) {
 	body, err := ioutil.ReadAll(resp.Body)
 	util.PanicIfErr(err, "")
 
+	switch resp.StatusCode {
+	case http.StatusOK:
+		break
+	case http.StatusNotFound:
+		return fmt.Errorf("Error: GET failed with code %v, resource not found. Is the provided dataset correct?", resp.StatusCode)
+	default:
+		return fmt.Errorf("Error: GET failed, daemon responded with statuscode %v", resp.StatusCode)
+	}
+
 	err = json.Unmarshal([]byte(body), target)
 	util.PanicIfErr(err, "")
 
@@ -36,7 +49,7 @@ func _get(url string, target interface{}) (err error) {
 }
 
 // constructMultiFileRequest creates a new file upload http request with optional extra otherParams
-func constructMultiFileRequest(uri string, otherParams map[string]string, nameFileMap map[string]string) (request *http.Request, err error) {
+func constructMultiFileRequest(url string, otherParams map[string]string, nameFileMap map[string]string) (request *http.Request, err error) {
 	defer _returnErrOnPanic(&err)()
 
 	body := new(bytes.Buffer)
@@ -58,7 +71,7 @@ func constructMultiFileRequest(uri string, otherParams map[string]string, nameFi
 	err = writer.Close()
 	util.PanicIfErr(err, "")
 
-	request, err = http.NewRequest("POST", uri, body)
+	request, err = http.NewRequest("POST", url, body)
 	util.PanicIfErr(err, "")
 	request.Header.Add("Content-Type", writer.FormDataContentType())
 
@@ -67,7 +80,7 @@ func constructMultiFileRequest(uri string, otherParams map[string]string, nameFi
 
 func _postMultipartForm(url string, filemap map[string]string) (response *http.Response, err error) {
 	defer _returnErrOnPanic(&err)()
-	request, err := constructMultiFileRequest(DaemonURL+"/push/commit", nil, filemap)
+	request, err := constructMultiFileRequest(url, nil, filemap)
 	util.PanicIfErr(err, "")
 
 	client := &http.Client{}
@@ -76,24 +89,40 @@ func _postMultipartForm(url string, filemap map[string]string) (response *http.R
 	return resp, err
 }
 
-// pullBranch pulls a specific branch based on its hash
-func pullBranch(bhash hash) (branch Branch, err error) {
-	err = _get(DaemonURL+"/pull/branch/"+bhash.String(), &branch)
-	fmt.Println(branch)
+// getBranch pulls a specific branch based on its hash
+func getBranch(bhash hash, dataset string) (branch Branch, err error) {
+	err = _get(DaemonURL+dataset+"/branch/"+bhash.String(), &branch)
 	return
 }
 
-// pullCommit pulls a specific commmit based on its hash
-func pullCommit(chash hash) (commit Commit, err error) {
-	err = _get(DaemonURL+"/pull/commit/"+chash.String(), &commit)
-	fmt.Println(commit)
+// getCommit pulls a specific commmit based on its hash
+func getCommit(chash hash, dataset string) (commit Commit, err error) {
+	err = _get(DaemonURL+dataset+"/commit/"+chash.String(), &commit)
 	return
 }
 
-// pullVTree pulls the entire version history file: vtree
-func pullVTree() (history VTree, err error) {
-	err = _get(DaemonURL+"/pull/vtree", &history)
-	fmt.Println(history)
+// getVTree pulls the entire version history file: vtree for the given dataset
+func getVTree(dataset string) (history VTree, err error) {
+	err = _get(DaemonURL+dataset+"/vtree", &history)
+	return
+}
+
+// postDataset posts the passed dataset to the Daemon.
+func postDataset(ctl ctl.DataCTL) (err error) {
+	data, err := json.Marshal(ctl)
+	if err != nil {
+		return
+	}
+
+	resp, err := http.Post(DaemonURL, "application/json", bytes.NewBuffer(data))
+	switch resp.StatusCode {
+	case http.StatusOK:
+		break
+	case http.StatusConflict:
+		return errConflictingDataset
+	default:
+		return fmt.Errorf("Error: POST failed, daemon responded with statuscode %v", resp.StatusCode)
+	}
 	return
 }
 

@@ -1,11 +1,9 @@
 package idv
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/Mantsje/iterum-cli/util"
-	"github.com/prometheus/common/log"
 )
 
 // This file contains functionality related to switching branches/commits
@@ -35,13 +33,7 @@ func BranchFromCommit(branchName, commitHashOrName string, isHash bool) (err err
 		if !history.isExistingCommit(rootHash) {
 			return fmt.Errorf("%v is not an existing commit, cannot branch of non-existent commit", rootHash)
 		}
-		rootPath := remoteFolder + rootHash.String() + commitFileExt
-		if util.FileExists(rootPath) {
-			parseCommit(rootPath, &branchRoot)
-		} else {
-			log.Warn(fmt.Sprintf("Should pull %v%v file", rootHash, commitFileExt))
-			return errors.New("Error: cannot pull files yet")
-		}
+		branchRoot = pullParseCommit(rootHash)
 	}
 
 	newBranch, headCommit, err := history.branchOff(branchRoot, branchName)
@@ -73,14 +65,14 @@ func Checkout(nameOrHash string, isCommit bool, isHash bool) (err error) {
 		}
 		commit := pullParseCommit(targetHash)
 		branch := pullParseBranch(commit.Branch)
-		trackCommit(commit, branch)
+		trackCommit(commit, branch, false)
 	} else {
 		if !isHash {
 			targetHash, err = history.getBranchHashByName(targetName)
 			util.PanicIfErr(err, "Error: passed branch name is not part of the version tree, are you sure have the latest version?")
 		}
 		branch := pullParseBranch(targetHash)
-		trackBranchHead(branch)
+		trackBranchHead(branch, true)
 	}
 
 	return

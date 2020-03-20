@@ -12,7 +12,7 @@ import (
 // Status returns information about the currently staged files
 func Status(fullPath, localPath bool) (report string, err error) {
 	defer _returnErrOnPanic(&err)()
-	EnsureByPanic(EnsureLOCALIsBranchHead, "")
+	EnsureByPanic(EnsureLOCAL, "")
 
 	var local Commit
 	parseLOCAL(&local)

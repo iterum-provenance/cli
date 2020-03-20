@@ -2,6 +2,7 @@ package ctl
 
 import (
 	"errors"
+	"regexp"
 
 	"github.com/Mantsje/iterum-cli/idv/ctl/storage"
 	"github.com/Mantsje/iterum-cli/idv/ctl/storage/credentials"
@@ -10,13 +11,18 @@ import (
 
 // DataCTL is the structure that a data config files can be parsed into (.icf) files
 type DataCTL struct {
-	Name        string
-	Backend     storage.Backend
-	Credentials credentials.Storage
+	Name        string              `yaml:"name" json:"name"`
+	Description string              `yaml:"description" json:"description"`
+	Backend     storage.Backend     `yaml:"backend" json:"backend"`
+	Credentials credentials.Storage `yaml:"credentials" json:"credentials"`
 }
 
 // IsValid checks the validity of the struct
 func (d DataCTL) IsValid() error {
+	rexp, _ := regexp.Compile("[ \t\n\r]")
+	if rexp.ReplaceAllString(d.Name, "") != d.Name {
+		return errors.New("Error: Name contains whitespace, use '-' instead")
+	}
 	err := util.Verify(d.Backend, nil)
 	err = util.Verify(d.Credentials, err)
 	return err
