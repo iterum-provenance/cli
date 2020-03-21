@@ -127,14 +127,14 @@ func postDataset(ctl ctl.DataCTL) (err error) {
 }
 
 // pushCommit pushes a commit to a branch. returns the updated VTree and Branch
-func pushCommit(commit Commit, stagemap Stagemap) (branch Branch, history VTree, err error) {
+func pushCommit(dataset string, commit Commit, stagemap Stagemap) (branch Branch, history VTree, err error) {
 	filemap := make(map[string]string)
 	for key, val := range stagemap {
 		filemap[key] = val
 	}
 	filemap["commit"] = commit.ToFilePath(false)
 
-	response, err := _postMultipartForm(DaemonURL+"/push/commit", filemap)
+	response, err := _postMultipartForm(DaemonURL+dataset+"/commit", filemap)
 
 	body, _ := ioutil.ReadAll(response.Body)
 	fmt.Println(response.StatusCode)
@@ -145,7 +145,7 @@ func pushCommit(commit Commit, stagemap Stagemap) (branch Branch, history VTree,
 }
 
 // pushBranchedCommit pushes a commit which is the root of a new branch. returns the updated VTree
-func pushBranchedCommit(branch Branch, commit Commit, stagemap Stagemap) (history VTree, err error) {
+func pushBranchedCommit(dataset string, branch Branch, commit Commit, stagemap Stagemap) (history VTree, err error) {
 	filemap := make(map[string]string)
 	for key, val := range stagemap {
 		filemap[key] = val
@@ -153,7 +153,7 @@ func pushBranchedCommit(branch Branch, commit Commit, stagemap Stagemap) (histor
 	filemap["commit"] = commit.ToFilePath(false)
 	filemap["branch"] = branch.ToFilePath(false)
 
-	response, err := _postMultipartForm(DaemonURL+"/push/branched-commit", filemap)
+	response, err := _postMultipartForm(DaemonURL+dataset+"/branched-commit", filemap)
 
 	body, _ := ioutil.ReadAll(response.Body)
 	fmt.Println(response.StatusCode)

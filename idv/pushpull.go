@@ -35,6 +35,7 @@ func ApplyCommit(name, description string) (err error) {
 	local.Name = name
 	local.Description = description
 
+	// TODO: fix this coming week!
 	// Both of the following 2 statements should be performed at daemon (except when branched maybe)
 	branch.HEAD = local.Hash
 	history.add(local)
