@@ -17,10 +17,14 @@ func ApplyCommit(name, description string) (err error) {
 	EnsureByPanic(EnsureLOCALIsBranchHead, "")
 	EnsureByPanic(EnsureChanges, "")
 	EnsureByPanic(EnsureConfig, "")
-	log.Warn("TODO: Should ensure latest vtree file")
 
 	var ctl ctl.DataCTL
 	ctl.ParseFromFile(configPath) // No error is ensured, so no need to catch it
+
+	// Ensure we have the latest vtree
+	remoteHistory, err := getVTree(ctl.Name)
+	util.PanicIfErr(err, "")
+	fmt.Println(remoteHistory)
 
 	var local Commit
 	parseLOCAL(&local)
@@ -39,31 +43,32 @@ func ApplyCommit(name, description string) (err error) {
 	// TODO: fix this coming week!
 	// Both of the following 2 statements should be performed at daemon (except when branched maybe)
 	branch.HEAD = local.Hash
-	history.add(local)
+	history.addCommit(local)
 
 	local.WriteToFolder(remoteFolder)
 	branch.WriteToFolder(remoteFolder)  // should go in case of not pushing a branch
 	history.WriteToFolder(remoteFolder) // should go afterwards
 
-	linkTREE(history, false)
-	trackBranchHead(branch, true)
-
 	log.Warn("TODO: Create multipart form of all data that needs to be send")
 	log.Warn("TODO: pass all (necessary) data to the Daemon")
 	log.Warn("TODO: accept response of updated .vtree and .branch file")
+
+	linkTREE(history, false)
+	trackBranchHead(branch, true)
+
 	return
 }
 
 // PullVTree pulls the latest .vtree for the dataset of this repo
 func PullVTree() (err error) {
 	defer _returnErrOnPanic(&err)()
-	EnsureByPanic(EnsureIDVRepo, "")
+	EnsureByPanic(EnsureSetup, "")
 	EnsureByPanic(EnsureNoBranchOffs, "")
 	EnsureByPanic(EnsureConfig, "")
 	var ctl ctl.DataCTL
 	ctl.ParseFromFile(configPath)
 	history, err := getVTree(ctl.Name)
+	util.PanicIfErr(err, "")
 	writeTREE(history)
-	fmt.Println(history)
 	return
 }

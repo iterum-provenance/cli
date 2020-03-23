@@ -8,9 +8,9 @@ import (
 
 // Branch internally defines a data version commit file
 type Branch struct {
-	Name string
-	HEAD hash
-	Hash hash
+	Name string `json:"name"`
+	HEAD hash   `json:"head"`
+	Hash hash   `json:"hash"`
 }
 
 // NewBranch creates and initializes a new branch

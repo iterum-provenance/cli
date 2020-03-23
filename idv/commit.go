@@ -10,27 +10,27 @@ import (
 
 // structure that defines whether a commit is deprecated and why
 type deprecated struct {
-	Value  bool
-	Reason string
+	Value  bool   `json:"value"`
+	Reason string `json:"reason"`
 }
 
 // diff defines the updates included in this commit
 type diff struct {
-	Added   []string
-	Removed []string
-	Updated []string
+	Added   []string `json:"added"`
+	Removed []string `json:"removed"`
+	Updated []string `json:"updated"`
 }
 
 // Commit internally defines a data version commit file
 type Commit struct {
-	Parent      hash
-	Branch      hash
-	Hash        hash
-	Name        string
-	Description string
-	Files       []string
-	Diff        diff
-	Deprecated  deprecated
+	Parent      hash       `json:"parent"`
+	Branch      hash       `json:"branch"`
+	Hash        hash       `json:"hash"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Files       []string   `json:"files"`
+	Diff        diff       `json:"diff"`
+	Deprecated  deprecated `json:"deprecated"`
 }
 
 // NewCommit creates a bare new commit
@@ -298,7 +298,7 @@ func (c *Commit) applyStaged() (err error) {
 
 // idvPathToName converts a path (/home/user/path/to/file.extension) into an idvpath (data/file.extension/c.Hash)
 func (c Commit) pathToIDVPath(path string) string {
-	return dataFolder + filepath.Base(path) + "/" + c.Hash.String()
+	return filepath.Base(path) + "/" + c.Hash.String()
 }
 
 // idvPathToName converts an idv path (data/filename/commithash) into just the filename

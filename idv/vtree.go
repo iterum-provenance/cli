@@ -87,7 +87,7 @@ func (v VTree) ToFilePath(local bool) string {
 }
 
 // Add appends a new (leaf) commit to the tree, returns an error on failure
-func (v *VTree) add(c Commit) error {
+func (v *VTree) addCommit(c Commit) error {
 	node := vtreeNode{
 		Name:     c.Name,
 		Branch:   c.Branch,
@@ -95,37 +95,52 @@ func (v *VTree) add(c Commit) error {
 		Parent:   c.Parent,
 	}
 	if v.isExistingCommit(c.Hash) {
-		return fmt.Errorf("Error: Commit has clash in VTree: %v, could not add commit", c.Hash)
+		return fmt.Errorf("Error: Commit hash already exists in VTree: %v, could not add commit", c.Hash)
+	}
+	if !v.isExistingBranch(c.Branch) {
+		return fmt.Errorf("Error: Commit refers to an unknown Branch in this VTree, could not add commit")
+	}
+	if !v.isExistingCommit(c.Parent) {
+		return fmt.Errorf("Error: Commit's parent is non-existent. Parent: %v", c.Parent)
 	}
 	v.Tree[c.Hash] = node
-	if !v.isExistingCommit(c.Parent) {
-		return fmt.Errorf("Error: Commit's parent is non-existent: %v", c.Parent)
-	}
 	parentNode := v.Tree[c.Parent]
 	parentNode.Children = append(parentNode.Children, c.Hash)
 	v.Tree[c.Parent] = parentNode
 	return nil
 }
 
+func (v *VTree) addBranch(branch Branch) (err error) {
+	if v.isExistingBranch(branch.Hash) {
+		err = fmt.Errorf("Error: Branch has clash in VTree: %v, could not branch", branch.Hash)
+		return
+	}
+	if !v.isExistingCommit(branch.HEAD) {
+		err = fmt.Errorf("Error: Branch HEAD is a non-existing commit in VTree: %v. could not add branch", branch.HEAD)
+		return
+	}
+	v.Branches[branch.Hash] = branch.Name
+	return
+}
+
 // BranchOff branches from a commit and updates the tree by doing:
-// - Create a new Branch structure based on `name`
+// - Create a new Branch structure based on `branchName`
 // - Create a copy of `commit` with the new branch as branch
 // - Point the parent of the new commit to the original commit
 // - Set the HEAD of the new branch to the original commit
-// - Returns both created Branch and Commit as these are not written to disk
+// - Returns both created Branch and Commit (since these 2 are local to this function for now)
 // If there is an error in any of the processes the VTree is not updated
 func (v *VTree) branchOff(commit Commit, branchName string) (branch Branch, branchRoot Commit, err error) {
 	branch = NewBranch(branchName)
 	branchRoot = NewCommit(commit, branch.Hash, branchName+":"+commit.Name, commit.Name+" as root of "+branchName)
 	branch.HEAD = commit.Hash
-	if v.isExistingBranch(branch.Hash) {
-		err = fmt.Errorf("Error: Branch has clash in VTree: %v, could not branch", branch.Hash)
+	if err = v.addBranch(branch); err != nil {
 		return
 	}
-	if err = v.add(branchRoot); err != nil {
+	if err = v.addCommit(branchRoot); err != nil {
+		delete(v.Branches, branch.Hash) // remove successful part  of update
 		return
 	}
-	v.Branches[branch.Hash] = branch.Name
 	return
 }
 

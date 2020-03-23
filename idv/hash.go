@@ -7,7 +7,7 @@ import (
 
 type hash string
 
-const allowedChars = "abcdefghijklmnopqrstuvwxyz0123456789"
+const allowedChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
 func init() {
 	rand.Seed(time.Now().UnixNano())

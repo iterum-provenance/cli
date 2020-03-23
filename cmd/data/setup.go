@@ -1,6 +1,7 @@
 package data
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/Mantsje/iterum-cli/idv"
@@ -22,5 +23,8 @@ func setupRun(cmd *cobra.Command, args []string) {
 	err := idv.Setup()
 	if err != nil {
 		log.Fatal(err)
+	} else {
+		fmt.Println("Daemon and local IDV repo initialized")
+		fmt.Println("Ready to version your data...")
 	}
 }

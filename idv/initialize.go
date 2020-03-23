@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/Mantsje/iterum-cli/idv/ctl"
+	"github.com/Mantsje/iterum-cli/util"
 )
 
 // Initialize instantiates a new data repo and makes appropriate .idv folder structure
@@ -42,25 +43,20 @@ func Setup() (err error) {
 	}
 
 	history, err := getVTree(ctl.Name)
-	if err != nil {
-		return err
-	}
+	util.PanicIfErr(err, "")
 	history.WriteToFolder(remoteFolder)
 	linkTREE(history, false)
 
-	mbranch := NewBranch(masterBranchName)
-	commit := NewRootCommit(mbranch.Hash)
-	mbranch.HEAD = commit.Hash
-	commit.WriteToFolder(remoteFolder)
-	mbranch.WriteToFolder(remoteFolder)
+	mbranchHash, err := history.getBranchHashByName(masterBranchName)
+	util.PanicIfErr(err, "")
 
-	newHistory, err := pushBranchedCommit(ctl.Name, mbranch, commit, Stagemap{})
-	if err != nil {
-		return err
-	}
-	writeTREE(newHistory)
+	mbranch, err := getBranch(mbranchHash, ctl.Name)
+	util.PanicIfErr(err, "")
+	mbranch.WriteToFolder(remoteFolder)
+	commit, err := getCommit(mbranch.HEAD, ctl.Name)
+	util.PanicIfErr(err, "")
+	commit.WriteToFolder(remoteFolder)
 
 	trackCommit(commit, mbranch, true)
-
 	return
 }

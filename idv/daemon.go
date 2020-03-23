@@ -153,7 +153,7 @@ func pushBranchedCommit(dataset string, branch Branch, commit Commit, stagemap S
 	filemap["commit"] = commit.ToFilePath(false)
 	filemap["branch"] = branch.ToFilePath(false)
 
-	response, err := _postMultipartForm(DaemonURL+dataset+"/branched-commit", filemap)
+	response, err := _postMultipartForm(DaemonURL+dataset+"/commit", filemap)
 
 	body, _ := ioutil.ReadAll(response.Body)
 	fmt.Println(response.StatusCode)

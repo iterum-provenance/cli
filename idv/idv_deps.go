@@ -39,7 +39,7 @@ func _ensurePath(path string) error {
 	errs := []error{}
 	errs = append(errs, EnsureIDVRepo())
 	if !util.IsFileOrDir(path) {
-		errs = append(errs, fmt.Errorf("Error: Either .idv/%v does not exist, or does not point to a file", path))
+		errs = append(errs, fmt.Errorf("Error: Either %v does not exist, or does not point to a file", path))
 	}
 	return util.ReturnFirstErr(errs...)
 }

@@ -50,7 +50,7 @@ const (
 // Defaults for roots and masters
 const (
 	masterBranchName string = "master"
-	rootCommitName   string = "<root>"
+	rootCommitName   string = "root"
 )
 
 const (
