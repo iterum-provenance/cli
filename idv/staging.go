@@ -10,6 +10,7 @@ import (
 // AddFiles stages new files to be added and existing files as Updates, expects a list of absolute file paths
 func AddFiles(files []string) (adds, updates int, err error) {
 	defer _returnErrOnPanic(&err)()
+	EnsureByPanic(EnsureSetup, "")
 	EnsureByPanic(EnsureLOCALIsBranchHead, "")
 
 	var local Commit
@@ -38,6 +39,7 @@ func AddFiles(files []string) (adds, updates int, err error) {
 // names can be random strings that are matched against names in the commit
 func RemoveFiles(files []string, names []string, unstage bool) (removals, unstages int, err error) {
 	defer _returnErrOnPanic(&err)()
+	EnsureByPanic(EnsureSetup, "")
 	EnsureByPanic(EnsureLOCALIsBranchHead, "")
 
 	var local Commit
@@ -60,6 +62,7 @@ func RemoveFiles(files []string, names []string, unstage bool) (removals, unstag
 // All files matching the selector are staged for removal, or unstaged in case a staged files
 func RemoveWithSelector(selector *regexp.Regexp, unstage bool) (removals, unstages int, err error) {
 	defer _returnErrOnPanic(&err)()
+	EnsureByPanic(EnsureSetup, "")
 	EnsureByPanic(EnsureLOCALIsBranchHead, "")
 	var local Commit
 	parseLOCAL(&local)
@@ -72,6 +75,7 @@ func RemoveWithSelector(selector *regexp.Regexp, unstage bool) (removals, unstag
 // Unstage unstages adds/updates/removes of files that match the selector
 func Unstage(selector *regexp.Regexp) (unstaged int, err error) {
 	defer _returnErrOnPanic(&err)()
+	EnsureByPanic(EnsureSetup, "")
 	EnsureByPanic(EnsureLOCALIsBranchHead, "")
 
 	var local Commit

@@ -2,7 +2,6 @@ package idv
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
 	"github.com/Mantsje/iterum-cli/idv/ctl"
@@ -33,7 +32,6 @@ func Setup() (err error) {
 	if errNotSetup == nil { // Meaning this repo has already been setup
 		return errors.New("Error: Repo already set up")
 	}
-	fmt.Println(errNotSetup)
 
 	var ctl ctl.DataCTL
 	parseConfig(configPath, &ctl)

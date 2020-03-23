@@ -1,7 +1,7 @@
 package credentials
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/Mantsje/iterum-cli/util"
 )
@@ -16,7 +16,7 @@ func (l Local) IsValid() error {
 	if util.DirExists(l.Path) {
 		return nil
 	}
-	return errors.New("Error: Path is not an existing directory")
+	return fmt.Errorf("Error: %v is not an existing directory", l.Path)
 }
 
 // ParseLocal tries to parse an interface as this credential storage

@@ -13,6 +13,7 @@ import (
 // ApplyCommit finalizes the currently staged changes and submits it to the daemon
 func ApplyCommit(name, description string) (err error) {
 	defer _returnErrOnPanic(&err)()
+	EnsureByPanic(EnsureSetup, "")
 	EnsureByPanic(EnsureLOCALIsBranchHead, "")
 	EnsureByPanic(EnsureChanges, "")
 	EnsureByPanic(EnsureConfig, "")
