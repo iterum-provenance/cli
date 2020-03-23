@@ -1,11 +1,8 @@
 package idv
 
 import (
-	"fmt"
-
 	"github.com/Mantsje/iterum-cli/idv/ctl"
 	"github.com/Mantsje/iterum-cli/util"
-	"github.com/prometheus/common/log"
 )
 
 // This file contains code related to pushing and pulling to and from the remote data storage
@@ -21,17 +18,10 @@ func ApplyCommit(name, description string) (err error) {
 	var ctl ctl.DataCTL
 	ctl.ParseFromFile(configPath) // No error is ensured, so no need to catch it
 
-	// Ensure we have the latest vtree
-	remoteHistory, err := getVTree(ctl.Name)
-	util.PanicIfErr(err, "")
-	fmt.Println(remoteHistory)
-
 	var local Commit
 	parseLOCAL(&local)
 	var branch Branch
 	parseBRANCH(&branch)
-	var history VTree
-	parseTREE(&history)
 	var stagemap Stagemap
 	parseStagemap(&stagemap)
 
@@ -40,21 +30,21 @@ func ApplyCommit(name, description string) (err error) {
 	local.Name = name
 	local.Description = description
 
-	// TODO: fix this coming week!
-	// Both of the following 2 statements should be performed at daemon (except when branched maybe)
-	branch.HEAD = local.Hash
-	history.addCommit(local)
+	var updatedHistory VTree
+	var updatedBranch Branch
+	if isBranched() {
+		updatedBranch, updatedHistory, err = postBranchedCommit(ctl.Name, branch, local, stagemap)
+	} else {
+		updatedBranch, updatedHistory, err = postCommit(ctl.Name, local, stagemap)
+	}
+	util.PanicIfErr(err, "")
 
 	local.WriteToFolder(remoteFolder)
-	branch.WriteToFolder(remoteFolder)  // should go in case of not pushing a branch
-	history.WriteToFolder(remoteFolder) // should go afterwards
+	updatedBranch.WriteToFolder(remoteFolder)
+	updatedHistory.WriteToFolder(remoteFolder)
 
-	log.Warn("TODO: Create multipart form of all data that needs to be send")
-	log.Warn("TODO: pass all (necessary) data to the Daemon")
-	log.Warn("TODO: accept response of updated .vtree and .branch file")
-
-	linkTREE(history, false)
-	trackBranchHead(branch, true)
+	linkTREE(updatedHistory, false)
+	trackBranchHead(updatedBranch, true)
 
 	return
 }

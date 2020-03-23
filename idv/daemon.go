@@ -82,7 +82,9 @@ func _postMultipartForm(url string, filemap map[string]string) (response *http.R
 	defer _returnErrOnPanic(&err)()
 	request, err := constructMultiFileRequest(url, nil, filemap)
 	util.PanicIfErr(err, "")
+	fmt.Println(request.Body)
 
+	panic(errors.New("Error: posting multipart-form not yet implemented at Daemon.go"))
 	client := &http.Client{}
 	resp, err := client.Do(request)
 
@@ -127,38 +129,46 @@ func postDataset(ctl ctl.DataCTL) (err error) {
 }
 
 // pushCommit pushes a commit to a branch. returns the updated VTree and Branch
-func pushCommit(dataset string, commit Commit, stagemap Stagemap) (branch Branch, history VTree, err error) {
+func postCommit(dataset string, commit Commit, stagemap Stagemap) (branch Branch, history VTree, err error) {
+	defer _returnErrOnPanic(&err)()
 	filemap := make(map[string]string)
 	for key, val := range stagemap {
 		filemap[key] = val
 	}
-	filemap["commit"] = commit.ToFilePath(false)
+	filemap["commit"] = commit.ToFilePath(true)
 
 	response, err := _postMultipartForm(DaemonURL+dataset+"/commit", filemap)
+	util.PanicIfErr(err, "")
 
-	body, _ := ioutil.ReadAll(response.Body)
+	body, err := ioutil.ReadAll(response.Body)
+	util.PanicIfErr(err, "")
+
 	fmt.Println(response.StatusCode)
 	fmt.Println(response.Header)
-
 	fmt.Println(string(body))
+	err = errors.New("Error: Committing not yet fully implemented by Daemon.go")
 	return
 }
 
-// pushBranchedCommit pushes a commit which is the root of a new branch. returns the updated VTree
-func pushBranchedCommit(dataset string, branch Branch, commit Commit, stagemap Stagemap) (history VTree, err error) {
+// postBranchedCommit pushes a commit which is the root of a new branch. returns the updated VTree
+func postBranchedCommit(dataset string, branch Branch, commit Commit, stagemap Stagemap) (updatedBranch Branch, history VTree, err error) {
+	defer _returnErrOnPanic(&err)()
 	filemap := make(map[string]string)
 	for key, val := range stagemap {
 		filemap[key] = val
 	}
-	filemap["commit"] = commit.ToFilePath(false)
-	filemap["branch"] = branch.ToFilePath(false)
+	filemap["commit"] = commit.ToFilePath(true)
+	filemap["branch"] = branch.ToFilePath(true)
 
 	response, err := _postMultipartForm(DaemonURL+dataset+"/commit", filemap)
+	util.PanicIfErr(err, "")
 
-	body, _ := ioutil.ReadAll(response.Body)
+	body, err := ioutil.ReadAll(response.Body)
+	util.PanicIfErr(err, "")
+
 	fmt.Println(response.StatusCode)
 	fmt.Println(response.Header)
-
 	fmt.Println(string(body))
+	err = errors.New("Error: Committing not yet fully implemented by Daemon.go")
 	return
 }

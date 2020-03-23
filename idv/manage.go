@@ -3,7 +3,9 @@ package idv
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/Mantsje/iterum-cli/idv/ctl"
 	"github.com/Mantsje/iterum-cli/util"
@@ -243,4 +245,21 @@ func pullParseBranch(h hash) (branch Branch) {
 func clearLocalFolder() {
 	os.RemoveAll(localFolder)
 	os.MkdirAll(localFolder, 0755)
+}
+
+// isBranched returns whether the current state of this idv repo is working on an uncommitted new branch
+// it panics if there is an error
+func isBranched() (branched bool) {
+	branched = false
+	files, err := ioutil.ReadDir(localFolder)
+	util.PanicIfErr(err, "")
+	for _, file := range files {
+		ext := filepath.Ext(file.Name())
+		// If there is a branch file in localFolder, that means a new branch is created
+		if ext == branchFileExt {
+			branched = true
+			return
+		}
+	}
+	return
 }
