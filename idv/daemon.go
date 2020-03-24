@@ -19,7 +19,11 @@ import (
 // DaemonURL is the url at which we can reach the idv/iterum daemon
 const DaemonURL = "http://localhost:3000/"
 
-var errConflictingDataset = errors.New("Error: POST dataset failed, dataset already exists")
+var (
+	errConflictingDataset = errors.New("Error: POST dataset failed, dataset already exists")
+	errConflictingCommit  = errors.New("Error: POST commit failed, commit is not child of HEAD. Pull latest changes to resolve")
+	errNotFound           = errors.New("Error: Daemon responded with 404, resource not found")
+)
 
 // _get takes a url to fire a get request upon and a pointer to an interface to store the result in
 // It returns an error on failure of either http.Get, Reading response or Unmarshalling json body
@@ -37,7 +41,7 @@ func _get(url string, target interface{}) (err error) {
 	case http.StatusOK:
 		break
 	case http.StatusNotFound:
-		return fmt.Errorf("Error: GET failed with code %v, resource not found. Is the provided dataset correct?", resp.StatusCode)
+		return errNotFound
 	default:
 		return fmt.Errorf("Error: GET failed, daemon responded with statuscode %v", resp.StatusCode)
 	}
@@ -83,12 +87,11 @@ func _postMultipartForm(url string, filemap map[string]string) (response *http.R
 	request, err := constructMultiFileRequest(url, nil, filemap)
 	util.PanicIfErr(err, "")
 	fmt.Println(request.Body)
+	fmt.Println(request)
 
 	panic(errors.New("Error: posting multipart-form not yet implemented at Daemon.go"))
 	client := &http.Client{}
-	resp, err := client.Do(request)
-
-	return resp, err
+	return client.Do(request)
 }
 
 // getBranch pulls a specific branch based on its hash
@@ -128,16 +131,19 @@ func postDataset(ctl ctl.DataCTL) (err error) {
 	return
 }
 
-// pushCommit pushes a commit to a branch. returns the updated VTree and Branch
-func postCommit(dataset string, commit Commit, stagemap Stagemap) (branch Branch, history VTree, err error) {
+func _performCommit(url string, filemap map[string]string) (branch Branch, history VTree, err error) {
 	defer _returnErrOnPanic(&err)()
-	filemap := make(map[string]string)
-	for key, val := range stagemap {
-		filemap[key] = val
+	response, err := _postMultipartForm(url, filemap)
+	switch response.StatusCode {
+	case http.StatusOK:
+		break
+	case http.StatusConflict:
+		err = errConflictingCommit
+		return
+	default:
+		err = fmt.Errorf("Error: POST multipart form failed, daemon responded with statuscode %v", response.StatusCode)
+		return
 	}
-	filemap["commit"] = commit.ToFilePath(true)
-
-	response, err := _postMultipartForm(DaemonURL+dataset+"/commit", filemap)
 	util.PanicIfErr(err, "")
 
 	body, err := ioutil.ReadAll(response.Body)
@@ -148,6 +154,18 @@ func postCommit(dataset string, commit Commit, stagemap Stagemap) (branch Branch
 	fmt.Println(string(body))
 	err = errors.New("Error: Committing not yet fully implemented by Daemon.go")
 	return
+
+}
+
+// pushCommit pushes a commit to a branch. returns the updated VTree and Branch
+func postCommit(dataset string, commit Commit, stagemap Stagemap) (branch Branch, history VTree, err error) {
+	defer _returnErrOnPanic(&err)()
+	filemap := make(map[string]string)
+	for key, val := range stagemap {
+		filemap[key] = val
+	}
+	filemap["commit"] = commit.ToFilePath(true)
+	return _performCommit(DaemonURL+dataset+"/commit", filemap)
 }
 
 // postBranchedCommit pushes a commit which is the root of a new branch. returns the updated VTree
@@ -160,15 +178,5 @@ func postBranchedCommit(dataset string, branch Branch, commit Commit, stagemap S
 	filemap["commit"] = commit.ToFilePath(true)
 	filemap["branch"] = branch.ToFilePath(true)
 
-	response, err := _postMultipartForm(DaemonURL+dataset+"/commit", filemap)
-	util.PanicIfErr(err, "")
-
-	body, err := ioutil.ReadAll(response.Body)
-	util.PanicIfErr(err, "")
-
-	fmt.Println(response.StatusCode)
-	fmt.Println(response.Header)
-	fmt.Println(string(body))
-	err = errors.New("Error: Committing not yet fully implemented by Daemon.go")
-	return
+	return _performCommit(DaemonURL+dataset+"/commit", filemap)
 }

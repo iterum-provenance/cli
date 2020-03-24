@@ -168,10 +168,12 @@ func (c *Commit) addOrUpdate(paths []string) (adds, updates map[string]string) {
 		} else if _, ok := fileMap[filename]; ok { // If already in existing files, but unstaged -> update
 			idvpath := c.pathToIDVPath(path)
 			c.Diff.Updated = append(c.Diff.Updated, idvpath)
+			updateMap[filename] = idvpath
 			updates[idvpath] = path
 		} else { // Completely new and unseen file -> add
 			idvpath := c.pathToIDVPath(path)
 			c.Diff.Added = append(c.Diff.Added, idvpath)
+			addMap[filename] = idvpath
 			adds[idvpath] = path
 		}
 	}
@@ -294,7 +296,7 @@ func (c *Commit) applyStaged() (err error) {
 	return
 }
 
-// ---------- ---------- ---------- Utitlity functions ---------- ---------- ---------- \\
+// ---------- ---------- ---------- Utility functions ---------- ---------- ---------- \\
 
 // idvPathToName converts a path (/home/user/path/to/file.extension) into an idvpath (data/file.extension/c.Hash)
 func (c Commit) pathToIDVPath(path string) string {
@@ -329,4 +331,56 @@ func (c Commit) fileMaptoSlice(m map[string]string) (slice []string) {
 // containsChanges returns a bool stating whether this commit has staged anything
 func (c Commit) containsChanges() bool {
 	return !(len(c.Diff.Added) == 0 && len(c.Diff.Updated) == 0 && len(c.Diff.Removed) == 0)
+}
+
+// ---------- ---------- ---------- Merging functions ---------- ---------- ---------- \\
+
+// autoMerge automatically merges all the staged changes of a given commit into c
+// from 					Denotes the commit to take all staged changes from
+// removeUpdatedRemovals 	REMOVE files that were staged for REMOVE but UPDATED in unseen commits
+// addRemovedUpdates 		ADD files that were staged for UPDATE but REMOVED during unseen commits
+// updatePresentAdds 		UPDATE files that were staged for ADD but already ADDED during unseen commits
+func (c *Commit) autoMerge(from Commit, removeUpdatedRemovals, addRemovedUpdates, updatePresentAdds bool) {
+	fileMap := c.filesToNameMap(c.Files)
+	for _, removal := range from.Diff.Removed {
+		filename := from.idvPathToName(removal)
+		if matchedFile, ok := fileMap[filename]; ok {
+			if matchedFile == removal {
+				c.Diff.Removed = append(c.Diff.Removed, removal)
+			} else {
+				if removeUpdatedRemovals {
+					fmt.Printf("An updated version of %v was found but still removed\n", filename)
+					c.Diff.Removed = append(c.Diff.Removed, removal)
+				} else {
+					fmt.Printf("An updated version of %v was found and kept\n", filename)
+				}
+			}
+		} else {
+			fmt.Printf("%v already removed, skipping\n", filename)
+		}
+	}
+	for _, updated := range from.Diff.Updated {
+		filename := from.idvPathToName(updated)
+		if _, ok := fileMap[filename]; ok {
+			c.Diff.Updated = append(c.Diff.Updated, updated)
+		} else if addRemovedUpdates {
+			fmt.Printf("%v was staged for UPDATE, but removed in subsequent commit(s), staging for ADD instead\n", filename)
+			c.Diff.Added = append(c.Diff.Added, updated)
+		} else {
+			fmt.Printf("%v was staged for UPDATE, but removed in subsequent commit(s), skipping\n", filename)
+		}
+	}
+	for _, addition := range from.Diff.Added {
+		filename := from.idvPathToName(addition)
+		if _, ok := fileMap[filename]; ok {
+			if updatePresentAdds {
+				fmt.Printf("%v was staged for ADD, but already present, staging for UPDATE instead\n", filename)
+				c.Diff.Updated = append(c.Diff.Updated, addition)
+			} else {
+				fmt.Printf("%v was staged for ADD, but already present, skipping\n", filename)
+			}
+		} else {
+			c.Diff.Added = append(c.Diff.Added, addition)
+		}
+	}
 }

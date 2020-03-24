@@ -48,17 +48,3 @@ func ApplyCommit(name, description string) (err error) {
 
 	return
 }
-
-// PullVTree pulls the latest .vtree for the dataset of this repo
-func PullVTree() (err error) {
-	defer _returnErrOnPanic(&err)()
-	EnsureByPanic(EnsureSetup, "")
-	EnsureByPanic(EnsureNoBranchOffs, "")
-	EnsureByPanic(EnsureConfig, "")
-	var ctl ctl.DataCTL
-	ctl.ParseFromFile(configPath)
-	history, err := getVTree(ctl.Name)
-	util.PanicIfErr(err, "")
-	writeTREE(history)
-	return
-}

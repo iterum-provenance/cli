@@ -11,6 +11,10 @@ import (
 	"github.com/Mantsje/iterum-cli/util"
 )
 
+var (
+	errNotHEAD = errors.New("Error: LOCAL is not direct child of BRANCH.HEAD")
+)
+
 // Catches panics, expects them to be of type error, then stores it in the pointer as recovery
 func _returnErrOnPanic(perr *error) func() {
 	return func() {
@@ -95,7 +99,7 @@ func EnsureLatestCommit() error {
 	}
 
 	if local.Parent != branch.HEAD {
-		return errors.New("Error: LOCAL is not direct child of BRANCH.HEAD")
+		return errNotHEAD
 	}
 	return nil
 }
@@ -142,7 +146,7 @@ func EnsureChanges() error {
 	return err
 }
 
-// EnsureLOCALIsBranchHead checks whether LOCAL is the current branch's branch HEAD
+// EnsureLOCALIsBranchHead checks whether LOCAL is ahead of the current branch's branch.HEAD
 func EnsureLOCALIsBranchHead() error {
 	errLocal := EnsureLOCAL()
 	errBranch := EnsureBRANCH()
@@ -157,7 +161,7 @@ func EnsureLOCALIsBranchHead() error {
 
 	// if the parent of LOCAL is current branch.HEAD (meaning LOCAL is latest possible commit)
 	if local.Parent != branch.HEAD {
-		return errors.New("Error: Cannot create child commit of commits from the past unless you branch off of them")
+		return errNotHEAD
 	}
 	return nil
 }

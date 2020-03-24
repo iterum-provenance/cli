@@ -199,3 +199,15 @@ func (v VTree) getCommitHashByName(name string) (h hash, err error) {
 func (v VTree) getBranchHashByName(name string) (h hash, err error) {
 	return v._getHashByName(v.Branches._toInterfaceMap(), name)
 }
+
+// duplicate makes a copy of the passed tree
+func (v VTree) duplicate() VTree {
+	copy := VTree{make(commitTree), make(branchMap)}
+	for key, val := range v.Tree {
+		copy.Tree[key] = val
+	}
+	for key, val := range v.Branches {
+		copy.Branches[key] = val
+	}
+	return copy
+}

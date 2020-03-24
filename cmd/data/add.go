@@ -44,5 +44,6 @@ func addRun(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("ADDED %v file(s)\nUPDATED %v file(s)\n", adds, updates)
+	fmt.Printf("PASSED %v file(s)\nADDED %v file(s)\nUPDATED %v file(s)\n", len(whitelisted), adds, updates)
+	fmt.Println("To see which files were uploaded exactly use `iterum data status --local-path`")
 }

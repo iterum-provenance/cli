@@ -207,7 +207,7 @@ func trackBranchHead(branch Branch, newLocal bool) {
 	trackCommit(head, branch, newLocal)
 }
 
-// pullParseBranch first pulls if non-existent and then parses the given commit associated with the hash
+// pullParseCommit first pulls if non-existent and then parses the given commit associated with the hash
 // it panics on fail
 func pullParseCommit(h hash) (commit Commit) {
 	path := remoteFolder + h.String() + commitFileExt
