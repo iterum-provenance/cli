@@ -14,11 +14,9 @@ func attemptMergeToHead(ctl ctl.DataCTL, local Commit, remoteBranch Branch) (rem
 	util.PanicIfErr(err, "")
 
 	newLocal = NewCommit(remoteHead, remoteBranch.Hash, "", "")
-	removeUpdatedRemovals := true // REMOVE files that were staged for REMOVE but UPDATED in unseen commits
-	addRemovedUpdates := true     // ADD files that were staged for UPDATE but REMOVED during unseen commits
-	updatePresentAdds := true     // UPDATE files that were staged for ADD but already ADDED during unseen commits
-	newLocal.autoMerge(local, removeUpdatedRemovals, addRemovedUpdates, updatePresentAdds)
-	return
+	newLocal.autoMerge(local)
+
+	return remoteHead, newLocal, err
 }
 
 // handlePullWhilstCheckedOut takes care of updating the locally stored version tree whilst
