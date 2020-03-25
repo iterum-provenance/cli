@@ -19,6 +19,6 @@ func (a AmazonS3) GetLocation() string {
 }
 
 // ParseAmazonS3 tries to parse an interface as this credential storage
-func ParseAmazonS3(raw map[interface{}]interface{}) (AmazonS3, error) {
+func ParseAmazonS3(raw map[string]interface{}) (AmazonS3, error) {
 	return AmazonS3{}, errors.New("ParseAmazonS3 N.I")
 }

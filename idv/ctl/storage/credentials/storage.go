@@ -16,7 +16,7 @@ type Storage interface {
 }
 
 // Parse tries to parse an interface into a credential type based on the backend
-func Parse(raw map[interface{}]interface{}, backend storage.Backend) (Storage, error) {
+func Parse(raw map[string]interface{}, backend storage.Backend) (Storage, error) {
 	switch backend {
 	case storage.Local:
 		return ParseLocal(raw)

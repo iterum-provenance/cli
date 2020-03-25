@@ -3,6 +3,7 @@ package data
 import (
 	"log"
 
+	"github.com/Mantsje/iterum-cli/idv"
 	"github.com/spf13/cobra"
 )
 
@@ -18,5 +19,8 @@ var pullCmd = &cobra.Command{
 }
 
 func pullRun(cmd *cobra.Command, args []string) {
-	log.Println("`iterum data pull`")
+	err := idv.Pull()
+	if err != nil {
+		log.Fatal(err)
+	}
 }

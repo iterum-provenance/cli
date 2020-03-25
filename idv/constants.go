@@ -38,6 +38,8 @@ const (
 	vtreeFilePath string = remoteFolder + vtreeFileName
 
 	configPath string = "idv-config.yaml"
+
+	tempCommitPath string = localFolder + "commit.tmp"
 )
 
 // File extensions for idv files

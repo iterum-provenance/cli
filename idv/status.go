@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/Mantsje/iterum-cli/idv/ctl"
+	"github.com/Mantsje/iterum-cli/util"
 )
 
 // Contains all functionality that is status related
@@ -85,11 +86,18 @@ func Inspect() (report string, err error) {
 	EnsureByPanic(EnsureConfig, "")
 	var ctl ctl.DataCTL
 	ctl.ParseFromFile(configPath) // No error is ensured, so no need to catch it
-	report += "Data configuration:\n"
-	report += "{\n"
-	report += "\tName: " + ctl.Name + "\n"
-	report += "\tBackend: " + ctl.Backend.String() + "\n"
-	report += "\tLocation: " + ctl.GetStorageLocation() + "\n"
-	report += "}\n"
+	remoteCtl, err := getConfig(ctl.Name)
+	util.PanicIfErr(err, "")
+	datasets, err := getDatasets()
+	util.PanicIfErr(err, "")
+
+	report += "Local Data configuration:\n"
+	report += ctl.ToReport()
+	report += "\nRemote configuration for this dataset:\n"
+	report += remoteCtl.ToReport()
+	report += "\nDatasets known to Daemon:\n"
+	for _, set := range datasets {
+		report += "   - " + set + "\n"
+	}
 	return
 }

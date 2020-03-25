@@ -30,6 +30,8 @@ func ApplyCommit(name, description string) (err error) {
 	local.Name = name
 	local.Description = description
 
+	local.writeToFile(tempCommitPath)
+
 	var updatedHistory VTree
 	var updatedBranch Branch
 	if isBranched() {

@@ -20,7 +20,7 @@ func (l Local) IsValid() error {
 }
 
 // ParseLocal tries to parse an interface as this credential storage
-func ParseLocal(raw map[interface{}]interface{}) (Local, error) {
+func ParseLocal(raw map[string]interface{}) (Local, error) {
 	l := Local{
 		Path: raw["path"].(string),
 	}

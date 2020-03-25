@@ -64,7 +64,7 @@ func constructMultiFileRequest(url string, otherParams map[string]string, nameFi
 		util.PanicIfErr(err, "")
 		defer file.Close()
 
-		part, err := writer.CreateFormFile(filename, filepath.Base(path))
+		part, err := writer.CreateFormFile(filepath.Base(path), filename)
 		util.PanicIfErr(err, "")
 		io.Copy(part, file)
 	}
@@ -86,10 +86,7 @@ func _postMultipartForm(url string, filemap map[string]string) (response *http.R
 	defer _returnErrOnPanic(&err)()
 	request, err := constructMultiFileRequest(url, nil, filemap)
 	util.PanicIfErr(err, "")
-	fmt.Println(request.Body)
-	fmt.Println(request)
 
-	panic(errors.New("Error: posting multipart-form not yet implemented at Daemon.go"))
 	client := &http.Client{}
 	return client.Do(request)
 }
@@ -106,9 +103,26 @@ func getCommit(chash hash, dataset string) (commit Commit, err error) {
 	return
 }
 
+// getConfig pulls a config based on the passed dataset name
+func getConfig(dataset string) (ctl ctl.DataCTL, err error) {
+	var m map[string]interface{}
+	err = _get(DaemonURL+dataset, &m)
+	if err != nil {
+		return
+	}
+	err = ctl.ParseFromMap(m)
+	return
+}
+
 // getVTree pulls the entire version history file: vtree for the given dataset
 func getVTree(dataset string) (history VTree, err error) {
 	err = _get(DaemonURL+dataset+"/vtree", &history)
+	return
+}
+
+// getDatasets pulls the list of datasets currently known to the daemon
+func getDatasets() (datasets []string, err error) {
+	err = _get(DaemonURL, &datasets)
 	return
 }
 
@@ -134,6 +148,7 @@ func postDataset(ctl ctl.DataCTL) (err error) {
 func _performCommit(url string, filemap map[string]string) (branch Branch, history VTree, err error) {
 	defer _returnErrOnPanic(&err)()
 	response, err := _postMultipartForm(url, filemap)
+	util.PanicIfErr(err, "")
 	switch response.StatusCode {
 	case http.StatusOK:
 		break
@@ -144,17 +159,18 @@ func _performCommit(url string, filemap map[string]string) (branch Branch, histo
 		err = fmt.Errorf("Error: POST multipart form failed, daemon responded with statuscode %v", response.StatusCode)
 		return
 	}
-	util.PanicIfErr(err, "")
 
 	body, err := ioutil.ReadAll(response.Body)
 	util.PanicIfErr(err, "")
-
-	fmt.Println(response.StatusCode)
-	fmt.Println(response.Header)
 	fmt.Println(string(body))
-	err = errors.New("Error: Committing not yet fully implemented by Daemon.go")
-	return
+	var rawBody struct {
+		VTree  VTree  `json:"vtree"`
+		Branch Branch `json:"branch"`
+	}
+	err = json.Unmarshal(body, &rawBody)
+	util.PanicIfErr(err, "")
 
+	return rawBody.Branch, rawBody.VTree, err
 }
 
 // pushCommit pushes a commit to a branch. returns the updated VTree and Branch
@@ -164,7 +180,11 @@ func postCommit(dataset string, commit Commit, stagemap Stagemap) (branch Branch
 	for key, val := range stagemap {
 		filemap[key] = val
 	}
-	filemap["commit"] = commit.ToFilePath(true)
+	filemap["commit"] = tempCommitPath
+	if !util.FileExists(tempCommitPath) {
+		err = errors.New("Error: temporary commit could not be located, can't push")
+		return
+	}
 	return _performCommit(DaemonURL+dataset+"/commit", filemap)
 }
 
@@ -175,8 +195,12 @@ func postBranchedCommit(dataset string, branch Branch, commit Commit, stagemap S
 	for key, val := range stagemap {
 		filemap[key] = val
 	}
-	filemap["commit"] = commit.ToFilePath(true)
+	filemap["commit"] = tempCommitPath
 	filemap["branch"] = branch.ToFilePath(true)
+	if !util.FileExists(tempCommitPath) {
+		err = errors.New("Error: temporary commit could not be located, can't push")
+		return
+	}
 
 	return _performCommit(DaemonURL+dataset+"/commit", filemap)
 }

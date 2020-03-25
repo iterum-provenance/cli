@@ -19,6 +19,6 @@ func (c CloudStore) GetLocation() string {
 }
 
 // ParseCloudStore tries to parse an interface as this credential storage
-func ParseCloudStore(raw map[interface{}]interface{}) (CloudStore, error) {
+func ParseCloudStore(raw map[string]interface{}) (CloudStore, error) {
 	return CloudStore{}, errors.New("ParseCloudStore not Implemented")
 }

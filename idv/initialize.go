@@ -60,3 +60,19 @@ func Setup() (err error) {
 	trackCommit(commit, mbranch, true)
 	return
 }
+
+// Apply sets up the necessary stuff at the Daemon using idv-config.yaml
+func Apply() (err error) {
+	defer _returnErrOnPanic(&err)()
+	EnsureByPanic(EnsureSetup, "")
+	EnsureByPanic(EnsureConfig, "")
+
+	var ctl ctl.DataCTL
+	parseConfig(configPath, &ctl)
+
+	errPosting := postDataset(ctl)
+	if errPosting != nil && errPosting != errConflictingDataset {
+		return errPosting
+	}
+	return
+}

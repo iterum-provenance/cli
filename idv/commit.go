@@ -357,7 +357,10 @@ func (c *Commit) autoMerge(from Commit) {
 	}
 	for _, updated := range from.Diff.Updated {
 		filename := from.idvPathToName(updated)
-		if _, ok := fileMap[filename]; ok {
+		if matchedFile, ok := fileMap[filename]; ok {
+			if matchedFile != updated {
+				fmt.Printf("%v was staged for UPDATE, but updated in subsequent commit(s), staging UPDATE over this file instead\n", filename)
+			}
 			c.Diff.Updated = append(c.Diff.Updated, updated)
 		} else {
 			fmt.Printf("%v was staged for UPDATE, but removed in subsequent commit(s), staging for ADD instead\n", filename)
