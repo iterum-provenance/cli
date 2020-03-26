@@ -162,7 +162,6 @@ func _performCommit(url string, filemap map[string]string) (branch Branch, histo
 
 	body, err := ioutil.ReadAll(response.Body)
 	util.PanicIfErr(err, "")
-	fmt.Println(string(body))
 	var rawBody struct {
 		VTree  VTree  `json:"vtree"`
 		Branch Branch `json:"branch"`

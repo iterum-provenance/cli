@@ -3,6 +3,7 @@ package util
 import (
 	"errors"
 	"fmt"
+	"regexp"
 )
 
 // MapContains returns whether a map contains a certain element
@@ -43,6 +44,30 @@ func MergeStringMaps(maps ...map[string]string) (out map[string]string, err erro
 				err = fmt.Errorf("Error: duplicate key in map merging: %v", key)
 			}
 			out[key] = val
+		}
+	}
+	return
+}
+
+// FilterStringMapByKey takes a map where a string is the key and filters it by matching the selector
+func FilterStringMapByKey(selector *regexp.Regexp, m map[string]string) (filtered int) {
+	filtered = 0
+	for key := range m {
+		if selector.MatchString(key) {
+			delete(m, key)
+			filtered++
+		}
+	}
+	return
+}
+
+// FilterStringMapByValue takes a map where a string is the value and filters it by matching the selector
+func FilterStringMapByValue(selector *regexp.Regexp, m map[string]string) (filtered int) {
+	filtered = 0
+	for key, value := range m {
+		if selector.MatchString(value) {
+			delete(m, key)
+			filtered++
 		}
 	}
 	return

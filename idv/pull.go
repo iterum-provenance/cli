@@ -114,16 +114,17 @@ func Pull() (err error) {
 		err = handlePullWhilstCheckedOut(ctl, remoteHistory, localCommit)
 	} else if err != nil { // something else went wrong
 		util.PanicIfErr(err, "")
+	} else {
+		if isBranched() {
+			// We are branched off onto a new branch locally, safe to pull
+			fmt.Println("Pulling whilst branched off, merging vtrees and updating locals...")
+			err = handlePullWhilstBranched(ctl, remoteHistory, localCommit)
+		} else {
+			fmt.Println("Pulling whilst working on remotely known branch...")
+			err = handlePullWhilstUnbranched(ctl, remoteHistory, localCommit)
+		}
 	}
 
-	if isBranched() {
-		// We are branched off onto a new branch locally, safe to pull
-		fmt.Println("Pulling whilst branched off, merging vtrees and updating locals...")
-		err = handlePullWhilstBranched(ctl, remoteHistory, localCommit)
-	} else {
-		fmt.Println("Pulling whilst working on remotely known branch...")
-		err = handlePullWhilstUnbranched(ctl, remoteHistory, localCommit)
-	}
 	util.PanicIfErr(err, "")
 
 	return

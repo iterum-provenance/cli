@@ -135,7 +135,7 @@ func (c Commit) FormatDiff(head string, tail string, ifEmpty string, delim strin
 		out += "U    " + c._convertToDisplayName(file, fullPath, stagemap) + delim
 	}
 	for _, file := range c.Diff.Removed {
-		out += "R    " + c._convertToDisplayName(file, fullPath, stagemap) + delim
+		out += "R    " + c._convertToDisplayName(file, fullPath, nil) + delim
 	}
 	if out == head {
 		out += ifEmpty
@@ -263,9 +263,15 @@ func (c *Commit) removeWithSelector(selector *regexp.Regexp, unstage bool) (remo
 // unstage removes files that were stages for removal, updates and/or adds
 func (c *Commit) unstage(selector *regexp.Regexp) (unstaged int) {
 	var unstagedRemoves, unstagedAdds, unstagedUpdates int
-	c.Diff.Added, unstagedAdds = util.Filter(selector, c.Diff.Added)
-	c.Diff.Updated, unstagedUpdates = util.Filter(selector, c.Diff.Updated)
-	c.Diff.Removed, unstagedRemoves = util.Filter(selector, c.Diff.Removed)
+	addMap := c.filesToNameMap(c.Diff.Added)
+	updateMap := c.filesToNameMap(c.Diff.Updated)
+	removeMap := c.filesToNameMap(c.Diff.Removed)
+	unstagedAdds = util.FilterStringMapByKey(selector, addMap)
+	unstagedUpdates = util.FilterStringMapByKey(selector, updateMap)
+	unstagedRemoves = util.FilterStringMapByKey(selector, removeMap)
+	c.Diff.Added = c.fileMaptoSlice(addMap)
+	c.Diff.Updated = c.fileMaptoSlice(updateMap)
+	c.Diff.Removed = c.fileMaptoSlice(removeMap)
 	unstaged = unstagedAdds + unstagedUpdates + unstagedRemoves
 	return
 }
@@ -357,10 +363,7 @@ func (c *Commit) autoMerge(from Commit) {
 	}
 	for _, updated := range from.Diff.Updated {
 		filename := from.idvPathToName(updated)
-		if matchedFile, ok := fileMap[filename]; ok {
-			if matchedFile != updated {
-				fmt.Printf("%v was staged for UPDATE, but updated in subsequent commit(s), staging UPDATE over this file instead\n", filename)
-			}
+		if _, ok := fileMap[filename]; ok {
 			c.Diff.Updated = append(c.Diff.Updated, updated)
 		} else {
 			fmt.Printf("%v was staged for UPDATE, but removed in subsequent commit(s), staging for ADD instead\n", filename)

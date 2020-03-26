@@ -15,7 +15,7 @@ func init() {
 var unstageCmd = &cobra.Command{
 	Use:   "unstage [selector]...",
 	Short: "Unstage uncommitted files that match the passed selector(s)",
-	Long:  `Unstages files that were staged for add/updat/remove earlier that match the passed selector(s)`,
+	Long:  `Unstages files that were staged for add/update/remove earlier that match the passed selector(s)`,
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			return errNotEnoughArgs

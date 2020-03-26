@@ -71,7 +71,7 @@ func LsCommits() (report string, err error) {
 	node, _ := history.Tree[hash]
 	for node.Branch == branch {
 		report += node.Name + strings.Repeat(" ", 36-len(node.Name)) + hash.String() + "\n"
-		if hash == node.Parent { // Root has parent as itself, stop infinite loop
+		if node.Parent == "" || hash == node.Parent {
 			break
 		}
 		hash = node.Parent
