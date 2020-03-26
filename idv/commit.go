@@ -347,6 +347,7 @@ func (c Commit) containsChanges() bool {
 // Files staged for ADD are either added, or update the current version in case of an existing one
 // Files staged for UPDATE are updated or in case the original is gone added
 func (c *Commit) autoMerge(from Commit) {
+	c.Hash = from.Hash
 	fileMap := c.filesToNameMap(c.Files)
 	for _, removal := range from.Diff.Removed {
 		filename := from.idvPathToName(removal)

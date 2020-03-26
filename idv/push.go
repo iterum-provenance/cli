@@ -25,6 +25,9 @@ func ApplyCommit(name, description string) (err error) {
 	var stagemap Stagemap
 	parseStagemap(&stagemap)
 
+	err = stagemap.verifyAndSyncWithCommit(local)
+	util.PanicIfErr(err, "")
+
 	err = local.applyStaged()
 	util.PanicIfErr(err, "")
 	local.Name = name
