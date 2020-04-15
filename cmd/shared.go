@@ -4,11 +4,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/Mantsje/iterum-cli/config"
-	"github.com/Mantsje/iterum-cli/config/parser"
-	"github.com/Mantsje/iterum-cli/consts"
-	"github.com/Mantsje/iterum-cli/git"
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/config"
+	"github.com/iterum-provenance/cli/config/parser"
+	"github.com/iterum-provenance/cli/consts"
+	"github.com/iterum-provenance/cli/git"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // Package for shared functions specifically related to the base CLI functionality

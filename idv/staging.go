@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // AddFiles stages new files to be added and existing files as Updates, expects a list of absolute file paths

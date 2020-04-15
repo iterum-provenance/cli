@@ -5,11 +5,11 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/Mantsje/iterum-cli/cmd/prompter"
-	"github.com/Mantsje/iterum-cli/config"
-	"github.com/Mantsje/iterum-cli/consts"
-	"github.com/Mantsje/iterum-cli/git"
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/cmd/prompter"
+	"github.com/iterum-provenance/cli/config"
+	"github.com/iterum-provenance/cli/consts"
+	"github.com/iterum-provenance/cli/git"
+	"github.com/iterum-provenance/cli/util"
 	"github.com/prometheus/common/log"
 
 	"github.com/spf13/cobra"

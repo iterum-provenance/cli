@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/Mantsje/iterum-cli/config/flow"
+	"github.com/iterum-provenance/cli/config/flow"
 )
 
 func init() {

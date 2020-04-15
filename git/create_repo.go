@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 func createGithubRepo(path string) url.URL {

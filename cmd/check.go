@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Mantsje/iterum-cli/deps"
+	"github.com/iterum-provenance/cli/deps"
 	"github.com/spf13/cobra"
 )
 

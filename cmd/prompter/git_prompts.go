@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/Mantsje/iterum-cli/git"
+	"github.com/iterum-provenance/cli/git"
 	"github.com/manifoldco/promptui"
 )
 

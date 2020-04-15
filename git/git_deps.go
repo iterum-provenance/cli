@@ -1,6 +1,6 @@
 package git
 
-import "github.com/Mantsje/iterum-cli/deps"
+import "github.com/iterum-provenance/cli/deps"
 
 const (
 	bitbucketCmd string = "bitbucket-cli"

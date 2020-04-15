@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // structure that defines whether a commit is deprecated and why

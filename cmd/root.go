@@ -3,7 +3,7 @@ package cmd
 import (
 	"log"
 
-	"github.com/Mantsje/iterum-cli/cmd/data"
+	"github.com/iterum-provenance/cli/cmd/data"
 	"github.com/spf13/cobra"
 )
 

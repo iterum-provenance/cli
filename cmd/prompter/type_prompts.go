@@ -1,9 +1,9 @@
 package prompter
 
 import (
-	"github.com/Mantsje/iterum-cli/config"
-	"github.com/Mantsje/iterum-cli/config/run"
-	"github.com/Mantsje/iterum-cli/config/unit"
+	"github.com/iterum-provenance/cli/config"
+	"github.com/iterum-provenance/cli/config/run"
+	"github.com/iterum-provenance/cli/config/unit"
 	"github.com/manifoldco/promptui"
 )
 

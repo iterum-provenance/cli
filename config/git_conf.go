@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/Mantsje/iterum-cli/git"
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/git"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // GitConf contains all git-related configuration settings for units, flows and data repos

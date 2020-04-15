@@ -4,9 +4,9 @@ import (
 	"errors"
 	"regexp"
 
-	"github.com/Mantsje/iterum-cli/idv/ctl/storage"
-	"github.com/Mantsje/iterum-cli/idv/ctl/storage/credentials"
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/idv/ctl/storage"
+	"github.com/iterum-provenance/cli/idv/ctl/storage/credentials"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // DataCTL is the structure that a data config files can be parsed into (.icf) files

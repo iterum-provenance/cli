@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Mantsje/iterum-cli/cmd"
+	"github.com/iterum-provenance/cli/cmd"
 )
 
 // see https://github.com/spf13/cobra for help

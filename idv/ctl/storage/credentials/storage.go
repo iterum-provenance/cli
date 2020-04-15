@@ -3,8 +3,8 @@ package credentials
 import (
 	"errors"
 
-	"github.com/Mantsje/iterum-cli/idv/ctl/storage"
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/idv/ctl/storage"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // Storage is de general interface that holds

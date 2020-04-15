@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/Mantsje/iterum-cli/cmd/prompter"
-	"github.com/Mantsje/iterum-cli/config/unit"
+	"github.com/iterum-provenance/cli/cmd/prompter"
+	"github.com/iterum-provenance/cli/config/unit"
 )
 
 func init() {

@@ -3,12 +3,12 @@ package parser
 import (
 	"errors"
 
-	"github.com/Mantsje/iterum-cli/config"
-	"github.com/Mantsje/iterum-cli/config/data"
-	"github.com/Mantsje/iterum-cli/config/flow"
-	"github.com/Mantsje/iterum-cli/config/unit"
+	"github.com/iterum-provenance/cli/config"
+	"github.com/iterum-provenance/cli/config/data"
+	"github.com/iterum-provenance/cli/config/flow"
+	"github.com/iterum-provenance/cli/config/unit"
 
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // ParseConfigFile parses a configfile found at stringpath and

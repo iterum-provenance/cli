@@ -4,8 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/Mantsje/iterum-cli/config/data"
-	"github.com/Mantsje/iterum-cli/idv"
+	"github.com/iterum-provenance/cli/config/data"
+	"github.com/iterum-provenance/cli/idv"
 	"github.com/spf13/cobra"
 )
 

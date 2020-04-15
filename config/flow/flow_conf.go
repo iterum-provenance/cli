@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/Mantsje/iterum-cli/config"
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/config"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // FlowConf contains the config for an Iterum flow component

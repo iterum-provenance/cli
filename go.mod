@@ -1,4 +1,4 @@
-module github.com/Mantsje/iterum-cli
+module github.com/iterum-provenance/cli
 
 go 1.13
 

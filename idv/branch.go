@@ -3,7 +3,7 @@ package idv
 import (
 	"fmt"
 
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // Branch internally defines a data version commit file

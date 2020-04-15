@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/Mantsje/iterum-cli/git"
+	"github.com/iterum-provenance/cli/git"
 	"github.com/spf13/cobra"
 )
 

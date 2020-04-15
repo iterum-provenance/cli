@@ -3,8 +3,8 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/Mantsje/iterum-cli/container"
-	"github.com/Mantsje/iterum-cli/deps"
+	"github.com/iterum-provenance/cli/container"
+	"github.com/iterum-provenance/cli/deps"
 	"github.com/spf13/cobra"
 )
 

@@ -1,6 +1,6 @@
 package consts
 
-import "github.com/Mantsje/iterum-cli/idv"
+import "github.com/iterum-provenance/cli/idv"
 
 // ConfigFilePath is the full local path to the the general config file of a component
 const ConfigFilePath = ConfigFolder + ConfigFileName

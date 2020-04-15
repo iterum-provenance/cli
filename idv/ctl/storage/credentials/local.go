@@ -3,7 +3,7 @@ package credentials
 import (
 	"fmt"
 
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // Local holds required credentials for storing data locally

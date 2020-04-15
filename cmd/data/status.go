@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/Mantsje/iterum-cli/idv"
+	"github.com/iterum-provenance/cli/idv"
 	"github.com/spf13/cobra"
 )
 

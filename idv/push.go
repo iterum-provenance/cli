@@ -1,8 +1,8 @@
 package idv
 
 import (
-	"github.com/Mantsje/iterum-cli/idv/ctl"
-	"github.com/Mantsje/iterum-cli/util"
+	"github.com/iterum-provenance/cli/idv/ctl"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // This file contains code related to pushing and pulling to and from the remote data storage

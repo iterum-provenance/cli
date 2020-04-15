@@ -1,6 +1,6 @@
 package container
 
-import "github.com/Mantsje/iterum-cli/deps"
+import "github.com/iterum-provenance/cli/deps"
 
 // Enum-like values allowed for dependencies type
 const (
