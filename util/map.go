@@ -50,24 +50,24 @@ func MergeStringMaps(maps ...map[string]string) (out map[string]string, err erro
 }
 
 // FilterStringMapByKey takes a map where a string is the key and filters it by matching the selector
-func FilterStringMapByKey(selector *regexp.Regexp, m map[string]string) (filtered int) {
-	filtered = 0
-	for key := range m {
+func FilterStringMapByKey(selector *regexp.Regexp, m map[string]string) (filtered map[string]string) {
+	filtered = make(map[string]string)
+	for key, val := range m {
 		if selector.MatchString(key) {
+			filtered[key] = val
 			delete(m, key)
-			filtered++
 		}
 	}
 	return
 }
 
 // FilterStringMapByValue takes a map where a string is the value and filters it by matching the selector
-func FilterStringMapByValue(selector *regexp.Regexp, m map[string]string) (filtered int) {
-	filtered = 0
+func FilterStringMapByValue(selector *regexp.Regexp, m map[string]string) (filtered map[string]string) {
+	filtered = make(map[string]string)
 	for key, value := range m {
 		if selector.MatchString(value) {
+			filtered[key] = value
 			delete(m, key)
-			filtered++
 		}
 	}
 	return

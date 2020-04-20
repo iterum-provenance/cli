@@ -235,15 +235,16 @@ func (c *Commit) removeNames(names []string, unstage bool) (removals, unstages i
 
 // removeWithSelector stages removal of each file that matches the selector
 func (c *Commit) removeWithSelector(selector *regexp.Regexp, unstage bool) (removals, unstages int) {
-	var matchingFiles, rmAdds, rmUpdates []string
-	matchingFiles = util.SelectMatching(selector, c.Files)
+	var rmAdds, rmUpdates []string
+	fileMap := c.filesToNameMap(c.Files)
+	matchingFileMap := util.FilterStringMapByKey(selector, fileMap)
 	removeMap := c.filesToNameMap(c.Diff.Removed)
 	updateMap := c.filesToNameMap(c.Diff.Updated)
 	if unstage {
 		c.Diff.Added, rmAdds = util.FilterSplit(selector, c.Diff.Added)
 		c.Diff.Updated, rmUpdates = util.FilterSplit(selector, c.Diff.Updated)
 	}
-	for _, file := range matchingFiles {
+	for _, file := range matchingFileMap {
 		if _, ok := removeMap[c.idvPathToName(file)]; ok {
 			continue
 		}
@@ -266,9 +267,9 @@ func (c *Commit) unstage(selector *regexp.Regexp) (unstaged int) {
 	addMap := c.filesToNameMap(c.Diff.Added)
 	updateMap := c.filesToNameMap(c.Diff.Updated)
 	removeMap := c.filesToNameMap(c.Diff.Removed)
-	unstagedAdds = util.FilterStringMapByKey(selector, addMap)
-	unstagedUpdates = util.FilterStringMapByKey(selector, updateMap)
-	unstagedRemoves = util.FilterStringMapByKey(selector, removeMap)
+	unstagedAdds = len(util.FilterStringMapByKey(selector, addMap))
+	unstagedUpdates = len(util.FilterStringMapByKey(selector, updateMap))
+	unstagedRemoves = len(util.FilterStringMapByKey(selector, removeMap))
 	c.Diff.Added = c.fileMaptoSlice(addMap)
 	c.Diff.Updated = c.fileMaptoSlice(updateMap)
 	c.Diff.Removed = c.fileMaptoSlice(removeMap)
