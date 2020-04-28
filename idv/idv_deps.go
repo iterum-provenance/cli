@@ -8,21 +8,12 @@ import (
 	"path/filepath"
 
 	"github.com/iterum-provenance/cli/idv/ctl"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 var (
 	errNotHEAD = errors.New("Error: LOCAL is not direct child of BRANCH.HEAD")
 )
-
-// Catches panics, expects them to be of type error, then stores it in the pointer as recovery
-func _returnErrOnPanic(perr *error) func() {
-	return func() {
-		if r := recover(); r != nil {
-			*perr = r.(error)
-		}
-	}
-}
 
 // EnsureByPanic takes one of the other Ensure functions
 // and panics in case of an error rather than returning it

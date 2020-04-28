@@ -3,7 +3,7 @@ package credentials
 import (
 	"fmt"
 
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // Local holds required credentials for storing data locally

@@ -7,7 +7,7 @@ import (
 	"regexp"
 
 	"github.com/iterum-provenance/cli/config"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // UnitConf contains the config for an Iterum unit component

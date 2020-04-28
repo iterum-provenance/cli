@@ -8,7 +8,7 @@ import (
 	"github.com/iterum-provenance/cli/config/parser"
 	"github.com/iterum-provenance/cli/consts"
 	"github.com/iterum-provenance/cli/git"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // Package for shared functions specifically related to the base CLI functionality

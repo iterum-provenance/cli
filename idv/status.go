@@ -5,14 +5,14 @@ import (
 	"strings"
 
 	"github.com/iterum-provenance/cli/idv/ctl"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // Contains all functionality that is status related
 
 // Status returns information about the currently staged files
 func Status(fullPath, localPath bool) (report string, err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureLOCAL, "")
 
 	var local Commit
@@ -29,7 +29,7 @@ func Status(fullPath, localPath bool) (report string, err error) {
 
 // Ls lists all data in the current commit
 func Ls(selector *regexp.Regexp, fullPath bool) (report string, err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureLOCAL, "")
 	var local Commit
 	parseLOCAL(&local)
@@ -39,7 +39,7 @@ func Ls(selector *regexp.Regexp, fullPath bool) (report string, err error) {
 
 // LsBranches returns a string report specifying the list of currently known branches
 func LsBranches() (report string, err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureTREE, "")
 	EnsureByPanic(EnsureBRANCH, "")
 	var history VTree
@@ -58,7 +58,7 @@ func LsBranches() (report string, err error) {
 
 // LsCommits returns a string report specifying the list of commits on the current branch
 func LsCommits() (report string, err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureHEAD, "")
 	EnsureByPanic(EnsureTREE, "")
 	var head Commit
@@ -82,7 +82,7 @@ func LsCommits() (report string, err error) {
 
 // Inspect returns the config file found in the same folder used for adding/committing and pusing data etc
 func Inspect() (report string, err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureConfig, "")
 	var ctl ctl.DataCTL
 	ctl.ParseFromFile(configPath) // No error is ensured, so no need to catch it

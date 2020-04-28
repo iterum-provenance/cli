@@ -4,7 +4,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // CloneRepo clones a previously unexistent git repo based on a config

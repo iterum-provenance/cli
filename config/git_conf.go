@@ -6,7 +6,7 @@ import (
 	"net/url"
 
 	"github.com/iterum-provenance/cli/git"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // GitConf contains all git-related configuration settings for units, flows and data repos

@@ -7,7 +7,7 @@ import (
 	"regexp"
 
 	"github.com/iterum-provenance/cli/config"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // DataConf contains the config for an Iterum data component

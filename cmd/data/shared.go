@@ -3,7 +3,7 @@ package data
 import (
 	"regexp"
 
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // Checks whether a passed selector is parseable as regex

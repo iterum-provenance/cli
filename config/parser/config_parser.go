@@ -8,7 +8,7 @@ import (
 	"github.com/iterum-provenance/cli/config/flow"
 	"github.com/iterum-provenance/cli/config/unit"
 
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // ParseConfigFile parses a configfile found at stringpath and

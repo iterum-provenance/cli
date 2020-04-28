@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 
 	"github.com/iterum-provenance/cli/idv/ctl"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // DaemonURL is the url at which we can reach the idv/iterum daemon
@@ -28,7 +28,7 @@ var (
 // _get takes a url to fire a get request upon and a pointer to an interface to store the result in
 // It returns an error on failure of either http.Get, Reading response or Unmarshalling json body
 func _get(url string, target interface{}) (err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 
 	resp, err := http.Get(url)
 	util.PanicIfErr(err, "")
@@ -54,7 +54,7 @@ func _get(url string, target interface{}) (err error) {
 
 // constructMultiFileRequest creates a new file upload http request with optional extra otherParams
 func constructMultiFileRequest(url string, otherParams map[string]string, nameFileMap map[string]string) (request *http.Request, err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -83,7 +83,7 @@ func constructMultiFileRequest(url string, otherParams map[string]string, nameFi
 }
 
 func _postMultipartForm(url string, filemap map[string]string) (response *http.Response, err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	request, err := constructMultiFileRequest(url, nil, filemap)
 	util.PanicIfErr(err, "")
 
@@ -146,7 +146,7 @@ func postDataset(ctl ctl.DataCTL) (err error) {
 }
 
 func _performCommit(url string, filemap map[string]string) (branch Branch, history VTree, err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	response, err := _postMultipartForm(url, filemap)
 	util.PanicIfErr(err, "")
 	switch response.StatusCode {
@@ -174,7 +174,7 @@ func _performCommit(url string, filemap map[string]string) (branch Branch, histo
 
 // pushCommit pushes a commit to a branch. returns the updated VTree and Branch
 func postCommit(dataset string, commit Commit, stagemap Stagemap) (branch Branch, history VTree, err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	filemap := make(map[string]string)
 	for key, val := range stagemap {
 		filemap[key] = val
@@ -189,7 +189,7 @@ func postCommit(dataset string, commit Commit, stagemap Stagemap) (branch Branch
 
 // postBranchedCommit pushes a commit which is the root of a new branch. returns the updated VTree
 func postBranchedCommit(dataset string, branch Branch, commit Commit, stagemap Stagemap) (updatedBranch Branch, history VTree, err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	filemap := make(map[string]string)
 	for key, val := range stagemap {
 		filemap[key] = val

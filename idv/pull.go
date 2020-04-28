@@ -5,11 +5,11 @@ import (
 	"os"
 
 	"github.com/iterum-provenance/cli/idv/ctl"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 func attemptMergeToHead(ctl ctl.DataCTL, local Commit, remoteBranch Branch) (remoteHead, newLocal Commit, err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 
 	remoteHead, err = getCommit(remoteBranch.HEAD, ctl.Name)
 	util.PanicIfErr(err, "")
@@ -24,7 +24,7 @@ func attemptMergeToHead(ctl ctl.DataCTL, local Commit, remoteBranch Branch) (rem
 // the user is checked out to some commit. This means just overwriting the current tree, as it can only
 // be more extensive than it was before, therefore not breaking anything.
 func handlePullWhilstCheckedOut(ctl ctl.DataCTL, remoteHistory VTree, localCommit Commit) (err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureNoChanges, "") // just in case
 
 	// It was safe to pull
@@ -33,7 +33,7 @@ func handlePullWhilstCheckedOut(ctl ctl.DataCTL, remoteHistory VTree, localCommi
 }
 
 func handlePullWhilstUnbranched(ctl ctl.DataCTL, remoteHistory VTree, localCommit Commit) (err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 
 	remoteBranch, err := getBranch(localCommit.Branch, ctl.Name)
 	util.PanicIfErr(err, "")
@@ -76,7 +76,7 @@ func handlePullWhilstUnbranched(ctl ctl.DataCTL, remoteHistory VTree, localCommi
 // Essentially it becomes save to pull the file, however because currently the CLI keeps a
 // local copy of vtree that is updated when we branch, we need to update this new remoteVTree as well
 func handlePullWhilstBranched(ctl ctl.DataCTL, remoteHistory VTree, localCommit Commit) (err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureBRANCH, "")
 
 	// update local history with any remote changes, then add the branch off information too
@@ -95,7 +95,7 @@ func handlePullWhilstBranched(ctl ctl.DataCTL, remoteHistory VTree, localCommit 
 
 // Pull gets the latest vtree from the daemon and attempts to resolve any conflicts arising locally from this
 func Pull() (err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureSetup, "")
 	EnsureByPanic(EnsureLOCAL, "")
 	EnsureByPanic(EnsureConfig, "")

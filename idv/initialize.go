@@ -5,12 +5,12 @@ import (
 	"os"
 
 	"github.com/iterum-provenance/cli/idv/ctl"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // Initialize instantiates a new data repo and makes appropriate .idv folder structure
 func Initialize() (err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	notAlreadyARepoTest := EnsureIDVRepo()
 	if notAlreadyARepoTest == nil {
 		return errors.New("Error: Cannot initialize idv repo. Reason: Already a repo")
@@ -25,7 +25,7 @@ func Initialize() (err error) {
 
 // Setup sets up the necessary stuff at the Daemon and locally links all necessary symlinks
 func Setup() (err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureIDVRepo, "")
 	EnsureByPanic(EnsureConfig, "")
 
@@ -63,7 +63,7 @@ func Setup() (err error) {
 
 // Apply sets up the necessary stuff at the Daemon using idv-config.yaml
 func Apply() (err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureSetup, "")
 	EnsureByPanic(EnsureConfig, "")
 

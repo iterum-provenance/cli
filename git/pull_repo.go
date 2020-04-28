@@ -4,7 +4,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // PullRepo pulls a git repo based on a relative path to the existing repo

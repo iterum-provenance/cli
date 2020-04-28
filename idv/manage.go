@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/iterum-provenance/cli/idv/ctl"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // Contains functionality used for managing an idv repository

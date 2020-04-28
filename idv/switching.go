@@ -3,7 +3,7 @@ package idv
 import (
 	"fmt"
 
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // This file contains functionality related to switching branches/commits
@@ -11,7 +11,7 @@ import (
 
 // BranchFromCommit branches off of the current commit onto a new branch
 func BranchFromCommit(branchName, commitHashOrName string, isHash bool) (err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureNoChanges, "")
 	EnsureByPanic(EnsureTREE, "")
 
@@ -50,7 +50,7 @@ func BranchFromCommit(branchName, commitHashOrName string, isHash bool) (err err
 
 // Checkout from the current branch onto another branch/commit
 func Checkout(nameOrHash string, isCommit bool, isHash bool) (err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureNoChanges, "")
 	EnsureByPanic(EnsureTREE, "")
 

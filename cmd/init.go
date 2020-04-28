@@ -9,7 +9,7 @@ import (
 	"github.com/iterum-provenance/cli/config"
 	"github.com/iterum-provenance/cli/consts"
 	"github.com/iterum-provenance/cli/git"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 	"github.com/prometheus/common/log"
 
 	"github.com/spf13/cobra"

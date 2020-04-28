@@ -2,14 +2,14 @@ package idv
 
 import (
 	"github.com/iterum-provenance/cli/idv/ctl"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // This file contains code related to pushing and pulling to and from the remote data storage
 
 // ApplyCommit finalizes the currently staged changes and submits it to the daemon
 func ApplyCommit(name, description string) (err error) {
-	defer _returnErrOnPanic(&err)()
+	defer util.ReturnErrOnPanic(&err)()
 	EnsureByPanic(EnsureSetup, "")
 	EnsureByPanic(EnsureLOCALIsBranchHead, "")
 	EnsureByPanic(EnsureChanges, "")

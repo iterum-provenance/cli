@@ -11,7 +11,7 @@ import (
 	"github.com/iterum-provenance/cli/config/parser"
 	"github.com/iterum-provenance/cli/config/unit"
 	"github.com/iterum-provenance/cli/consts"
-	"github.com/iterum-provenance/cli/util"
+	"github.com/iterum-provenance/iterum-go/util"
 	"github.com/spf13/cobra"
 )
 
