@@ -2,7 +2,6 @@ package idv
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/iterum-provenance/cli/idv/ctl"
 	"github.com/iterum-provenance/iterum-go/util"
@@ -58,9 +57,10 @@ func handlePullWhilstUnbranched(ctl ctl.DataCTL, remoteHistory VTree, localCommi
 		linkHEAD(remoteHead)
 		linkLOCAL(newLocal)
 
-		oldLocal := localCommit
-		err = os.Remove(oldLocal.ToFilePath(true)) // because we have a successful new local
-		util.PanicIfErr(err, "")
+		// oldLocal is overriden by newLocal as it takes over the commit hash, so this code should be no longer needed
+		// oldLocal := localCommit
+		// err = os.Remove(oldLocal.ToFilePath(true)) // because we have a successful new local
+		// util.PanicIfErr(err, "")
 
 	} else {
 		fmt.Println("Up to date")
