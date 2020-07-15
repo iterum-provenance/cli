@@ -42,7 +42,7 @@ func Setup() (err error) {
 		return errPosting
 	}
 
-	history, err := getVTree(ctl.Name)
+	history, err := getVTree(ctl)
 	util.PanicIfErr(err, "")
 	history.WriteToFolder(remoteFolder)
 	linkTREE(history, false)
@@ -50,10 +50,10 @@ func Setup() (err error) {
 	mbranchHash, err := history.getBranchHashByName(masterBranchName)
 	util.PanicIfErr(err, "")
 
-	mbranch, err := getBranch(mbranchHash, ctl.Name)
+	mbranch, err := getBranch(ctl, mbranchHash)
 	util.PanicIfErr(err, "")
 	mbranch.WriteToFolder(remoteFolder)
-	commit, err := getCommit(mbranch.HEAD, ctl.Name)
+	commit, err := getCommit(ctl, mbranch.HEAD)
 	util.PanicIfErr(err, "")
 	commit.WriteToFolder(remoteFolder)
 

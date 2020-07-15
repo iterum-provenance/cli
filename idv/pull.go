@@ -11,7 +11,7 @@ import (
 func attemptMergeToHead(ctl ctl.DataCTL, local Commit, remoteBranch Branch) (remoteHead, newLocal Commit, err error) {
 	defer util.ReturnErrOnPanic(&err)()
 
-	remoteHead, err = getCommit(remoteBranch.HEAD, ctl.Name)
+	remoteHead, err = getCommit(ctl, remoteBranch.HEAD)
 	util.PanicIfErr(err, "")
 
 	newLocal = NewCommit(remoteHead, remoteBranch.Hash, "", "")
@@ -35,7 +35,7 @@ func handlePullWhilstCheckedOut(ctl ctl.DataCTL, remoteHistory VTree, localCommi
 func handlePullWhilstUnbranched(ctl ctl.DataCTL, remoteHistory VTree, localCommit Commit) (err error) {
 	defer util.ReturnErrOnPanic(&err)()
 
-	remoteBranch, err := getBranch(localCommit.Branch, ctl.Name)
+	remoteBranch, err := getBranch(ctl, localCommit.Branch)
 	util.PanicIfErr(err, "")
 	if remoteBranch.HEAD != localCommit.Parent { // If we are behind the remote
 		fmt.Println("Behind remote, attempting merge...")
@@ -103,7 +103,7 @@ func Pull() (err error) {
 	// Gather required parts
 	var ctl ctl.DataCTL
 	ctl.ParseFromFile(configPath)
-	remoteHistory, err := getVTree(ctl.Name)
+	remoteHistory, err := getVTree(ctl)
 	util.PanicIfErr(err, "")
 	var localCommit Commit
 	parseLOCAL(&localCommit)

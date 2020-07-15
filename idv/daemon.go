@@ -17,7 +17,7 @@ import (
 )
 
 // DaemonURL is the url at which we can reach the idv/iterum daemon
-const DaemonURL = "http://localhost:3000/"
+// const DaemonURL = "http://localhost:3000/"
 
 var (
 	errConflictingDataset = errors.New("Error: POST dataset failed, dataset already exists")
@@ -92,37 +92,37 @@ func _postMultipartForm(url string, filemap map[string]string) (response *http.R
 }
 
 // getBranch pulls a specific branch based on its hash
-func getBranch(bhash hash, dataset string) (branch Branch, err error) {
-	err = _get(DaemonURL+dataset+"/branch/"+bhash.String(), &branch)
+func getBranch(ctl ctl.DataCTL, bhash hash) (branch Branch, err error) {
+	err = _get(ctl.DaemonURL+ctl.Name+"/branch/"+bhash.String(), &branch)
 	return
 }
 
 // getCommit pulls a specific commmit based on its hash
-func getCommit(chash hash, dataset string) (commit Commit, err error) {
-	err = _get(DaemonURL+dataset+"/commit/"+chash.String(), &commit)
+func getCommit(ctl ctl.DataCTL, chash hash) (commit Commit, err error) {
+	err = _get(ctl.DaemonURL+ctl.Name+"/commit/"+chash.String(), &commit)
 	return
 }
 
 // getConfig pulls a config based on the passed dataset name
-func getConfig(dataset string) (ctl ctl.DataCTL, err error) {
+func getConfig(ctl ctl.DataCTL) (ctlremote ctl.DataCTL, err error) {
 	var m map[string]interface{}
-	err = _get(DaemonURL+dataset, &m)
+	err = _get(ctl.DaemonURL+ctl.Name, &m)
 	if err != nil {
 		return
 	}
-	err = ctl.ParseFromMap(m)
+	err = ctlremote.ParseFromMap(m)
 	return
 }
 
 // getVTree pulls the entire version history file: vtree for the given dataset
-func getVTree(dataset string) (history VTree, err error) {
-	err = _get(DaemonURL+dataset+"/vtree", &history)
+func getVTree(ctl ctl.DataCTL) (history VTree, err error) {
+	err = _get(ctl.DaemonURL+ctl.Name+"/vtree", &history)
 	return
 }
 
 // getDatasets pulls the list of datasets currently known to the daemon
-func getDatasets() (datasets []string, err error) {
-	err = _get(DaemonURL, &datasets)
+func getDatasets(ctl ctl.DataCTL) (datasets []string, err error) {
+	err = _get(ctl.DaemonURL, &datasets)
 	return
 }
 
@@ -133,7 +133,7 @@ func postDataset(ctl ctl.DataCTL) (err error) {
 		return
 	}
 
-	resp, err := http.Post(DaemonURL, "application/json", bytes.NewBuffer(data))
+	resp, err := http.Post(ctl.DaemonURL, "application/json", bytes.NewBuffer(data))
 	switch resp.StatusCode {
 	case http.StatusOK:
 		break
@@ -173,7 +173,7 @@ func _performCommit(url string, filemap map[string]string) (branch Branch, histo
 }
 
 // pushCommit pushes a commit to a branch. returns the updated VTree and Branch
-func postCommit(dataset string, commit Commit, stagemap Stagemap) (branch Branch, history VTree, err error) {
+func postCommit(ctl ctl.DataCTL, commit Commit, stagemap Stagemap) (branch Branch, history VTree, err error) {
 	defer util.ReturnErrOnPanic(&err)()
 	filemap := make(map[string]string)
 	for key, val := range stagemap {
@@ -184,11 +184,11 @@ func postCommit(dataset string, commit Commit, stagemap Stagemap) (branch Branch
 		err = errors.New("Error: temporary commit could not be located, can't push")
 		return
 	}
-	return _performCommit(DaemonURL+dataset+"/commit", filemap)
+	return _performCommit(ctl.DaemonURL+ctl.Name+"/commit", filemap)
 }
 
 // postBranchedCommit pushes a commit which is the root of a new branch. returns the updated VTree
-func postBranchedCommit(dataset string, branch Branch, commit Commit, stagemap Stagemap) (updatedBranch Branch, history VTree, err error) {
+func postBranchedCommit(ctl ctl.DataCTL, branch Branch, commit Commit, stagemap Stagemap) (updatedBranch Branch, history VTree, err error) {
 	defer util.ReturnErrOnPanic(&err)()
 	filemap := make(map[string]string)
 	for key, val := range stagemap {
@@ -201,5 +201,5 @@ func postBranchedCommit(dataset string, branch Branch, commit Commit, stagemap S
 		return
 	}
 
-	return _performCommit(DaemonURL+dataset+"/commit", filemap)
+	return _performCommit(ctl.DaemonURL+ctl.Name+"/commit", filemap)
 }

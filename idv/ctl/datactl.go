@@ -9,10 +9,16 @@ import (
 	"github.com/iterum-provenance/iterum-go/util"
 )
 
+const (
+	// DefaultDaemonURL is the default url tried when none is specified
+	DefaultDaemonURL = "http://localhost:3000/"
+)
+
 // DataCTL is the structure that a data config files can be parsed into (.icf) files
 type DataCTL struct {
 	Name        string              `yaml:"name" json:"name"`
 	Description string              `yaml:"description" json:"description"`
+	DaemonURL   string              `yaml:"daemon" json:"daemon"`
 	Backend     storage.Backend     `yaml:"backend" json:"backend"`
 	Credentials credentials.Storage `yaml:"credentials" json:"credentials"`
 }
@@ -21,6 +27,7 @@ type DataCTL struct {
 type rawDataCTL struct {
 	Name        string                 `yaml:"name" json:"name"`
 	Description string                 `yaml:"description" json:"description"`
+	DaemonURL   string                 `yaml:"daemon" json:"daemon"`
 	Backend     storage.Backend        `yaml:"backend" json:"backend"`
 	Credentials map[string]interface{} `yaml:"credentials" json:"credentials"`
 }
@@ -30,6 +37,9 @@ func (d DataCTL) IsValid() error {
 	rexp, _ := regexp.Compile("[ \t\n\r]")
 	if rexp.ReplaceAllString(d.Name, "") != d.Name {
 		return errors.New("Error: Name contains whitespace, use '-' instead")
+	}
+	if d.DaemonURL == "" {
+		return errors.New("Error: No valid DaemonURL found")
 	}
 	err := util.Verify(d.Backend, nil)
 	err = util.Verify(d.Credentials, err)
@@ -42,6 +52,7 @@ func (d *DataCTL) parseFromRaw(raw rawDataCTL) error {
 	creds, errCred := credentials.Parse(raw.Credentials, raw.Backend)
 	d.Name = raw.Name
 	d.Backend = raw.Backend
+	d.DaemonURL = raw.DaemonURL
 	d.Credentials = creds
 
 	return util.ReturnFirstErr(errBackend, errCred, d.IsValid())
@@ -52,6 +63,11 @@ func (d *DataCTL) ParseFromMap(m map[string]interface{}) error {
 	var raw rawDataCTL
 	raw.Name = m["name"].(string)
 	raw.Description = m["description"].(string)
+	if _, ok := m["daemon"]; ok {
+		raw.DaemonURL = m["daemon"].(string)
+	} else {
+		raw.DaemonURL = DefaultDaemonURL
+	}
 	raw.Backend = storage.Backend(m["backend"].(string))
 	raw.Credentials = m["credentials"].(map[string]interface{})
 	return d.parseFromRaw(raw)
@@ -62,6 +78,9 @@ func (d *DataCTL) ParseFromFile(filepath string) error {
 	var raw rawDataCTL
 	if err := util.ReadYAMLFile(filepath, &raw); err != nil {
 		return errors.New("Error: Could not parse yaml file")
+	}
+	if raw.DaemonURL == "" {
+		raw.DaemonURL = DefaultDaemonURL
 	}
 	return d.parseFromRaw(raw)
 }
@@ -81,6 +100,8 @@ func (d DataCTL) ToReport() string {
 	report := ""
 	report += "{\n"
 	report += "\tName: " + d.Name + "\n"
+	report += "\tDescription: " + d.Description + "\n"
+	report += "\tDaemon: " + d.DaemonURL + "\n"
 	report += "\tBackend: " + d.Backend.String() + "\n"
 	report += "\tLocation: " + d.GetStorageLocation() + "\n"
 	report += "}\n"

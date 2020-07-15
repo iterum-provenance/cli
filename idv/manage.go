@@ -214,7 +214,7 @@ func pullParseCommit(h hash) (commit Commit) {
 	if !util.FileExists(path) { // If the file does not exist yet locally, pull them
 		var ctl ctl.DataCTL
 		parseConfig(configPath, &ctl)
-		commit, err := getCommit(h, ctl.Name)
+		commit, err := getCommit(ctl, h)
 		util.PanicIfErr(err, "Error: could not pull commit, make sure it exists")
 		commit.WriteToFolder(remoteFolder)
 		return commit
@@ -231,7 +231,7 @@ func pullParseBranch(h hash) (branch Branch) {
 	if !util.FileExists(path) { // If the file does not exist yet locally, pull them
 		var ctl ctl.DataCTL
 		parseConfig(configPath, &ctl)
-		branch, err := getBranch(h, ctl.Name)
+		branch, err := getBranch(ctl, h)
 		util.PanicIfErr(err, "Error: could not pull branch, make sure it exists")
 		branch.WriteToFolder(remoteFolder)
 		return branch

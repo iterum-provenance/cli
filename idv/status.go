@@ -1,6 +1,7 @@
 package idv
 
 import (
+	"log"
 	"regexp"
 	"strings"
 
@@ -48,10 +49,12 @@ func LsBranches() (report string, err error) {
 	parseBRANCH(&branch)
 	report = ""
 	for key, val := range history.Branches {
+		hashOffset := 40
 		if key == branch.Hash {
 			report += "* "
+			hashOffset -= 2
 		}
-		report += val + strings.Repeat(" ", 20-len(val)) + key.String() + "\n"
+		report += val + strings.Repeat(" ", hashOffset-len(val)) + key.String() + "\n"
 	}
 	return
 }
@@ -70,7 +73,7 @@ func LsCommits() (report string, err error) {
 	hash := head.Hash
 	node, _ := history.Tree[hash]
 	for node.Branch == branch {
-		report += node.Name + strings.Repeat(" ", 36-len(node.Name)) + hash.String() + "\n"
+		report += node.Name + strings.Repeat(" ", 40-len(node.Name)) + hash.String() + "\n"
 		if node.Parent == "" || hash == node.Parent {
 			break
 		}
@@ -86,9 +89,11 @@ func Inspect() (report string, err error) {
 	EnsureByPanic(EnsureConfig, "")
 	var ctl ctl.DataCTL
 	ctl.ParseFromFile(configPath) // No error is ensured, so no need to catch it
-	remoteCtl, err := getConfig(ctl.Name)
+	remoteCtl, err := getConfig(ctl)
+	log.Println(remoteCtl)
+	log.Println(err)
 	util.PanicIfErr(err, "")
-	datasets, err := getDatasets()
+	datasets, err := getDatasets(ctl)
 	util.PanicIfErr(err, "")
 
 	report += "Local Data configuration:\n"

@@ -38,9 +38,9 @@ func ApplyCommit(name, description string) (err error) {
 	var updatedHistory VTree
 	var updatedBranch Branch
 	if isBranched() {
-		updatedBranch, updatedHistory, err = postBranchedCommit(ctl.Name, branch, local, stagemap)
+		updatedBranch, updatedHistory, err = postBranchedCommit(ctl, branch, local, stagemap)
 	} else {
-		updatedBranch, updatedHistory, err = postCommit(ctl.Name, local, stagemap)
+		updatedBranch, updatedHistory, err = postCommit(ctl, local, stagemap)
 	}
 	util.PanicIfErr(err, "")
 
