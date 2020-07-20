@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"log"
+	"net/url"
 
 	"github.com/iterum-provenance/cli/manager"
 	"github.com/spf13/cobra"
@@ -21,13 +22,17 @@ var statusCmd = &cobra.Command{
 }
 
 func statusRun(cmd *cobra.Command, args []string) {
+	url, err := url.Parse(ManagerURL)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	if len(args) == 0 {
-		err := manager.Status()
+		err := manager.Status(url)
 		if err != nil {
 			log.Fatal(err)
 		}
 	} else if len(args) == 1 {
-		err := manager.PipelineStatus(args[0])
+		err := manager.PipelineStatus(args[0], url)
 		if err != nil {
 			log.Fatal(err)
 		}

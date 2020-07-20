@@ -1,11 +1,55 @@
 package manager
 
-// Status retrieves the status of each pipeline known to the manager
-func Status() error {
+import (
+	"encoding/json"
+	"fmt"
+	"net/url"
+	"path"
+
+	"github.com/iterum-provenance/iterum-go/util"
+)
+
+// Status retrieves the global status of each pipeline known to the manager
+func Status(managerURL *url.URL) (err error) {
+	defer util.ReturnErrOnPanic(&err)()
+
+	// Set target endpoint
+	managerURL.Path = path.Join(managerURL.Path, "pipelines")
+
+	var jsonResponse interface{}
+	err = getJSON(managerURL, &jsonResponse)
+	util.PanicIfErr(err, "")
+
+	fmt.Println(json.MarshalIndent(jsonResponse, "", "  "))
 	return nil
 }
 
 // PipelineStatus retrieves the status of a specific pipeline known to the manager
-func PipelineStatus(phash string) error {
+func PipelineStatus(phash string, managerURL *url.URL) (err error) {
+	defer util.ReturnErrOnPanic(&err)()
+
+	// Set target endpoint
+	managerURL.Path = path.Join(managerURL.Path, "pipelines", phash, "status")
+
+	var jsonResponse interface{}
+	err = getJSON(managerURL, &jsonResponse)
+	util.PanicIfErr(err, "")
+
+	fmt.Println(json.MarshalIndent(jsonResponse, "", "  "))
+	return nil
+}
+
+// Describe prompts the manager for the deployment specification of a certain pipeline
+func Describe(phash string, managerURL *url.URL) (err error) {
+	defer util.ReturnErrOnPanic(&err)()
+
+	// Set target endpoint
+	managerURL.Path = path.Join(managerURL.Path, "pipelines", phash)
+
+	var jsonResponse interface{}
+	err = getJSON(managerURL, &jsonResponse)
+	util.PanicIfErr(err, "")
+
+	fmt.Println(json.MarshalIndent(jsonResponse, "", "  "))
 	return nil
 }
