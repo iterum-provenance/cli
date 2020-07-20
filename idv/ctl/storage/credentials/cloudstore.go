@@ -6,6 +6,14 @@ import (
 
 // CloudStore holds credentials for Google Cloud Store
 type CloudStore struct {
+	Message string `yaml:"message" json:"message"` // Remove this once implementing
+}
+
+// NewCloudStore instantiates a clean empty CloudStore storage backend credentials struct
+func NewCloudStore() CloudStore {
+	return CloudStore{
+		Message: "CloudStore storage NOT IMPLEMENTED YET",
+	}
 }
 
 // IsValid checks the validity of this structure

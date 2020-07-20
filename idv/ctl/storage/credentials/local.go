@@ -5,6 +5,13 @@ type Local struct {
 	Path string `yaml:"path" json:"path"` // Absolute path to folder
 }
 
+// NewLocal creates a new instance of Local with default values
+func NewLocal() Local {
+	return Local{
+		Path: "/replace/this/path/to/data/store/location/at/daemon/",
+	}
+}
+
 // IsValid checks the validity of this structure
 func (l Local) IsValid() error {
 	return nil

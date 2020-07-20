@@ -6,6 +6,14 @@ import (
 
 // AmazonS3 holds credentials for accessing AmazonS3 service
 type AmazonS3 struct {
+	Message string `yaml:"message" json:"message"` // Remove this once implementing
+}
+
+// NewAmazonS3 instantiates a clean empty AmazonS3 storage backend credentials struct
+func NewAmazonS3() AmazonS3 {
+	return AmazonS3{
+		Message: "AmazonS3 storage NOT IMPLEMENTED YET",
+	}
 }
 
 // IsValid checks the validity of this structure

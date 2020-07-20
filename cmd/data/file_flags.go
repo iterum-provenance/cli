@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 
@@ -43,10 +44,10 @@ func filesInDir(dirPath string, recurse bool) (files []string) {
 	for _, info := range contents {
 		if info.IsDir() {
 			if recurse {
-				files = append(files, filesInDir(dirPath+"/"+info.Name(), recurse)...)
+				files = append(files, filesInDir(path.Join(dirPath, info.Name()), recurse)...)
 			}
 		} else { // Only add files
-			files = append(files, cleanPath(dirPath+"/"+info.Name()))
+			files = append(files, cleanPath(path.Join(dirPath, info.Name())))
 		}
 	}
 	return files

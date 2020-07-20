@@ -10,6 +10,7 @@ import (
 var (
 	errIndiscriptiveName  error = errors.New("Error: Name should be descriptive, alphanumeric, and (ideally) -(dash) separated")
 	errContainsWhitespace error = errors.New("Error: Name contains whitespace which is illegal")
+	errTooLong            error = errors.New("Error: Text is too long")
 )
 
 // prompt asks the user for input

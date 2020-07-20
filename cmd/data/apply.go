@@ -13,7 +13,7 @@ func init() {
 
 var applyCmd = &cobra.Command{
 	Use:   "apply",
-	Short: "Applies the idv-config at the daemon when already initialized locally",
+	Short: "Make the daemon mount the data set using the idv-config",
 	Long:  `Applies the idv-config at the daemon when already initialized locally. Useful after rebooting or wiping the Daemon`,
 	Run:   applyRun,
 }

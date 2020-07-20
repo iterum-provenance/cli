@@ -24,3 +24,17 @@ func Name() string {
 		},
 	})
 }
+
+// Description asks the user for input to be used as a description
+func Description() string {
+	return prompt(promptui.Prompt{
+		Label: "Enter a Description",
+		Validate: func(input string) error {
+			input = strings.TrimSpace(input)
+			if len(input) > 140 {
+				return errTooLong
+			}
+			return nil
+		},
+	})
+}

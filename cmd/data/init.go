@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/iterum-provenance/cli/cmd/prompter"
 	"github.com/iterum-provenance/cli/idv"
+	"github.com/iterum-provenance/cli/idv/ctl/storage"
 	"github.com/spf13/cobra"
 )
 
@@ -20,7 +22,16 @@ var initCmd = &cobra.Command{
 }
 
 func initRun(cmd *cobra.Command, args []string) {
-	err := idv.Initialize()
+	fmt.Println("Please input the name of the data set")
+	name := prompter.Name()
+	fmt.Println("Please input a short description for the data set")
+	description := prompter.Description()
+	backend := storage.Backend(prompter.StorageType())
+	if err := backend.IsValid(); err != nil {
+		log.Fatal(err)
+	}
+
+	err := idv.Initialize(name, description, backend)
 	if err != nil {
 		log.Fatal(err)
 	} else {

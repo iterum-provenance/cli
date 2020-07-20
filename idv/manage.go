@@ -132,6 +132,12 @@ func writeTREE(history VTree) {
 	util.PanicIfErr(err, "")
 }
 
+// writeConfig takes a DataCTL and writes it to wherever it points
+func writeConfig(config ctl.DataCTL) {
+	err := config.WriteToFile(configPath)
+	util.PanicIfErr(err, "")
+}
+
 // verifyAndUpdateStagemap takes a commit and (possibly) a stagemap and validates
 // the one with the other. If no map is passed it reads in the default one.
 func verifyAndUpdateStagemap(commit Commit, stagemap Stagemap) {

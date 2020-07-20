@@ -32,6 +32,26 @@ type rawDataCTL struct {
 	Credentials map[string]interface{} `yaml:"credentials" json:"credentials"`
 }
 
+// NewDataCTL creates a new instance of DataCTL, used for creating new data repos
+func NewDataCTL(name, description string, backend storage.Backend) DataCTL {
+	var creds credentials.Storage
+	switch backend {
+	case storage.Local:
+		creds = credentials.NewLocal()
+	case storage.AmazonS3:
+		creds = credentials.NewAmazonS3()
+	case storage.CloudStore:
+		creds = credentials.NewCloudStore()
+	}
+	return DataCTL{
+		Name:        name,
+		Description: description,
+		Backend:     backend,
+		DaemonURL:   DefaultDaemonURL,
+		Credentials: creds,
+	}
+}
+
 // IsValid checks the validity of the struct
 func (d DataCTL) IsValid() error {
 	rexp, _ := regexp.Compile("[ \t\n\r]")

@@ -5,11 +5,12 @@ import (
 	"os"
 
 	"github.com/iterum-provenance/cli/idv/ctl"
+	"github.com/iterum-provenance/cli/idv/ctl/storage"
 	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // Initialize instantiates a new data repo and makes appropriate .idv folder structure
-func Initialize() (err error) {
+func Initialize(name, description string, backend storage.Backend) (err error) {
 	defer util.ReturnErrOnPanic(&err)()
 	notAlreadyARepoTest := EnsureIDVRepo()
 	if notAlreadyARepoTest == nil {
@@ -19,6 +20,9 @@ func Initialize() (err error) {
 	// Setup folderstructure
 	os.MkdirAll(localFolder, 0755)
 	os.MkdirAll(remoteFolder, 0755)
+
+	idvConfig := ctl.NewDataCTL(name, description, backend)
+	writeConfig(idvConfig)
 
 	return
 }

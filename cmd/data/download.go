@@ -27,5 +27,5 @@ var downloadCmd = &cobra.Command{
 }
 
 func downloadRun(cmd *cobra.Command, args []string) {
-	log.Println("`iterum data download`")
+	log.Println("`iterum data download is supposed to download data from the daemon at request`")
 }
