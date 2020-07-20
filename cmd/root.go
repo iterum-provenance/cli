@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/iterum-provenance/cli/cmd/data"
+	"github.com/iterum-provenance/cli/cmd/pipeline"
 	"github.com/spf13/cobra"
 )
 
@@ -15,6 +16,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(data.GetRootCmd())
+	rootCmd.AddCommand(pipeline.GetRootCmd())
 }
 
 // Execute executes the root command.
