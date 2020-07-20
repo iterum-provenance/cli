@@ -3,7 +3,7 @@ package idv
 import (
 	"fmt"
 
-	"github.com/iterum-provenance/iterum-go/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 type branchMap map[hash]string

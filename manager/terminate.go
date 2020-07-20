@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"path"
 
-	"github.com/iterum-provenance/iterum-go/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // TerminateAllPipelines kill all left over jobs and completed pipeline elements

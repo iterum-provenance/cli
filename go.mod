@@ -9,4 +9,5 @@ require (
 	github.com/prometheus/common v0.9.1
 	github.com/spf13/cobra v0.0.6
 	golang.org/x/sys v0.0.0-20190531175056-4c3a928424d2 // indirect
+	gopkg.in/yaml.v2 v2.2.4
 )

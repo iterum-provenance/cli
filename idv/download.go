@@ -3,7 +3,7 @@ package idv
 import (
 	"regexp"
 
-	"github.com/iterum-provenance/iterum-go/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // Download data from this repository onto this local machine

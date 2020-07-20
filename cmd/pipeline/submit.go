@@ -5,7 +5,7 @@ import (
 	"net/url"
 
 	"github.com/iterum-provenance/cli/manager"
-	"github.com/iterum-provenance/iterum-go/util"
+	"github.com/iterum-provenance/cli/util"
 	"github.com/prometheus/common/log"
 	"github.com/spf13/cobra"
 )

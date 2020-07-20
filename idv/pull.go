@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/iterum-provenance/cli/idv/ctl"
-	"github.com/iterum-provenance/iterum-go/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 func attemptMergeToHead(ctl ctl.DataCTL, local Commit, remoteBranch Branch) (remoteHead, newLocal Commit, err error) {

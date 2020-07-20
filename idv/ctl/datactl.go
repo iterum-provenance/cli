@@ -6,7 +6,7 @@ import (
 
 	"github.com/iterum-provenance/cli/idv/ctl/storage"
 	"github.com/iterum-provenance/cli/idv/ctl/storage/credentials"
-	"github.com/iterum-provenance/iterum-go/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 const (

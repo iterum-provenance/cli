@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"path"
 
-	"github.com/iterum-provenance/iterum-go/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // Status retrieves the global status of each pipeline known to the manager

@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 
 	"github.com/iterum-provenance/cli/idv/ctl"
-	"github.com/iterum-provenance/iterum-go/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // DaemonURL is the url at which we can reach the idv/iterum daemon

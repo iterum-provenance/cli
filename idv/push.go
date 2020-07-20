@@ -2,7 +2,7 @@ package idv
 
 import (
 	"github.com/iterum-provenance/cli/idv/ctl"
-	"github.com/iterum-provenance/iterum-go/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // This file contains code related to pushing and pulling to and from the remote data storage

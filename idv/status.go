@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/iterum-provenance/cli/idv/ctl"
-	"github.com/iterum-provenance/iterum-go/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // Contains all functionality that is status related

@@ -3,7 +3,7 @@ package idv
 import (
 	"fmt"
 
-	"github.com/iterum-provenance/iterum-go/util"
+	"github.com/iterum-provenance/cli/util"
 )
 
 // This file contains functionality related to switching branches/commits
