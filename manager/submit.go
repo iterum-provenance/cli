@@ -9,7 +9,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/gaarkeuken/go-lib/util"
+	"github.com/iterum-provenance/iterum-go/util"
 )
 
 // SubmitPipeline is the function that submits a json specification of a pipeline to the manager at managerURL
