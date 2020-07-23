@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"log"
+	"github.com/prometheus/common/log"
 	"regexp"
 
 	"github.com/iterum-provenance/cli/idv"
@@ -50,7 +50,7 @@ func lsRun(cmd *cobra.Command, args []string) {
 		report = "Files in data set:\n" + report
 	}
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	fmt.Println(report)
 }

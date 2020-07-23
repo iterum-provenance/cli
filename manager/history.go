@@ -4,25 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
-	"os"
 	"path"
 
 	"github.com/iterum-provenance/cli/util"
 )
 
-// SubmitPipeline is the function that submits a json specification of a pipeline to the manager at managerURL
-func SubmitPipeline(filepath string, managerURL *url.URL) (err error) {
+// History retrieves the global information of each pipeline known to the daemon
+func History(daemonURL *url.URL) (err error) {
 	defer util.ReturnErrOnPanic(&err)()
 
 	// Set target endpoint
-	managerURL.Path = path.Join(managerURL.Path, "pipelines")
-
-	// Open configuration file
-	file, err := os.Open(filepath)
-	util.PanicIfErr(err, "")
+	daemonURL.Path = path.Join(daemonURL.Path, "pipelines")
 
 	var jsonResponse interface{}
-	err = postJSON(managerURL, file, &jsonResponse)
+	err = getJSON(daemonURL, &jsonResponse)
 	util.PanicIfErr(err, "")
 
 	data, err := json.MarshalIndent(jsonResponse, "", "  ")

@@ -1,7 +1,7 @@
 package idv
 
 import (
-	"log"
+	"github.com/prometheus/common/log"
 	"regexp"
 	"strings"
 
@@ -90,8 +90,8 @@ func Inspect() (report string, err error) {
 	var ctl ctl.DataCTL
 	ctl.ParseFromFile(configPath) // No error is ensured, so no need to catch it
 	remoteCtl, err := getConfig(ctl)
-	log.Println(remoteCtl)
-	log.Println(err)
+	log.Infoln(remoteCtl)
+	log.Infoln(err)
 	util.PanicIfErr(err, "")
 	datasets, err := getDatasets(ctl)
 	util.PanicIfErr(err, "")

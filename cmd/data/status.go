@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"log"
+	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/idv"
 	"github.com/spf13/cobra"
@@ -24,7 +24,7 @@ var statusCmd = &cobra.Command{
 func statusRun(cmd *cobra.Command, args []string) {
 	report, err := idv.Status(ShowFullPath, ShowLocalPath)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	fmt.Println("Staged file changes:")
 	fmt.Println(report)

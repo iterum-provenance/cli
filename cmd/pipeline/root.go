@@ -10,10 +10,6 @@ var rootCmd = &cobra.Command{
 	Long:  "The `pipeline` sub-command gives access to creating, updating and managing (remotely) deployed pipelines",
 }
 
-func init() {
-	rootCmd.PersistentFlags().StringVarP(&ManagerURL, "url", "u", "http://localhost:3001", "URL at which the manager can be reached")
-}
-
 // GetRootCmd returns the root of the data subcommand
 func GetRootCmd() *cobra.Command {
 	return rootCmd

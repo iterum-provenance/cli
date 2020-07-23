@@ -2,7 +2,7 @@ package prompter
 
 import (
 	"errors"
-	"log"
+	"github.com/prometheus/common/log"
 
 	"github.com/manifoldco/promptui"
 )
@@ -17,7 +17,7 @@ var (
 func prompt(prompt promptui.Prompt) string {
 	result, err := prompt.Run()
 	if err != nil {
-		log.Fatal("Prompt failed due to: ", err)
+		log.Fatalln("Prompt failed due to: ", err)
 	}
 	return result
 }
@@ -26,7 +26,7 @@ func prompt(prompt promptui.Prompt) string {
 func pick(prompt promptui.Select) string {
 	_, value, err := prompt.Run()
 	if err != nil {
-		log.Fatal("Select failed due to: ", err)
+		log.Fatalln("Select failed due to: ", err)
 	}
 	return value
 }

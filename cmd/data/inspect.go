@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"log"
+	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/idv"
 	"github.com/spf13/cobra"
@@ -22,7 +22,7 @@ var inspectCmd = &cobra.Command{
 func inspectRun(cmd *cobra.Command, args []string) {
 	report, err := idv.Inspect()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	fmt.Println(report)
 }

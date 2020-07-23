@@ -1,7 +1,7 @@
 package data
 
 import (
-	"log"
+	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/idv"
 	"github.com/spf13/cobra"
@@ -24,6 +24,6 @@ var checkoutCmd = &cobra.Command{
 func checkoutRun(cmd *cobra.Command, args []string) {
 	err := idv.Checkout(args[0], IsCommit, IsHash)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 }

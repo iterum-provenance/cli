@@ -1,8 +1,9 @@
 package pipeline
 
 import (
-	"log"
 	"net/url"
+
+	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/manager"
 	"github.com/spf13/cobra"
@@ -10,6 +11,7 @@ import (
 
 func init() {
 	rootCmd.AddCommand(statusCmd)
+	statusCmd.PersistentFlags().StringVarP(&ManagerURL, "url", "u", "http://localhost:3001", "URL at which the manager can be reached")
 }
 
 // Gather status information for deployed pipelines
@@ -29,12 +31,12 @@ func statusRun(cmd *cobra.Command, args []string) {
 	if len(args) == 0 {
 		err := manager.Status(url)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
 	} else if len(args) == 1 {
 		err := manager.PipelineStatus(args[0], url)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalln(err)
 		}
 	}
 }

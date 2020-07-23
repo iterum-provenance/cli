@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"log"
+	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/cmd/data"
 	"github.com/iterum-provenance/cli/cmd/pipeline"
@@ -22,6 +22,6 @@ func init() {
 // Execute executes the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 }

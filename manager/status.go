@@ -20,7 +20,9 @@ func Status(managerURL *url.URL) (err error) {
 	err = getJSON(managerURL, &jsonResponse)
 	util.PanicIfErr(err, "")
 
-	fmt.Println(json.MarshalIndent(jsonResponse, "", "  "))
+	data, err := json.MarshalIndent(jsonResponse, "", "  ")
+	util.PanicIfErr(err, fmt.Sprintf("Response generated an error: %v", err))
+	fmt.Println(string(data))
 	return nil
 }
 
@@ -35,7 +37,9 @@ func PipelineStatus(phash string, managerURL *url.URL) (err error) {
 	err = getJSON(managerURL, &jsonResponse)
 	util.PanicIfErr(err, "")
 
-	fmt.Println(json.MarshalIndent(jsonResponse, "", "  "))
+	data, err := json.MarshalIndent(jsonResponse, "", "  ")
+	util.PanicIfErr(err, fmt.Sprintf("Response generated an error: %v", err))
+	fmt.Println(string(data))
 	return nil
 }
 
@@ -50,6 +54,8 @@ func Describe(phash string, managerURL *url.URL) (err error) {
 	err = getJSON(managerURL, &jsonResponse)
 	util.PanicIfErr(err, "")
 
-	fmt.Println(json.MarshalIndent(jsonResponse, "", "  "))
+	data, err := json.MarshalIndent(jsonResponse, "", "  ")
+	util.PanicIfErr(err, fmt.Sprintf("Response generated an error: %v", err))
+	fmt.Println(string(data))
 	return nil
 }

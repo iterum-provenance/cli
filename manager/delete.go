@@ -7,8 +7,8 @@ import (
 	"github.com/iterum-provenance/cli/util"
 )
 
-// TerminateAllPipelines kill all left over jobs and completed pipeline elements
-func TerminateAllPipelines(managerURL *url.URL) (err error) {
+// DeleteAllPipelines kill all left over jobs and completed pipeline elements
+func DeleteAllPipelines(managerURL *url.URL) (err error) {
 	defer util.ReturnErrOnPanic(&err)()
 
 	// Set target endpoint
@@ -20,8 +20,8 @@ func TerminateAllPipelines(managerURL *url.URL) (err error) {
 	return nil
 }
 
-// TerminatePipeline kills and removes all parts of a pipeline, except for MinIO and RabbitMQ
-func TerminatePipeline(phash string, managerURL *url.URL) (err error) {
+// DeletePipeline kills and removes all parts of a pipeline, except for MinIO and RabbitMQ
+func DeletePipeline(phash string, managerURL *url.URL) (err error) {
 	defer util.ReturnErrOnPanic(&err)()
 
 	// Set target endpoint

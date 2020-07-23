@@ -3,7 +3,7 @@ package data
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
+	"github.com/prometheus/common/log"
 	"os"
 	"path"
 	"path/filepath"
@@ -31,7 +31,7 @@ var Exclusions []string
 // crashes the program if file does not exist
 func cleanPath(path string) string {
 	if !util.IsFileOrDir(path) {
-		log.Fatal(fmt.Errorf("Error: `%v` is not a valid path", path))
+		log.Fatalln(fmt.Errorf("Error: `%v` is not a valid path", path))
 	}
 	path, _ = filepath.Abs(path)
 	return filepath.Clean(path)

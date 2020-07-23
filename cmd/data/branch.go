@@ -1,7 +1,7 @@
 package data
 
 import (
-	"log"
+	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/idv"
 
@@ -25,6 +25,6 @@ var branchCmd = &cobra.Command{
 func branchRun(cmd *cobra.Command, args []string) {
 	err := idv.BranchFromCommit(args[0], CommitHashOrName, IsHash)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 }

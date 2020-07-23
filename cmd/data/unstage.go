@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"log"
+	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/idv"
 	"github.com/spf13/cobra"
@@ -42,7 +42,7 @@ func unstageRun(cmd *cobra.Command, args []string) {
 	selector := buildSelector(args)
 	unstaged, err = idv.Unstage(selector)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	fmt.Printf("UNSTAGED %v file(s)\n", unstaged)
 }

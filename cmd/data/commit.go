@@ -2,7 +2,7 @@ package data
 
 import (
 	"errors"
-	"log"
+	"github.com/prometheus/common/log"
 	"regexp"
 	"strings"
 
@@ -38,6 +38,6 @@ var commitCmd = &cobra.Command{
 func commitRun(cmd *cobra.Command, args []string) {
 	err := idv.ApplyCommit(args[0], args[1])
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 }

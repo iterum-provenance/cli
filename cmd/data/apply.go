@@ -1,7 +1,7 @@
 package data
 
 import (
-	"log"
+	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/idv"
 	"github.com/spf13/cobra"
@@ -21,6 +21,6 @@ var applyCmd = &cobra.Command{
 func applyRun(cmd *cobra.Command, args []string) {
 	err := idv.Apply()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 }

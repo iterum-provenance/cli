@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"log"
+	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/idv"
 	"github.com/spf13/cobra"
@@ -22,7 +22,7 @@ var setupCmd = &cobra.Command{
 func setupRun(cmd *cobra.Command, args []string) {
 	err := idv.Setup()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	} else {
 		fmt.Println("Daemon and local IDV repo initialized")
 		fmt.Println("Ready to version your data...")

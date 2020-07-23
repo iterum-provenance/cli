@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"log"
+	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/idv"
 	"github.com/spf13/cobra"
@@ -69,7 +69,7 @@ func rmRun(cmd *cobra.Command, args []string) {
 		fmt.Printf("GOT %v potential files\n", len(names)+len(whitelisted))
 	}
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
 	if Unstage {

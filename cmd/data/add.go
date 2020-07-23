@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"log"
+	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/idv"
 	"github.com/spf13/cobra"
@@ -42,7 +42,7 @@ func addRun(cmd *cobra.Command, args []string) {
 	whitelisted := exclude(allFiles)
 	adds, updates, err := idv.AddFiles(whitelisted)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 	fmt.Printf("PASSED %v file(s)\nADDED %v file(s)\nUPDATED %v file(s)\n", len(whitelisted), adds, updates)
 	if len(whitelisted) > adds+updates && len(whitelisted) > 0 {

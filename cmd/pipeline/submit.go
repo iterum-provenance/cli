@@ -12,6 +12,7 @@ import (
 
 func init() {
 	rootCmd.AddCommand(submitCmd)
+	submitCmd.PersistentFlags().StringVarP(&ManagerURL, "url", "u", "http://localhost:3001", "URL at which the manager can be reached")
 }
 
 var submitCmd = &cobra.Command{

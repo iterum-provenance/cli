@@ -2,7 +2,7 @@ package data
 
 import (
 	"fmt"
-	"log"
+	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/cmd/prompter"
 	"github.com/iterum-provenance/cli/idv"
@@ -28,12 +28,12 @@ func initRun(cmd *cobra.Command, args []string) {
 	description := prompter.Description()
 	backend := storage.Backend(prompter.StorageType())
 	if err := backend.IsValid(); err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 
 	err := idv.Initialize(name, description, backend)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	} else {
 		fmt.Println("IDV repo initialized")
 	}
