@@ -3,13 +3,14 @@ package data
 import (
 	"fmt"
 	"io/ioutil"
-	"github.com/prometheus/common/log"
 	"os"
 	"path"
 	"path/filepath"
 	"regexp"
 
-	"github.com/iterum-provenance/iterum-go/util"
+	"github.com/prometheus/common/log"
+
+	"github.com/iterum-provenance/cli/util"
 )
 
 // Contains functionality to handle the file specifier related flags of the `iterum data` subcommands
