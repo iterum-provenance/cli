@@ -16,3 +16,6 @@
 
 build/
 .vscode
+
+.idv
+idv-config.yaml
