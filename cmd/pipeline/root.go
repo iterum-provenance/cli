@@ -1,3 +1,6 @@
+// Package pipeline contains all the cobra subcommands found in `iterum pipeline [subcommand]` of the CLI.
+// It deals with pipeline deployment and results analysis/interaction. The cobra commands mostly function as
+// a simple interface calling API endpoints in the main /pipeline package
 package pipeline
 
 import (

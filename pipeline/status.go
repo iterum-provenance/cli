@@ -9,8 +9,8 @@ import (
 	"github.com/iterum-provenance/cli/util"
 )
 
-// Status retrieves the global status of each pipeline known to the manager
-func Status(managerURL *url.URL) (err error) {
+// StatusAll retrieves the global status of each pipeline known to the manager
+func StatusAll(managerURL *url.URL) (err error) {
 	defer util.ReturnErrOnPanic(&err)()
 
 	// Set target endpoint
@@ -26,8 +26,8 @@ func Status(managerURL *url.URL) (err error) {
 	return nil
 }
 
-// PipelineStatus retrieves the status of a specific pipeline known to the manager
-func PipelineStatus(phash string, managerURL *url.URL) (err error) {
+// Status retrieves the status of a specific pipeline known to the manager
+func Status(phash string, managerURL *url.URL) (err error) {
 	defer util.ReturnErrOnPanic(&err)()
 
 	// Set target endpoint

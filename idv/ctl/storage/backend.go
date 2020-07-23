@@ -1,3 +1,4 @@
+// Package storage contains the different supported storage backend and their files
 package storage
 
 import "fmt"

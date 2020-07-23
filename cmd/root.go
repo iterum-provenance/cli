@@ -1,3 +1,5 @@
+// Package cmd is the root of all CLI command specified using the excellent spf13/cobra package.
+// Its elegant structure is used to create an intuitive command line interface.
 package cmd
 
 import (

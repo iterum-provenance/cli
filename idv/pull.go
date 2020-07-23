@@ -7,6 +7,7 @@ import (
 	"github.com/iterum-provenance/cli/util"
 )
 
+// attemptMergeToHead tries to merge the current LOCAL with the HEAD
 func attemptMergeToHead(ctl ctl.DataCTL, local Commit, remoteBranch Branch) (remoteHead, newLocal Commit, err error) {
 	defer util.ReturnErrOnPanic(&err)()
 
@@ -31,6 +32,7 @@ func handlePullWhilstCheckedOut(ctl ctl.DataCTL, remoteHistory VTree, localCommi
 	return
 }
 
+// handlePullWhilstUnbranched tries to pull data whilst local is behind the remote, without being branched off locally
 func handlePullWhilstUnbranched(ctl ctl.DataCTL, remoteHistory VTree, localCommit Commit) (err error) {
 	defer util.ReturnErrOnPanic(&err)()
 
@@ -56,12 +58,6 @@ func handlePullWhilstUnbranched(ctl ctl.DataCTL, remoteHistory VTree, localCommi
 		linkBRANCH(remoteBranch, false)
 		linkHEAD(remoteHead)
 		linkLOCAL(newLocal)
-
-		// oldLocal is overriden by newLocal as it takes over the commit hash, so this code should be no longer needed
-		// oldLocal := localCommit
-		// err = os.Remove(oldLocal.ToFilePath(true)) // because we have a successful new local
-		// util.PanicIfErr(err, "")
-
 	} else {
 		fmt.Println("Up to date")
 	}

@@ -13,13 +13,13 @@ import (
 func Lineage(phash, folder string, daemonURL *url.URL) (err error) {
 	defer util.ReturnErrOnPanic(&err)()
 
-	// Set global endpoint for all requests
+	// Retrieve all fragmentIds that lineage is available for
 	daemonURL.Path = path.Join(daemonURL.Path, "pipelines", phash, "lineage")
-
 	var fragmentIds []string
 	err = getJSON(daemonURL, &fragmentIds)
 	util.PanicIfErr(err, "")
 
+	// Retrieve lineage information of each fragment and store it in a file
 	bar := pb.StartNew(len(fragmentIds))
 	daemonURL.Path = path.Join(daemonURL.Path, "toremoveuseingdir")
 	for _, id := range fragmentIds {

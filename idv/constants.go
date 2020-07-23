@@ -1,6 +1,5 @@
 package idv
 
-// useful folders folders for idv
 const (
 	// IDVFolder is the name of the folder these files are stored in (like .git)
 	IDVFolder string = ".idv/"
@@ -37,26 +36,34 @@ const (
 	// vtreeFilePath is the name of the stored version tree file
 	vtreeFilePath string = remoteFolder + vtreeFileName
 
+	// configPath is the name of the config file which should be at repository root
 	configPath string = "idv-config.yaml"
 
+	// tempCommitPath is where the intermediate commit is saved before pushing
 	tempCommitPath string = localFolder + "commit.tmp"
 )
 
 // File extensions for idv files
 const (
+	// commitFileExt is the extension for commits
 	commitFileExt string = ".commit"
+	// branchFileExt is the extension for branches
 	branchFileExt string = ".branch"
-	vtreeFileExt  string = ".vtree"
+	// vtreeFileExt is the extension for version trees
+	vtreeFileExt string = ".vtree"
 )
 
 // Defaults for roots and masters
 const (
+	// masterBranchName is the default master/main branch name
 	masterBranchName string = "master"
-	rootCommitName   string = "root"
+	// rootCommitName is the name of the initial commit of a data set
+	rootCommitName string = "root"
 )
 
 const (
-	dataFolder     string = "data/"
+	// stagedFileName is the name of the stagemap file
 	stagedFileName string = "local.staged"
+	// stagedFilePath is the path to the stagemap file
 	stagedFilePath string = localFolder + stagedFileName
 )

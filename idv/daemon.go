@@ -16,9 +16,6 @@ import (
 	"github.com/iterum-provenance/cli/util"
 )
 
-// DaemonURL is the url at which we can reach the idv/iterum daemon
-// const DaemonURL = "http://localhost:3000/"
-
 var (
 	errConflictingDataset = errors.New("Error: POST dataset failed, dataset already exists")
 	errConflictingCommit  = errors.New("Error: POST commit failed, commit is not child of HEAD. Pull latest changes to resolve")
@@ -91,7 +88,7 @@ func _postMultipartForm(url string, filemap map[string]string) (response *http.R
 	return client.Do(request)
 }
 
-// getBranch pulls a specific branch based on its hash
+// getBranch pulls a specific branch based on its hash from the daemon
 func getBranch(ctl ctl.DataCTL, bhash hash) (branch Branch, err error) {
 	err = _get(ctl.DaemonURL+ctl.Name+"/branch/"+bhash.String(), &branch)
 	return
@@ -145,6 +142,7 @@ func postDataset(ctl ctl.DataCTL) (err error) {
 	return
 }
 
+// _performCommit actually sends the commit to the Daemon and parses its response
 func _performCommit(url string, filemap map[string]string) (branch Branch, history VTree, err error) {
 	defer util.ReturnErrOnPanic(&err)()
 	response, err := _postMultipartForm(url, filemap)

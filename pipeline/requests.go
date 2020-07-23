@@ -9,6 +9,8 @@ import (
 	"net/url"
 )
 
+// _request performs a general kind of http request based on the passed parameter
+// only used within this requests.go file, hence the preceding _
 func _request(method string, url *url.URL, headers map[string]string, body io.Reader) (resp *http.Response, err error) {
 	client := http.Client{}
 	req, err := http.NewRequest(method, url.String(), body)

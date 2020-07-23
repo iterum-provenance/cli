@@ -29,12 +29,12 @@ func statusRun(cmd *cobra.Command, args []string) {
 		log.Fatalln(err)
 	}
 	if len(args) == 0 {
-		err := pipeline.Status(url)
+		err := pipeline.StatusAll(url)
 		if err != nil {
 			log.Fatalln(err)
 		}
 	} else if len(args) == 1 {
-		err := pipeline.PipelineStatus(args[0], url)
+		err := pipeline.Status(args[0], url)
 		if err != nil {
 			log.Fatalln(err)
 		}

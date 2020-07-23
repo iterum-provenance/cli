@@ -1,7 +1,10 @@
+// Package prompter is tasked with all prompts that users are asked to perform when creating and managing data sets.
+// It encapsulates all prompting functionalities
 package prompter
 
 import (
 	"errors"
+
 	"github.com/prometheus/common/log"
 
 	"github.com/manifoldco/promptui"

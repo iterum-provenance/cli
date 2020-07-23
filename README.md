@@ -1,9 +1,23 @@
 # Iterum CLI
+
+---
+
+If you haven't done so already, check out the [main repository](https://github.com/iterum-provenance/iterum) with introductory material.
+
+---
+
 The CLI for the iterum tool is the main user interface. After deploying the relevant Iterum infrastructure the CLI can be used to interact with those components in order to version data sets, create pipelines and evaluate their results. The CLI is divided into two main sub-components. On the one hand there is the data version control, and on the other hand pipeline interaction. This split is kept strict such that at a later stage their functionalities can be split easily across multiple interfaces. The CLI divides the code into 3 main package: `cmd` for CLI commands structured with cobra, `pipeline` for pipeline related functionality and `idv` for data versioning related functionality
 
 ---
 
 ## Quick start
+
+### Installing the CLI
+* `make build` builds the go application in `./build/iterum`
+* `make link` creates a symlink to the created build folder making `iterum` accessible via the terminal
+* `make clean` removes the symlink pointing to `/usr/bin/iterum` and the build folder `./build`
+
+### Version your data
 Follow the user setup guide found [here](https://github.com/iterum-provenance/cluster) to set up Iterum on your cluster or machine. 
 Then we first set up the data set:
 ```bash
@@ -21,6 +35,9 @@ Then we first set up the data set:
 
     Congratulations you have versioned your first data set!
 ```
+
+### Deploy your first pipeline
+
 ---
 
 ## Iterum data versioning (IDV)
@@ -117,9 +134,4 @@ Due to its early alpha stages, Iterum does not cleanly expose the option to defi
 ---
 
 ## Code documentation
-The documentation of code is left to code files themselves. They have been set up to work with Godoc, which can be achieved by running `godoc .` and navigating to `http://localhost:6060`.
-
-## Makefile commands
-* `make build` builds the go application in `./build/iterum`
-* `make link` creates a symlink to the created build folder making `iterum` accessible via the terminal
-* `make clean` removes the symlink pointing to `/usr/bin/iterum` and the build folder `./build`
+The documentation of code is left to code files themselves. They have been set up to work with Godoc, which can be achieved by running `godoc` and navigating to `http://localhost:6060/pkg/github.com/iterum-provenance/cli/`.

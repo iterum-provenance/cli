@@ -1,3 +1,8 @@
+// Package data contains all the subcommands found in `iterum data [subcommand]` of the CLI.
+// It deals with data versioning. Creating and updating commits. Creating branches, inspecting
+// data sets. It prepares the arguments by validating file paths and filtering certain sets of files.
+// This is especially useful for staging changes to commits. Many of these helper functions can be found
+// in `fileutils.go`
 package data
 
 import (

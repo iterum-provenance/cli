@@ -17,7 +17,7 @@ import (
 // The caller is responsible for deferring a function that catches the panic
 // These are all helper functions for the actual execution of the versioning commands
 
-// _symlink symlinks a file and panics on fail
+// _symlink symlinks a file and returns an error on fail
 func _symlink(src string, target string) (err error) {
 	if !util.FileExists(src) {
 		return errors.New("Error: Cannot symlink structure that is not persisted to disk")
@@ -110,10 +110,12 @@ func parseBRANCH(branch *Branch) {
 	parseBranch(BRANCH, branch)
 }
 
+// parseTREE parses the version tree into the passed pointer
 func parseTREE(vtree *VTree) {
 	parseVTree(TREE, vtree)
 }
 
+// parseStagemap
 func parseStagemap(stagemap *Stagemap) {
 	err := _parse(stagedFilePath, stagemap)
 	util.PanicIfErr(err, "")

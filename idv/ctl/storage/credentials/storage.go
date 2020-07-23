@@ -1,3 +1,4 @@
+// Package credentials contains the different target credentials structures that are linked to the supported storage backends of IDV
 package credentials
 
 import (

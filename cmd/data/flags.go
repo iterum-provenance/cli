@@ -32,3 +32,12 @@ var ShowFiles bool
 
 // NoPrompt determines whether files are downloaded without prompting for assurance
 var NoPrompt bool
+
+// Recursive states whether `iterum data add/rm` should recurse into folders found in the specified arguments
+var Recursive bool
+
+// ShowExcluded states whether the list of excluded files should be shown
+var ShowExcluded bool
+
+// Exclusions holds files and folders to be excluded from adding/removing, etc
+var Exclusions []string

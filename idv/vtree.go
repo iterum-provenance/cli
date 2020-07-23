@@ -6,9 +6,7 @@ import (
 	"github.com/iterum-provenance/cli/util"
 )
 
-type branchMap map[hash]string
-
-type commitTree map[hash]vtreeNode
+// Some helper functions, only for internal use within this file
 
 func (c commitTree) _toInterfaceMap() (out map[interface{}]interface{}) {
 	out = make(map[interface{}]interface{})
@@ -33,6 +31,10 @@ func (b branchMap) _toInterfaceMap() (out map[interface{}]interface{}) {
 	}
 	return
 }
+
+type branchMap map[hash]string
+
+type commitTree map[hash]vtreeNode
 
 // vtreeNode is a node in the VTree, each node represents 1 commit
 type vtreeNode struct {
@@ -110,6 +112,7 @@ func (v *VTree) addCommit(c Commit) error {
 	return nil
 }
 
+// addBranch attempts to add a branch to the version tree
 func (v *VTree) addBranch(branch Branch) (err error) {
 	if v.isExistingBranch(branch.Hash) {
 		err = fmt.Errorf("Error: Branch has clash in VTree: %v, could not branch", branch.Hash)

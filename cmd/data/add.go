@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+
 	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/idv"
@@ -38,8 +39,8 @@ var addCmd = &cobra.Command{
 }
 
 func addRun(cmd *cobra.Command, args []string) {
-	allFiles := getAllFiles(args)
-	whitelisted := exclude(allFiles)
+	allFiles := getAllFiles(args, Recursive)
+	whitelisted := exclude(allFiles, Exclusions, ShowExcluded)
 	adds, updates, err := idv.AddFiles(whitelisted)
 	if err != nil {
 		log.Fatalln(err)

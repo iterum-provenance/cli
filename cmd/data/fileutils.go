@@ -8,27 +8,15 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/prometheus/common/log"
-
 	"github.com/iterum-provenance/cli/util"
+	"github.com/prometheus/common/log"
 )
 
-// Contains functionality to handle the file specifier related flags of the `iterum data` subcommands
-
-// The list of flags:
-
-// Recursive states whether `iterum data add/rm` should recurse into folders found in the specified arguments
-var Recursive bool
-
-// ShowExcluded states whether the list of excluded files should be shown
-var ShowExcluded bool
-
-// Exclusions holds files and folders to be excluded from adding/removing, etc
-var Exclusions []string
-
 // ------------------------ Gathering Files ------------------------ //
+// Some additional logic for handling selection of files on the user's machines.
+// These functions allow the other packages to pose assumptions about file existence and such
 
-// Cleans up a possibly incomplete path to a complete and absolute one,
+// cleanPath cleans up a possibly incomplete path to a complete and absolute one,
 // crashes the program if file does not exist
 func cleanPath(path string) string {
 	if !util.IsFileOrDir(path) {
@@ -39,7 +27,7 @@ func cleanPath(path string) string {
 }
 
 // filesInDir returns the list of files found in dirPath
-// expects it to be a dir, recursive denotes to recurse into the folder
+// expects it to be a validated dir, recursive denotes whether to recurse into the folder
 func filesInDir(dirPath string, recurse bool) (files []string) {
 	contents, _ := ioutil.ReadDir(dirPath)
 	for _, info := range contents {
@@ -54,18 +42,32 @@ func filesInDir(dirPath string, recurse bool) (files []string) {
 	return files
 }
 
-func getAllFiles(filesOrDirs []string) []string {
+// getAllFiles returns all files contained in the passed array of folders or directories
+func getAllFiles(filesOrDirs []string, recurse bool) []string {
 	files := []string{}
 	for _, path := range filesOrDirs { // iterate over passed args
 		path = cleanPath(path)
 		info, _ := os.Stat(path)
 		if info.IsDir() {
-			files = append(files, filesInDir(path, Recursive)...)
+			files = append(files, filesInDir(path, recurse)...)
 		} else { // Just add the file
 			files = append(files, path)
 		}
 	}
 	return files
+}
+
+// getPaths returns all existing file paths as paths and non-existing files as names
+// useful for removing files from commits that are not on the user's machine
+func getPaths(args []string) (paths, names []string) {
+	for _, arg := range args {
+		if isValidLocation(arg) {
+			paths = append(paths, arg)
+		} else {
+			names = append(names, arg)
+		}
+	}
+	return
 }
 
 // ------------------------ Filtering Files ------------------------ //
@@ -79,7 +81,7 @@ func filterFilesWith(selector *regexp.Regexp, files []string) (filtered, exclude
 	for _, p := range files {
 		if !selector.MatchString(p) {
 			filtered = append(filtered, p)
-		} else if ShowExcluded {
+		} else {
 			excluded = append(excluded, p)
 		}
 	}
@@ -118,15 +120,15 @@ func buildSelector(selectors []string) (r *regexp.Regexp) {
 }
 
 // exclude resolves the Exclusions and ShowExcluded flags that `data rm/add` share
-func exclude(files []string) []string {
+func exclude(files, exclutors []string, printExcluded bool) []string {
 	// Don't filter if no selector, because all files match empty expression
-	if len(Exclusions) == 0 {
+	if len(exclutors) == 0 {
 		return files
 	}
-	exclutor := buildSelector(Exclusions)
+	exclutor := buildSelector(exclutors)
 	files, excluded := filterFilesWith(exclutor, files)
 
-	if ShowExcluded {
+	if printExcluded {
 		printExclusions(exclutor, excluded)
 	}
 

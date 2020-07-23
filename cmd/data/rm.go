@@ -2,6 +2,7 @@ package data
 
 import (
 	"fmt"
+
 	"github.com/prometheus/common/log"
 
 	"github.com/iterum-provenance/cli/idv"
@@ -44,17 +45,6 @@ var rmCmd = &cobra.Command{
 	Run: rmRun,
 }
 
-func getPaths(args []string) (paths, names []string) {
-	for _, arg := range args {
-		if isValidLocation(arg) {
-			paths = append(paths, arg)
-		} else {
-			names = append(names, arg)
-		}
-	}
-	return
-}
-
 func rmRun(cmd *cobra.Command, args []string) {
 	var err error
 	var removals, unstaged int
@@ -63,8 +53,8 @@ func rmRun(cmd *cobra.Command, args []string) {
 		removals, unstaged, err = idv.RemoveWithSelector(selector, Unstage)
 	} else {
 		paths, names := getPaths(args)
-		allFiles := getAllFiles(paths)
-		whitelisted := exclude(allFiles)
+		allFiles := getAllFiles(paths, Recursive)
+		whitelisted := exclude(allFiles, Exclusions, ShowExcluded)
 		removals, unstaged, err = idv.RemoveFiles(whitelisted, names, Unstage)
 		fmt.Printf("GOT %v potential files\n", len(names)+len(whitelisted))
 	}

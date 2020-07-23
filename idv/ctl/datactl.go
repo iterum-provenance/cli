@@ -1,3 +1,4 @@
+// Package ctl contains the config structure that is used for IDV it is able to parse it and validate it
 package ctl
 
 import (
