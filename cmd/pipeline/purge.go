@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/iterum-provenance/cli/manager"
+	"github.com/iterum-provenance/cli/pipeline"
 )
 
 func init() {
@@ -30,7 +30,7 @@ func purgeRun(cmd *cobra.Command, args []string) {
 		log.Fatalln(err)
 	}
 
-	err = manager.PurgePipeline(args[0], url)
+	err = pipeline.PurgePipeline(args[0], url)
 	if err != nil {
 		log.Fatalln(err)
 	}

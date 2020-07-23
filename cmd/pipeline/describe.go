@@ -5,7 +5,7 @@ import (
 
 	"github.com/prometheus/common/log"
 
-	"github.com/iterum-provenance/cli/manager"
+	"github.com/iterum-provenance/cli/pipeline"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +28,7 @@ func describeRun(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = manager.Describe(args[0], url)
+	err = pipeline.Describe(args[0], url)
 	if err != nil {
 		log.Fatalln(err)
 	}

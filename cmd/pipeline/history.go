@@ -3,7 +3,7 @@ package pipeline
 import (
 	"net/url"
 
-	"github.com/iterum-provenance/cli/manager"
+	"github.com/iterum-provenance/cli/pipeline"
 	"github.com/prometheus/common/log"
 	"github.com/spf13/cobra"
 )
@@ -27,7 +27,7 @@ func historyRun(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = manager.History(url)
+	err = pipeline.History(url)
 	if err != nil {
 		log.Fatalln(err)
 	}

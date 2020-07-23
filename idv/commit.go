@@ -30,7 +30,7 @@ type Commit struct {
 	Description string     `json:"description"`
 	Files       []string   `json:"files"`
 	Diff        diff       `json:"diff"`
-	Deprecated  deprecated `json:"deprecated"`
+	Deprecated  deprecated `json:"deprecated"` // is it deprecated
 }
 
 // NewCommit creates a bare new commit

@@ -1,31 +1,45 @@
 package data
 
 import (
-	"github.com/prometheus/common/log"
+	"os"
+	"regexp"
 
+	"github.com/iterum-provenance/cli/idv"
+
+	"github.com/prometheus/common/log"
 	"github.com/spf13/cobra"
 )
 
 func init() {
 	rootCmd.AddCommand(downloadCmd)
+	downloadCmd.PersistentFlags().BoolVarP(&NoPrompt, "no-prompt", "Y", false, "Do not ask to reassure before downloading the actual files")
+	downloadCmd.PersistentFlags().BoolVarP(&ShowFiles, "show-files", "s", false, "Show a list of to be downloaded")
+
 }
 
+// Gather more detailed status information for a specific pipeline
 var downloadCmd = &cobra.Command{
-	Use:   "download [selector]",
-	Short: "Download the data of a certain commit",
-	Long:  `Dowloads the actual data of a commit into the specified folder with selector on filename`,
-	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) > 1 {
-			return errNotEnoughArgs
-		}
-		if len(args) == 0 || isValidSelector(args[0]) {
-			return nil
-		}
-		return errInvalidArgs(args[0])
-	},
-	Run: downloadRun,
+	Use:   "download [selector] [dirpath]",
+	Short: "Download (a) file(s) from a commit of a dataset",
+	Long:  `Downloads (a) file(s) from the set of files of a commit stored in a dataset`,
+	Args:  cobra.ExactArgs(2),
+	Run:   downloadRun,
 }
 
 func downloadRun(cmd *cobra.Command, args []string) {
-	log.Infoln("`iterum data download is supposed to download data from the daemon at request`")
+	info, err := os.Stat(args[1])
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if !info.IsDir() {
+		log.Fatalln("Passed dirpath arg is not a directory")
+	}
+	selector, err := regexp.Compile(args[0])
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = idv.Download(selector, args[1], ShowFiles, !NoPrompt)
+	if err != nil {
+		log.Fatalln(err)
+	}
 }

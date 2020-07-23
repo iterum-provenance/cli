@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/iterum-provenance/cli/manager"
+	"github.com/iterum-provenance/cli/pipeline"
 )
 
 func init() {
@@ -30,12 +30,12 @@ func deleteRun(cmd *cobra.Command, args []string) {
 		log.Fatalln(err)
 	}
 	if len(args) == 0 {
-		err := manager.DeleteAllPipelines(url)
+		err := pipeline.DeleteAllPipelines(url)
 		if err != nil {
 			log.Fatalln(err)
 		}
 	} else if len(args) == 1 {
-		err := manager.DeletePipeline(args[0], url)
+		err := pipeline.DeletePipeline(args[0], url)
 		if err != nil {
 			log.Fatalln(err)
 		}

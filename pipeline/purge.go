@@ -1,4 +1,4 @@
-package manager
+package pipeline
 
 import (
 	"net/url"

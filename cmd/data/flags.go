@@ -26,3 +26,9 @@ var ShowLocalPath bool
 
 // CommitHashOrName stores a hash or name passed to `iterum data branch/checkout`
 var CommitHashOrName string
+
+// ShowFiles determines whether files are displayed before downloading them
+var ShowFiles bool
+
+// NoPrompt determines whether files are downloaded without prompting for assurance
+var NoPrompt bool

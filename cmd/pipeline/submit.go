@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/iterum-provenance/cli/manager"
+	"github.com/iterum-provenance/cli/pipeline"
 	"github.com/iterum-provenance/cli/util"
 	"github.com/prometheus/common/log"
 	"github.com/spf13/cobra"
@@ -36,7 +36,7 @@ func submitRun(cmd *cobra.Command, args []string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = manager.SubmitPipeline(args[0], url)
+	err = pipeline.SubmitPipeline(args[0], url)
 	if err != nil {
 		log.Fatalln(err)
 	}
