@@ -17,7 +17,7 @@ func Download(phash, filename, folder string, daemonURL *url.URL) (err error) {
 	defer util.ReturnErrOnPanic(&err)()
 
 	// Set target endpoint
-	daemonURL.Path = path.Join(daemonURL.Path, "pipelines", phash, "results")
+	daemonURL.Path = path.Join(daemonURL.Path, "pipelines", phash, "results", filename)
 
 	resp, err := http.Get(daemonURL.String())
 	util.PanicIfErr(err, "")
