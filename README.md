@@ -17,8 +17,6 @@ The CLI for the iterum tool is the main user interface. After deploying the rele
 * `make link` creates a symlink to the created build folder making `iterum` accessible via the terminal
 * `make clean` removes the symlink pointing to `/usr/bin/iterum` and the build folder `./build`
 
-### Deploy your first pipeline
-
 ---
 
 ## Iterum data versioning (IDV)
