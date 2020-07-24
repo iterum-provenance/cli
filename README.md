@@ -17,25 +17,6 @@ The CLI for the iterum tool is the main user interface. After deploying the rele
 * `make link` creates a symlink to the created build folder making `iterum` accessible via the terminal
 * `make clean` removes the symlink pointing to `/usr/bin/iterum` and the build folder `./build`
 
-### Version your data
-Follow the user setup guide found [here](https://github.com/iterum-provenance/cluster) to set up Iterum on your cluster or machine. 
-Then we first set up the data set:
-```bash
-    cd example-cats
-    iterum data init
-        Name: demo-cats
-        Desciption: A nice subset of our cat images
-        Backend: Local
-    open the idv-config.yaml and set the path to "/localStorage/"
-    iterum data ls
-    iterum data add ./data
-    iterum data status
-    iterum data status --local-path
-    iterum data commit "v0.1" "My first commit containing 10 cats"
-
-    Congratulations you have versioned your first data set!
-```
-
 ### Deploy your first pipeline
 
 ---
