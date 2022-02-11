@@ -131,6 +131,9 @@ func postDataset(ctl ctl.DataCTL) (err error) {
 	}
 
 	resp, err := http.Post(ctl.DaemonURL, "application/json", bytes.NewBuffer(data))
+	if err != nil {
+		return err
+	}
 	switch resp.StatusCode {
 	case http.StatusOK:
 		break
